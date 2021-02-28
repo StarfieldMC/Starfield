@@ -14,7 +14,6 @@ namespace nylium.DataTypes {
             byte[] read = new byte[1];
 
             stream.Read(read, 0, 1);
-
             bytesRead++;
 
             if(read[0] == 0x00) result = false;

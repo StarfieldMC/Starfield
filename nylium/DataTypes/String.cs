@@ -12,14 +12,14 @@ namespace nylium.DataTypes {
 
         public override void Read(Stream stream, out int bytesRead) {
             bytesRead = 0;
-            byte[] read = new byte[1];
 
             VarInt length = new VarInt();
             length.Read(stream, out bytesRead);
 
-            do {
-                stream.Read(read, 0, 1);
-            } while(read.Length != length.Value);
+            byte[] read = new byte[length.Value];
+
+            stream.Read(read, 0, length.Value);
+            bytesRead += length.Value;
 
             Value = Encoding.UTF8.GetString(read);
         }

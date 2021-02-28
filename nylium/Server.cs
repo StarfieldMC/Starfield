@@ -12,6 +12,8 @@ using System.Diagnostics;
 using System.Linq;
 using nylium.Extensions;
 using System.Net.NetworkInformation;
+using nylium.Util;
+using nylium.Packets.Client;
 
 namespace nylium {
 
@@ -86,6 +88,8 @@ namespace nylium {
             StateObject state = new StateObject();
             state.socket = handler;
 
+            state.protocolState = ProtocolState.HANDSHAKING;
+
             handler.BeginReceive(state.buffer, 0, StateObject.BUFFER_SIZE, 0,
                 new AsyncCallback(ReadCallback), state);
         }
@@ -97,25 +101,51 @@ namespace nylium {
             int bytesRead = socket.EndReceive(ar);
 
             if(bytesRead > 0) {
-                Packet packet = new Packet();
-                packet.Read(new MemoryStream(state.buffer));
+                MemoryStream mem = new MemoryStream(state.buffer, false);
 
-                Console.Write(string.Format("Received packet with id [{0}] and data [", packet.Id));
+                Packet packet = new Packet();
+                packet.Read(mem);
+
+                Console.Write(string.Format("Received packet in state [{0}] with id [{1}] and data [", state.protocolState, packet.Id));
                 packet.Data.ToArray().Print(Console.Out);
                 Console.WriteLine("]");
 
-                if(packet.Id == 0) {
-                    Packet response = new Packet(0x00, new byte[] { });
+                switch(state.protocolState)
+                {
+                    case ProtocolState.HANDSHAKING:
+                        {
+                            switch (packet.Id)
+                            {
+                                case 0:
+                                    {
+                                        C00Handshake handshake = new C00Handshake(packet);
+                                        state.protocolState = handshake.NextState;
+                                        break;
+                                    }
+                            }
+                            break;
+                        }
+                    case ProtocolState.STATUS: {
+                            switch (packet.Id) {
+                                case 0: {
+                                        Packet response = new Packet(0x00, new byte[] { });
 
-                    DT.String jsonData = new DT.String(json);
-                    jsonData.Write(response.Data);
+                                        DT.String jsonData = new DT.String(json);
+                                        jsonData.Write(response.Data);
 
-                    Send(socket, response.GetBytes());
-                } else if(packet.Id == 0x01) {
-                    Packet pong = new Packet(0x01, packet.Data.ToArray());
-                    Send(socket, pong.GetBytes());
+                                        Send(socket, response.GetBytes());
+                                        break;
+                                    }
+                                case 0x01: {
+                                        Packet pong = new Packet(0x01, packet.Data.ToArray());
+                                        Send(socket, pong.GetBytes());
 
-                    socket.Close();
+                                        socket.Close();
+                                        break;
+                                    }
+                            }
+                            break;
+                        }
                 }
             }
 
@@ -152,5 +182,7 @@ namespace nylium {
         public byte[] buffer = new byte[BUFFER_SIZE];
 
         public Socket socket = null;
+
+        public ProtocolState protocolState;
     }
 }

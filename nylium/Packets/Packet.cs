@@ -19,6 +19,11 @@ namespace nylium.Packets {
             Data = new MemoryStream();
         }
 
+        public Packet(int id) {
+            Id = id;
+            Data = new MemoryStream();
+        }
+
         public Packet(int id, byte[] data) {
             Id = id;
             Data = new MemoryStream();
@@ -27,16 +32,12 @@ namespace nylium.Packets {
         }
 
         public void Read(Stream stream) {
-            int lengthBytes;
-            int bytesRead;
-
             VarInt varInt = new VarInt();
-            varInt.Read(stream, out bytesRead);
+            varInt.Read(stream, out _);
 
             Length = varInt.Value;
-            lengthBytes = bytesRead;
 
-            varInt.Read(stream, out bytesRead);
+            varInt.Read(stream, out _);
 
             Id = varInt.Value;
 
