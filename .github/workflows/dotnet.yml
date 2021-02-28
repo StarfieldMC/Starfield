@@ -1,0 +1,30 @@
+name: .NET
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build for Linux
+      run: dotnet build -r linux-x64 --self-contained false --no-restore
+    - name: Build for Windows
+      run: dotnet build -r win-x64 --self-contained false --no-restore
+    - name: Build for macOS
+      run: dotnet build -r osx-x64 --self-contained false --no-restore
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v2.2.2
+      with:
+        name: build
+        path: nylium/bin/Debug/netcoreapp3.1/*
