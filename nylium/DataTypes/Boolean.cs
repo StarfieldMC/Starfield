@@ -3,20 +3,29 @@ using System.IO;
 
 namespace nylium.DataTypes {
 
-    class Boolean {
+    class Boolean : DataType<bool> {
 
-        public static bool Read(byte read) {
+        public Boolean() : base(false) { }
+        public Boolean(bool value) : base(value) { }
+
+        public override void Read(Stream stream, out int bytesRead) {
+            bytesRead = 0;
             bool result;
+            byte[] read = new byte[1];
 
-            if (read == 0x00) result = false;
-            else if (read == 0x01) result = true;
+            stream.Read(read, 0, 1);
+
+            bytesRead++;
+
+            if(read[0] == 0x00) result = false;
+            else if (read[0] == 0x01) result = true;
             else throw new ArgumentException("Invalid value for Boolean data type");
 
-            return result;
+            Value = result;
         }
 
-        public static void Write(Stream stream, bool value) {
-            stream.WriteByte(value == true ? (byte)0x01 : (byte)0x00);
+        public override void Write(Stream stream) {
+            stream.WriteByte(Value == true ? (byte) 0x01 : (byte) 0x00);
         }
     }
 }

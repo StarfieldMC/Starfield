@@ -4,36 +4,46 @@ using nylium.Extensions;
 
 namespace nylium.DataTypes {
 
-    class VarInt {
+    class VarInt : DataType<int> {
 
-        public static int Read(byte read) {
-            int numRead = 0;
+        public VarInt() : base(0) { }
+        public VarInt(int value) : base(value) { }
+
+        public override void Read(Stream stream, out int bytesRead) {
+            bytesRead = 0;
             int result = 0;
-            do {
-                int value = (read & 0b01111111);
-                result |= (value << (7 * numRead));
+            byte[] read = new byte[1];
 
-                numRead++;
-                if (numRead > 5) {
+            do {
+                stream.Read(read, 0, 1);
+
+                int value = (read[0] & 0b01111111);
+                result |= (value << (7 * bytesRead));
+
+                bytesRead++;
+
+                if (bytesRead > 5) {
                     throw new ArgumentException("VarInt is too big");
                 }
-            } while ((read & 0b10000000) != 0);
+            } while ((read[0] & 0b10000000) != 0);
 
-            return result;
+            Value = result;
         }
 
-        public static void Write(Stream stream, int value) {
+        public override void Write(Stream stream) {
+            int tempVal = Value;
+
             do {
-                byte temp = (byte)(value & 0b01111111);
+                byte temp = (byte)(tempVal & 0b01111111);
 
-                value.UnsignedRightShift(7);
+                tempVal = tempVal.UnsignedRightShift(7);
 
-                if (value != 0) {
+                if (tempVal != 0) {
                     temp |= 0b10000000;
                 }
-
+                
                 stream.WriteByte(temp);
-            } while (value != 0);
+            } while (tempVal != 0);
         }
     }
 }
