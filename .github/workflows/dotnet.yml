@@ -18,11 +18,11 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Build for Linux
-      run: dotnet build -r linux-x64 --self-contained false --no-restore
+      run: dotnet publish -r linux-x64 --self-contained false --no-restore
     - name: Build for Windows
-      run: dotnet build -r win-x64 --self-contained false --no-restore
+      run: dotnet publish -r win-x64 --self-contained false --no-restore
     - name: Build for macOS
-      run: dotnet build -r osx-x64 --self-contained false --no-restore
+      run: dotnet publish -r osx-x64 --self-contained false --no-restore
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2.2.2
       with:
