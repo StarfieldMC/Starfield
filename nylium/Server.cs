@@ -110,14 +110,10 @@ namespace nylium {
                 packet.Data.ToArray().Print(Console.Out);
                 Console.WriteLine("]");
 
-                switch(state.protocolState)
-                {
-                    case ProtocolState.HANDSHAKING:
-                        {
-                            switch (packet.Id)
-                            {
-                                case 0:
-                                    {
+                switch(state.protocolState) {
+                    case ProtocolState.HANDSHAKING: {
+                            switch (packet.Id) {
+                                case 0: {
                                         C00Handshake handshake = new C00Handshake(packet);
                                         state.protocolState = handshake.NextState;
                                         break;
