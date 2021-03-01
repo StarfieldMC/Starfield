@@ -1,15 +1,10 @@
-﻿using nylium.DataTypes;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using nylium.Extensions;
-using System.Text;
-using System.Net.Sockets;
+﻿using System.IO;
+using nylium.DataTypes;
 
 // TODO compressed packets
 namespace nylium.Packets {
 
-    class Packet {
+    public class Packet {
 
         public int Length { get; set; }
         public int Id { get; set; }
@@ -27,7 +22,7 @@ namespace nylium.Packets {
         public Packet(int id, byte[] data) {
             Id = id;
             Data = new MemoryStream();
-            
+
             if(data.Length != 0) Data.Write(data);
         }
 

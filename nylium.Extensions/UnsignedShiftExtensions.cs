@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace nylium.Extensions {
+﻿namespace nylium.Extensions {
 
     public static class UnsignedShiftExtensions {
 

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace nylium.Util {
+﻿namespace nylium.Networking {
 
     public enum ProtocolState : ushort {
 

@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace nylium.DataTypes {
 
@@ -18,7 +16,7 @@ namespace nylium.DataTypes {
             stream.Read(read, 0, 2);
             bytesRead += 2;
 
-            Value = (ushort)((read[0] << 8) | read[1]); // reverse
+            Value = (ushort) ((read[0] << 8) | read[1]); // reverse
         }
 
         public override void Write(Stream stream) {

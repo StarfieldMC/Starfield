@@ -17,7 +17,7 @@ namespace nylium.DataTypes {
             bytesRead++;
 
             if(read[0] == 0x00) result = false;
-            else if (read[0] == 0x01) result = true;
+            else if(read[0] == 0x01) result = true;
             else throw new ArgumentException("Invalid value for Boolean data type");
 
             Value = result;

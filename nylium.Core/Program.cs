@@ -1,11 +1,11 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
+using nylium.Networking;
 
-namespace nylium {
+namespace nylium.Core {
 
     class Program {
 
-        public static void Main(string[] args) {
+        static void Main(string[] args) {
             Server server = new Server(IPAddress.Any, 25565);
             server.StartListening();
         }

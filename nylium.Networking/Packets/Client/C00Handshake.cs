@@ -1,14 +1,11 @@
-﻿using nylium.DataTypes;
-using nylium.Util;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.IO;
+using nylium.DataTypes;
+using nylium.Networking;
 using DT = nylium.DataTypes;
 
 namespace nylium.Packets.Client {
 
-    class C00Handshake {
+    public class C00Handshake {
 
         private Packet _packet;
 
