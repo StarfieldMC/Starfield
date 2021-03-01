@@ -6,6 +6,7 @@ using System.Threading;
 using nylium.Extensions;
 using nylium.Networking.Packets;
 using nylium.Networking.Packets.Client;
+using nylium.Networking.Packets.Server;
 using DT = nylium.Networking.DataTypes;
 
 namespace nylium.Networking {
@@ -55,7 +56,6 @@ namespace nylium.Networking {
                 while(true) {
                     done.Reset();
 
-                    Console.WriteLine("Waiting for a connection...");
                     listener.BeginAccept(
                         new AsyncCallback(AcceptCallback),
                         listener);
@@ -77,9 +77,17 @@ namespace nylium.Networking {
             Socket listener = (Socket) ar.AsyncState;
             Socket handler = listener.EndAccept(ar);
 
+            IPEndPoint remoteEndPoint = (IPEndPoint) handler.RemoteEndPoint;
+            IPEndPoint localEndPoint = (IPEndPoint) handler.LocalEndPoint;
+
+            if(remoteEndPoint != null) {
+                Console.WriteLine(string.Format("User [{0}:{1}] connected", remoteEndPoint.Address, remoteEndPoint.Port));
+            } else {
+                Console.WriteLine(string.Format("User [{0}:{1}] connected", localEndPoint.Address, localEndPoint.Port));
+            }
+
             StateObject state = new StateObject();
             state.socket = handler;
-
             state.protocolState = ProtocolState.HANDSHAKING;
 
             handler.BeginReceive(state.buffer, 0, StateObject.BUFFER_SIZE, 0,
@@ -94,39 +102,32 @@ namespace nylium.Networking {
 
             if(bytesRead > 0) {
                 MemoryStream mem = new MemoryStream(state.buffer, false);
+                Packet packet = Packet.CreatePacket(mem, state.protocolState, PacketSide.CLIENT);
 
-                Packet packet = new Packet();
-                packet.Read(mem);
-
-                Console.Write(string.Format("Received packet in state [{0}] with id [{1}] and data [", state.protocolState, packet.Id));
-                packet.Data.ToArray().Print(Console.Out);
-                Console.WriteLine("]");
+                Console.WriteLine(string.Format("Received packet in state [{0}] with id [{1}]", state.protocolState, packet.Id));
 
                 switch(state.protocolState) {
                     case ProtocolState.HANDSHAKING: {
-                            switch(packet.Id) {
-                                case 0: {
-                                        C00Handshake handshake = new C00Handshake(packet);
-                                        state.protocolState = handshake.NextState;
-                                        break;
-                                    }
+                            switch(packet) {
+                                case CH00Handshake:
+                                    CH00Handshake handshake = (CH00Handshake) packet;
+                                    state.protocolState = handshake.NextState;
+                                    break;
                             }
                             break;
                         }
                     case ProtocolState.STATUS: {
-                            switch(packet.Id) {
-                                case 0: {
-                                        Packet response = new Packet(0x00, new byte[] { });
-
-                                        DT.String jsonData = new DT.String(json);
-                                        jsonData.Write(response.Data);
-
-                                        Send(socket, response.GetBytes());
+                            switch(packet) {
+                                case CS00Request: {
+                                        SS00Response response = new SS00Response(json);
+                                        Send(socket, response.ToArray());
                                         break;
                                     }
-                                case 0x01: {
-                                        Packet pong = new Packet(0x01, packet.Data.ToArray());
-                                        Send(socket, pong.GetBytes());
+                                case CS01Ping: {
+                                        CS01Ping ping = (CS01Ping) packet;
+
+                                        SS01Pong pong = new SS01Pong(ping.Payload);
+                                        Send(socket, pong.ToArray());
 
                                         socket.Close();
                                         break;

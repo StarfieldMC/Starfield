@@ -6,6 +6,7 @@
     <StartupObject>nylium.Core.Program</StartupObject>
     <RuntimeIdentifiers>win-x64;osx-x64;linux-x64</RuntimeIdentifiers>
     <AssemblyName>nylium</AssemblyName>
+    <LangVersion>9.0</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

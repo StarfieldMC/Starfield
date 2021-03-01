@@ -1,4 +1,8 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using nylium.Networking.DataTypes;
 
 // TODO compressed packets
@@ -6,27 +10,57 @@ namespace nylium.Networking.Packets {
 
     public class Packet {
 
+        private static readonly Dictionary<PacketAttribute, Type> packets = new Dictionary<PacketAttribute, Type>();
+
         public int Length { get; set; }
         public int Id { get; set; }
         public MemoryStream Data { get; set; }
 
+        static Packet() {
+            Type[] packetTypes = Assembly.GetExecutingAssembly().GetTypes()
+                      .Where(t => string.Equals(t.Namespace, "nylium.Networking.Packets.Client")
+                        || string.Equals(t.Namespace, "nylium.Networking.Packets.Server"))
+                      .ToArray();
+
+            foreach(Type t in packetTypes) {
+                packets.Add(t.GetCustomAttribute<PacketAttribute>(false), t);
+            }
+        }
+
         public Packet() {
-            Data = new MemoryStream();
+            PacketAttribute attribute = this.GetType().GetCustomAttribute<PacketAttribute>(false);
+
+            this.Id = attribute.Id;
+            this.Data = new MemoryStream();
         }
 
-        public Packet(int id) {
-            Id = id;
+        public Packet(Stream stream) {
             Data = new MemoryStream();
+            Read(stream);
         }
 
-        public Packet(int id, byte[] data) {
-            Id = id;
-            Data = new MemoryStream();
+        public static Packet CreatePacket(Stream stream, ProtocolState state, PacketSide side) {
+            VarInt varInt = new VarInt();
+            varInt.Read(stream, out _);
+            varInt.Read(stream, out _);
 
-            if(data.Length != 0) Data.Write(data);
+            int id = varInt.Value;
+            stream.Seek(0, SeekOrigin.Begin);
+
+            Type t;
+
+            if(!packets.TryGetValue(new PacketAttribute(id, state, side), out t)) {
+                return null;
+            }
+
+            if(t.GetConstructor(new Type[] { typeof(Stream) }) == null) {
+                return (Packet) Activator.CreateInstance(t);
+            } else {
+                return (Packet) Activator.CreateInstance(t, stream);
+            }
         }
 
-        public void Read(Stream stream) {
+        private void Read(Stream stream) {
             VarInt varInt = new VarInt();
             varInt.Read(stream, out _);
 
@@ -42,19 +76,22 @@ namespace nylium.Networking.Packets {
             Data.Write(data);
         }
 
-        public byte[] GetBytes() {
+        public byte[] ToArray() {
             byte[] bytes;
 
             using(MemoryStream temp = new MemoryStream()) {
                 VarInt varInt = new VarInt(Id);
-                varInt.Write(temp);
 
-                temp.Write(Data.ToArray());
+                if(Length <= 0) {
+                    varInt.Write(temp);
 
-                Length = (int) temp.Length;
+                    temp.Write(Data.ToArray());
 
-                temp.Seek(0, SeekOrigin.Begin);
-                temp.SetLength(0);
+                    Length = (int) temp.Length;
+
+                    temp.Seek(0, SeekOrigin.Begin);
+                    temp.SetLength(0);
+                }
 
                 varInt.Value = Length;
                 varInt.Write(temp);
