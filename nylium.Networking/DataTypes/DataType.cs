@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace nylium.DataTypes {
+namespace nylium.Networking.DataTypes {
 
     abstract class DataType<T> {
 

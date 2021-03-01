@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace nylium.DataTypes {
+namespace nylium.Networking.DataTypes {
 
     class Boolean : DataType<bool> {
 

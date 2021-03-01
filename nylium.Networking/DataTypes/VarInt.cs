@@ -2,7 +2,7 @@
 using System.IO;
 using nylium.Extensions;
 
-namespace nylium.DataTypes {
+namespace nylium.Networking.DataTypes {
 
     class VarInt : DataType<int> {
 

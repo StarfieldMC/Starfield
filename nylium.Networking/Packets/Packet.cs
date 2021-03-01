@@ -1,8 +1,8 @@
 ﻿using System.IO;
-using nylium.DataTypes;
+using nylium.Networking.DataTypes;
 
 // TODO compressed packets
-namespace nylium.Packets {
+namespace nylium.Networking.Packets {
 
     public class Packet {
 

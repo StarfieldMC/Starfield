@@ -4,9 +4,9 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using nylium.Extensions;
-using nylium.Packets;
-using nylium.Packets.Client;
-using DT = nylium.DataTypes;
+using nylium.Networking.Packets;
+using nylium.Networking.Packets.Client;
+using DT = nylium.Networking.DataTypes;
 
 namespace nylium.Networking {
 

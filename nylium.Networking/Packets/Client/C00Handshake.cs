@@ -1,9 +1,8 @@
 ﻿using System.IO;
-using nylium.DataTypes;
-using nylium.Networking;
-using DT = nylium.DataTypes;
+using nylium.Networking.DataTypes;
+using DT = nylium.Networking.DataTypes;
 
-namespace nylium.Packets.Client {
+namespace nylium.Networking.Packets.Client {
 
     public class C00Handshake {
 

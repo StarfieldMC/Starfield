@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Text;
 
-namespace nylium.DataTypes {
+namespace nylium.Networking.DataTypes {
 
     class String : DataType<string> {
 

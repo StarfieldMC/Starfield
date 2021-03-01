@@ -2,7 +2,7 @@
 using System.IO;
 using System.Linq;
 
-namespace nylium.DataTypes {
+namespace nylium.Networking.DataTypes {
 
     class UShort : DataType<ushort> {
 
