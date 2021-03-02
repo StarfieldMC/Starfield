@@ -3,7 +3,7 @@ using System.Text;
 
 namespace nylium.Networking.DataTypes {
 
-    class String : DataType<string> {
+    public class String : DataType<string> {
 
         public String() : base("") { }
         public String(string value) : base(value) { }

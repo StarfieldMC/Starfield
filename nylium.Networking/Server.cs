@@ -7,7 +7,6 @@ using nylium.Extensions;
 using nylium.Networking.Packets;
 using nylium.Networking.Packets.Client;
 using nylium.Networking.Packets.Server;
-using DT = nylium.Networking.DataTypes;
 
 namespace nylium.Networking {
 

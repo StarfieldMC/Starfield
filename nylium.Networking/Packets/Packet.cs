@@ -28,10 +28,10 @@ namespace nylium.Networking.Packets {
         }
 
         public Packet() {
-            PacketAttribute attribute = this.GetType().GetCustomAttribute<PacketAttribute>(false);
+            PacketAttribute attribute = GetType().GetCustomAttribute<PacketAttribute>(false);
 
-            this.Id = attribute.Id;
-            this.Data = new MemoryStream();
+            Id = attribute.Id;
+            Data = new MemoryStream();
         }
 
         public Packet(Stream stream) {

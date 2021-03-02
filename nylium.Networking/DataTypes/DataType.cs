@@ -2,7 +2,7 @@
 
 namespace nylium.Networking.DataTypes {
 
-    abstract class DataType<T> {
+    public abstract class DataType<T> {
 
         public T Value { get; set; }
 

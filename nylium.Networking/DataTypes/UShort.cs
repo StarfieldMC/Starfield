@@ -4,7 +4,7 @@ using nylium.Extensions;
 
 namespace nylium.Networking.DataTypes {
 
-    class UShort : DataType<ushort> {
+    public class UShort : DataType<ushort> {
 
         public UShort() : base(0) { }
         public UShort(ushort value) : base(value) { }
@@ -16,13 +16,11 @@ namespace nylium.Networking.DataTypes {
             stream.Read(read, 0, 2);
             bytesRead += 2;
 
-            Value = read.ReverseUShort();
+            Value = read.ReadBigEndianUS();
         }
 
         public override void Write(Stream stream) {
-            byte[] bytes = BitConverter.GetBytes(Value);
-            Array.Reverse(bytes);
-
+            byte[] bytes = Value.WriteBigEndianU();
             stream.Write(bytes);
         }
     }

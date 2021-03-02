@@ -10,10 +10,10 @@ namespace nylium.Networking.Packets.Server {
         public string JsonResponse { get; }
 
         public SS00Response(string jsonResponse) {
-            this.JsonResponse = jsonResponse;
+            JsonResponse = jsonResponse;
 
             DT.String str = new DT.String(jsonResponse);
-            str.Write(this.Data);
+            str.Write(Data);
         }
     }
 }

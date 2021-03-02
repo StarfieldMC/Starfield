@@ -10,10 +10,10 @@ namespace nylium.Networking.Packets.Client {
         public long Payload { get; }
 
         public CS01Ping(Stream stream) : base(stream) {
-            this.Data.Seek(0, SeekOrigin.Begin);
+            Data.Seek(0, SeekOrigin.Begin);
 
             Long _long = new Long();
-            _long.Read(this.Data, out _);
+            _long.Read(Data, out _);
             Payload = _long.Value;
         }
     }

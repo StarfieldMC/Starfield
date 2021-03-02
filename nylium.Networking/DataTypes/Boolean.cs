@@ -3,7 +3,7 @@ using System.IO;
 
 namespace nylium.Networking.DataTypes {
 
-    class Boolean : DataType<bool> {
+    public class Boolean : DataType<bool> {
 
         public Boolean() : base(false) { }
         public Boolean(bool value) : base(value) { }
@@ -24,7 +24,7 @@ namespace nylium.Networking.DataTypes {
         }
 
         public override void Write(Stream stream) {
-            stream.WriteByte(Value == true ? (byte) 0x01 : (byte) 0x00);
+            stream.WriteByte(Value == true ? 0x01 : 0x00);
         }
     }
 }

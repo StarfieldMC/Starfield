@@ -1,10 +1,9 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using nylium.Extensions;
 
 namespace nylium.Networking.DataTypes {
 
-    class Int : DataType<int> {
+    public class Int : DataType<int> {
 
         public Int() : base(0) { }
         public Int(int value) : base(value) { }
@@ -16,13 +15,11 @@ namespace nylium.Networking.DataTypes {
             stream.Read(read, 0, 4);
             bytesRead += 4;
 
-            Value = (int) ((uint) BitConverter.ToInt32(read)).Swap();
+            Value = read.ReadBigEndianI();
         }
 
         public override void Write(Stream stream) {
-            byte[] bytes = BitConverter.GetBytes(Value);
-            Array.Reverse(bytes);
-
+            byte[] bytes = Value.WriteBigEndian();
             stream.Write(bytes);
         }
     }

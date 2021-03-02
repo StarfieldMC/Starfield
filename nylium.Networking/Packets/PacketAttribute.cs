@@ -9,9 +9,9 @@ namespace nylium.Networking.Packets {
         public PacketSide Side { get; }
 
         public PacketAttribute(int id, ProtocolState state, PacketSide side) {
-            this.Id = id;
-            this.State = state;
-            this.Side = side;
+            Id = id;
+            State = state;
+            Side = side;
         }
     }
 }

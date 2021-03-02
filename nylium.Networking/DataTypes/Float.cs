@@ -1,22 +1,21 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using nylium.Extensions;
 
 namespace nylium.Networking.DataTypes {
 
-    public class Long : DataType<long> {
+    public class Float : DataType<float> {
 
-        public Long() : base(0) { }
-        public Long(long value) : base(value) { }
+        public Float() : base(0) { }
+        public Float(float value) : base(value) { }
 
         public override void Read(Stream stream, out int bytesRead) {
             bytesRead = 0;
-            byte[] read = new byte[8];
+            byte[] read = new byte[4];
 
-            stream.Read(read, 0, 8);
-            bytesRead += 8;
+            stream.Read(read, 0, 4);
+            bytesRead += 4;
 
-            Value = read.ReadBigEndianL();
+            Value = read.ReadBigEndianF();
         }
 
         public override void Write(Stream stream) {

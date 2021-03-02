@@ -4,7 +4,7 @@ using nylium.Extensions;
 
 namespace nylium.Networking.DataTypes {
 
-    class VarLong : DataType<long> {
+    public class VarLong : DataType<long> {
 
         public VarLong() : base(0) { }
         public VarLong(long value) : base(value) { }

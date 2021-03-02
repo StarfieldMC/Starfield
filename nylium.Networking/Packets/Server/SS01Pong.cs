@@ -8,10 +8,10 @@ namespace nylium.Networking.Packets.Server {
         public long Payload { get; }
     
         public SS01Pong(long payload) {
-            this.Payload = payload;
+            Payload = payload;
 
             Long _long = new Long(payload);
-            _long.Write(this.Data);
+            _long.Write(Data);
         }
     }
 }

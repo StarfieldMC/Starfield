@@ -12,21 +12,21 @@ namespace nylium.Networking.Packets.Client {
         public ProtocolState NextState { get; }
 
         public CH00Handshake(Stream stream) : base(stream) {
-            this.Data.Seek(0, SeekOrigin.Begin);
+            Data.Seek(0, SeekOrigin.Begin);
 
             VarInt varInt = new VarInt();
-            varInt.Read(this.Data, out _);
+            varInt.Read(Data, out _);
             ProtocolVersion = varInt.Value;
 
             String _string = new String();
-            _string.Read(this.Data, out _);
+            _string.Read(Data, out _);
             ServerAddress = _string.Value;
 
             UShort _ushort = new UShort();
-            _ushort.Read(this.Data, out _);
+            _ushort.Read(Data, out _);
             ServerPort = _ushort.Value;
 
-            varInt.Read(this.Data, out _);
+            varInt.Read(Data, out _);
             NextState = (ProtocolState) varInt.Value;
         }
     }

@@ -4,7 +4,7 @@ using nylium.Extensions;
 
 namespace nylium.Networking.DataTypes {
 
-    class VarInt : DataType<int> {
+    public class VarInt : DataType<int> {
 
         public VarInt() : base(0) { }
         public VarInt(int value) : base(value) { }
