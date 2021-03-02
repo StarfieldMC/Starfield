@@ -4,11 +4,12 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using nylium.Networking.DataTypes;
+using nylium.Utilities;
 
 // TODO compressed packets
 namespace nylium.Networking.Packets {
 
-    public class Packet {
+    public class Packet : IDisposable {
 
         private static readonly Dictionary<PacketAttribute, Type> packets = new Dictionary<PacketAttribute, Type>();
 
@@ -31,11 +32,11 @@ namespace nylium.Networking.Packets {
             PacketAttribute attribute = GetType().GetCustomAttribute<PacketAttribute>(false);
 
             Id = attribute.Id;
-            Data = new MemoryStream();
+            Data = RMSManager.Get().GetStream(GetType().FullName);
         }
 
         public Packet(Stream stream) {
-            Data = new MemoryStream();
+            Data = RMSManager.Get().GetStream(GetType().FullName);
             Read(stream);
         }
 
@@ -104,6 +105,11 @@ namespace nylium.Networking.Packets {
             }
 
             return bytes;
+        }
+
+        public void Dispose() {
+            Data.Close();
+            Data = null;
         }
     }
 }

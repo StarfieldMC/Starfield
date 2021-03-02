@@ -3,11 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30717.126
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nylium.Core", "nylium.Core\nylium.Core.csproj", "{3840FC4A-F1C6-4FA6-AAD3-57F1AADBE9FC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "nylium.Networking", "nylium.Networking\nylium.Networking.csproj", "{75262220-5DDF-437C-B4C0-EC3DBBF7EE17}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nylium.Networking", "nylium.Networking\nylium.Networking.csproj", "{75262220-5DDF-437C-B4C0-EC3DBBF7EE17}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "nylium.Extensions", "nylium.Extensions\nylium.Extensions.csproj", "{5E239C3F-AAA6-4C5E-B3E6-340CDAFB5D10}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nylium.Extensions", "nylium.Extensions\nylium.Extensions.csproj", "{5E239C3F-AAA6-4C5E-B3E6-340CDAFB5D10}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nylium.Launch", "nylium.Launch\nylium.Launch.csproj", "{7CAA85A0-BB13-4472-AFFB-F7F611C47172}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nylium.Utilities", "nylium.Utilities\nylium.Utilities.csproj", "{80AD1BD2-8AF3-4268-80DD-28721B7B644A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,10 +17,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{3840FC4A-F1C6-4FA6-AAD3-57F1AADBE9FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3840FC4A-F1C6-4FA6-AAD3-57F1AADBE9FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3840FC4A-F1C6-4FA6-AAD3-57F1AADBE9FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3840FC4A-F1C6-4FA6-AAD3-57F1AADBE9FC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{75262220-5DDF-437C-B4C0-EC3DBBF7EE17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{75262220-5DDF-437C-B4C0-EC3DBBF7EE17}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{75262220-5DDF-437C-B4C0-EC3DBBF7EE17}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -27,6 +25,14 @@ Global
 		{5E239C3F-AAA6-4C5E-B3E6-340CDAFB5D10}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5E239C3F-AAA6-4C5E-B3E6-340CDAFB5D10}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5E239C3F-AAA6-4C5E-B3E6-340CDAFB5D10}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7CAA85A0-BB13-4472-AFFB-F7F611C47172}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7CAA85A0-BB13-4472-AFFB-F7F611C47172}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7CAA85A0-BB13-4472-AFFB-F7F611C47172}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7CAA85A0-BB13-4472-AFFB-F7F611C47172}.Release|Any CPU.Build.0 = Release|Any CPU
+		{80AD1BD2-8AF3-4268-80DD-28721B7B644A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80AD1BD2-8AF3-4268-80DD-28721B7B644A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80AD1BD2-8AF3-4268-80DD-28721B7B644A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80AD1BD2-8AF3-4268-80DD-28721B7B644A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

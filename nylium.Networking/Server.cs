@@ -3,10 +3,12 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using Microsoft.IO;
 using nylium.Extensions;
 using nylium.Networking.Packets;
 using nylium.Networking.Packets.Client;
 using nylium.Networking.Packets.Server;
+using nylium.Utilities;
 
 namespace nylium.Networking {
 
@@ -100,7 +102,7 @@ namespace nylium.Networking {
             int bytesRead = socket.EndReceive(ar);
 
             if(bytesRead > 0) {
-                MemoryStream mem = new MemoryStream(state.buffer, false);
+                MemoryStream mem = RMSManager.Get().GetStream("nylium.Networking.Server.ReadCallback", state.buffer);
                 Packet packet = Packet.CreatePacket(mem, state.protocolState, PacketSide.CLIENT);
 
                 Console.WriteLine(string.Format("Received packet in state [{0}] with id [{1}]", state.protocolState, packet.Id));
@@ -135,6 +137,9 @@ namespace nylium.Networking {
                             break;
                         }
                 }
+
+                packet.Dispose();
+                mem.Close();
             }
 
             try {
