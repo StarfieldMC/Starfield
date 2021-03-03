@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using DT = nylium.Networking.DataTypes;
+﻿using nylium.Networking.DataTypes;
 
 namespace nylium.Networking.Packets.Server {
 
@@ -12,8 +10,8 @@ namespace nylium.Networking.Packets.Server {
         public SS00Response(string jsonResponse) {
             JsonResponse = jsonResponse;
 
-            DT.String str = new DT.String(jsonResponse);
-            str.Write(Data);
+            String @string = new String(jsonResponse);
+            @string.Write(Data);
         }
     }
 }

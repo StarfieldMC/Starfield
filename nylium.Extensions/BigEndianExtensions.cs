@@ -13,7 +13,7 @@ namespace nylium.Extensions {
             typeof(MemCpyImpl), typeof(Buffer).GetMethod("memcpyimpl",
                 BindingFlags.Static | BindingFlags.NonPublic));
 
-        unsafe private static void UnsafeCopy(byte[] _in, byte[] _out) {
+        unsafe public static void UnsafeCopy(this byte[] _in, byte[] _out) {
             fixed(byte* pSrc = _in)
             fixed(byte* pDest = _out)
                 memcpyimpl(pSrc, pDest, _in.Length);
@@ -23,7 +23,7 @@ namespace nylium.Extensions {
             if(BitConverter.IsLittleEndian) {
                 byte[] buffer = new byte[4];
 
-                UnsafeCopy(x, buffer);
+                x.UnsafeCopy(buffer);
 
                 x[0] = buffer[3];
                 x[1] = buffer[2];
@@ -58,7 +58,7 @@ namespace nylium.Extensions {
             if(BitConverter.IsLittleEndian) {
                 byte[] buffer = new byte[8];
 
-                UnsafeCopy(x, buffer);
+                x.UnsafeCopy(buffer);
 
                 x[0] = buffer[7];
                 x[1] = buffer[6];

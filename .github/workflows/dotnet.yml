@@ -19,14 +19,38 @@ jobs:
       run: dotnet clean nylium.sln
     - name: Restore dependencies
       run: dotnet restore
-    - name: Build for Linux
+    - name: Build for Linux x64
       run: dotnet publish -r linux-x64 --self-contained false --no-restore
-    - name: Build for Windows
+    - name: Build for Linux ARM
+      run: dotnet publish -r linux-arm --self-contained false --no-restore
+    - name: Build for Linux ARM64
+      run: dotnet publish -r linux-arm64 --self-contained false --no-restore
+    - name: Build for Windows x64
       run: dotnet publish -r win-x64 --self-contained false --no-restore
-    - name: Build for macOS
+    - name: Build for macOS x64
       run: dotnet publish -r osx-x64 --self-contained false --no-restore
-    - name: Upload a Build Artifact
+    - name: Upload Linux x64 build
       uses: actions/upload-artifact@v2.2.2
       with:
-        name: build
-        path: nylium.Core/bin/Debug/netcoreapp3.1/*
+        name: linux-x64
+        path: nylium.Core/bin/Debug/netcoreapp3.1/linux-x64/publish/*
+    - name: Upload Linux ARM build
+      uses: actions/upload-artifact@v2.2.2
+      with:
+        name: linux-arm
+        path: nylium.Core/bin/Debug/netcoreapp3.1/linux-arm/publish/*
+    - name: Upload Linux ARM64 build
+      uses: actions/upload-artifact@v2.2.2
+      with:
+        name: linux-arm64
+        path: nylium.Core/bin/Debug/netcoreapp3.1/linux-arm64/publish/*
+    - name: Upload Windows build
+      uses: actions/upload-artifact@v2.2.2
+      with:
+        name: windows-x64
+        path: nylium.Core/bin/Debug/netcoreapp3.1/windows-x64/publish/*
+    - name: Upload macOS build
+      uses: actions/upload-artifact@v2.2.2
+      with:
+        name: osx-x64
+        path: nylium.Core/bin/Debug/netcoreapp3.1/linux-x64/publish/*

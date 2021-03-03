@@ -18,13 +18,13 @@ namespace nylium.Networking.Packets.Client {
             varInt.Read(Data, out _);
             ProtocolVersion = varInt.Value;
 
-            String _string = new String();
-            _string.Read(Data, out _);
-            ServerAddress = _string.Value;
+            String @string = new String();
+            @string.Read(Data, out _);
+            ServerAddress = @string.Value;
 
-            UShort _ushort = new UShort();
-            _ushort.Read(Data, out _);
-            ServerPort = _ushort.Value;
+            UShort @ushort = new UShort();
+            @ushort.Read(Data, out _);
+            ServerPort = @ushort.Value;
 
             varInt.Read(Data, out _);
             NextState = (ProtocolState) varInt.Value;
