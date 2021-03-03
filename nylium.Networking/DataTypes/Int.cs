@@ -8,14 +8,12 @@ namespace nylium.Networking.DataTypes {
         public Int() : base(0) { }
         public Int(int value) : base(value) { }
 
-        public override void Read(Stream stream, out int bytesRead) {
-            bytesRead = 0;
+        public override int Read(Stream stream) {
             byte[] read = new byte[4];
-
-            stream.Read(read, 0, 4);
-            bytesRead += 4;
+            int bytesRead = stream.Read(read, 0, 4);
 
             Value = read.ReadBigEndianI();
+            return bytesRead;
         }
 
         public override void Write(Stream stream) {

@@ -8,11 +8,12 @@ namespace nylium.Networking.DataTypes {
         public NBT() : base(null) { }
         public NBT(NbtFile value) : base(value) { }
 
-        public override void Read(Stream stream, out int bytesRead) {
+        public override int Read(Stream stream) {
             NbtFile file = new NbtFile();
-            bytesRead = (int) file.LoadFromStream(stream, NbtCompression.AutoDetect);
+            int bytesRead = (int) file.LoadFromStream(stream, NbtCompression.AutoDetect);
 
             Value = file;
+            return bytesRead;
         }
 
         public override void Write(Stream stream) {

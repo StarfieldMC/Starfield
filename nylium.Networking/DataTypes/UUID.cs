@@ -11,12 +11,9 @@ namespace nylium.Networking.DataTypes {
         public UUID() : base(null) { }
         public UUID(DaanV2.UUID.UUID value) : base(value) { }
 
-        public override void Read(Stream stream, out int bytesRead) {
-            bytesRead = 0;
+        public override int Read(Stream stream) {
             byte[] read = new byte[16];
-
-            stream.Read(read, 0, 16);
-            bytesRead += 16;
+            int bytesRead = stream.Read(read, 0, 16);
 
             string s = read.ToHex();
             char[] ch = new char[32 + 4];
@@ -60,6 +57,7 @@ namespace nylium.Networking.DataTypes {
             ch[35] = s[31];
 
             Value = new DaanV2.UUID.UUID(ch);
+            return bytesRead;
         }
 
         public override void Write(Stream stream) {

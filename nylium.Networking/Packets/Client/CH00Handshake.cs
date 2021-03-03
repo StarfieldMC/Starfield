@@ -15,18 +15,18 @@ namespace nylium.Networking.Packets.Client {
             Data.Seek(0, SeekOrigin.Begin);
 
             VarInt varInt = new VarInt();
-            varInt.Read(Data, out _);
+            varInt.Read(Data);
             ProtocolVersion = varInt.Value;
 
             String @string = new String();
-            @string.Read(Data, out _);
+            @string.Read(Data);
             ServerAddress = @string.Value;
 
             UShort @ushort = new UShort();
-            @ushort.Read(Data, out _);
+            @ushort.Read(Data);
             ServerPort = @ushort.Value;
 
-            varInt.Read(Data, out _);
+            varInt.Read(Data);
             NextState = (ProtocolState) varInt.Value;
         }
     }

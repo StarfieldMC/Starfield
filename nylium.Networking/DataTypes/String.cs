@@ -8,18 +8,16 @@ namespace nylium.Networking.DataTypes {
         public String() : base("") { }
         public String(string value) : base(value) { }
 
-        public override void Read(Stream stream, out int bytesRead) {
-            bytesRead = 0;
-
+        public override int Read(Stream stream) {
             VarInt length = new VarInt();
-            length.Read(stream, out bytesRead);
+            int bytesRead = length.Read(stream);
 
             byte[] read = new byte[length.Value];
 
-            stream.Read(read, 0, length.Value);
-            bytesRead += length.Value;
+            bytesRead += stream.Read(read, 0, length.Value);
 
             Value = Encoding.UTF8.GetString(read);
+            return bytesRead;
         }
 
         public override void Write(Stream stream) {

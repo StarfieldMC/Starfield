@@ -10,7 +10,7 @@ namespace nylium.Networking.DataTypes {
             Value = value;
         }
 
-        public abstract void Read(Stream stream, out int bytesRead);
+        public abstract int Read(Stream stream);
         public abstract void Write(Stream stream);
     }
 }

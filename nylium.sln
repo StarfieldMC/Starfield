@@ -7,9 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "nylium.Networking", "nylium
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "nylium.Extensions", "nylium.Extensions\nylium.Extensions.csproj", "{5E239C3F-AAA6-4C5E-B3E6-340CDAFB5D10}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nylium.Launch", "nylium.Launch\nylium.Launch.csproj", "{7CAA85A0-BB13-4472-AFFB-F7F611C47172}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "nylium.Launch", "nylium.Launch\nylium.Launch.csproj", "{7CAA85A0-BB13-4472-AFFB-F7F611C47172}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nylium.Utilities", "nylium.Utilities\nylium.Utilities.csproj", "{80AD1BD2-8AF3-4268-80DD-28721B7B644A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "nylium.Utilities", "nylium.Utilities\nylium.Utilities.csproj", "{80AD1BD2-8AF3-4268-80DD-28721B7B644A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nylium.Core", "nylium.Core\nylium.Core.csproj", "{4350D1A1-3FDC-44B7-BE6E-C279B646B4DA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{80AD1BD2-8AF3-4268-80DD-28721B7B644A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{80AD1BD2-8AF3-4268-80DD-28721B7B644A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{80AD1BD2-8AF3-4268-80DD-28721B7B644A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4350D1A1-3FDC-44B7-BE6E-C279B646B4DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4350D1A1-3FDC-44B7-BE6E-C279B646B4DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4350D1A1-3FDC-44B7-BE6E-C279B646B4DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4350D1A1-3FDC-44B7-BE6E-C279B646B4DA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

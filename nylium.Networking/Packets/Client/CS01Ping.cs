@@ -13,7 +13,7 @@ namespace nylium.Networking.Packets.Client {
             Data.Seek(0, SeekOrigin.Begin);
 
             Long _long = new Long();
-            _long.Read(Data, out _);
+            _long.Read(Data);
             Payload = _long.Value;
         }
     }

@@ -9,8 +9,8 @@ namespace nylium.Networking.DataTypes {
         public VarLong() : base(0) { }
         public VarLong(long value) : base(value) { }
 
-        public override void Read(Stream stream, out int bytesRead) {
-            bytesRead = 0;
+        public override int Read(Stream stream) {
+            int bytesRead = 0;
             long result = 0;
             byte[] read = new byte[1];
 
@@ -29,6 +29,7 @@ namespace nylium.Networking.DataTypes {
             } while((read[0] & 0b10000000) != 0);
 
             Value = result;
+            return bytesRead;
         }
 
         public override void Write(Stream stream) {

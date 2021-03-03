@@ -42,8 +42,8 @@ namespace nylium.Networking.Packets {
 
         public static Packet CreatePacket(Stream stream, ProtocolState state, PacketSide side) {
             VarInt varInt = new VarInt();
-            varInt.Read(stream, out _);
-            varInt.Read(stream, out _);
+            varInt.Read(stream);
+            varInt.Read(stream);
 
             int id = varInt.Value;
             stream.Seek(0, SeekOrigin.Begin);
@@ -63,11 +63,11 @@ namespace nylium.Networking.Packets {
 
         private void Read(Stream stream) {
             VarInt varInt = new VarInt();
-            varInt.Read(stream, out _);
+            varInt.Read(stream);
 
             Length = varInt.Value;
 
-            varInt.Read(stream, out _);
+            varInt.Read(stream);
 
             Id = varInt.Value;
 

@@ -7,13 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="CoreFNBT" Version="1.0.9" />
     <PackageReference Include="DaanV2.UUID.Net" Version="1.1.0" />
-    <PackageReference Include="fNbt" Version="0.6.4" />
     <PackageReference Include="Jil" Version="2.17.0" />
     <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="1.4.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\nylium.Core\nylium.Core.csproj" />
     <ProjectReference Include="..\nylium.Extensions\nylium.Extensions.csproj" />
     <ProjectReference Include="..\nylium.Utilities\nylium.Utilities.csproj" />
   </ItemGroup>

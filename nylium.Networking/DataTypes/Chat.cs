@@ -8,11 +8,12 @@ namespace nylium.Networking.DataTypes {
 
         public Chat() : base(null) { }
 
-        public override void Read(Stream stream, out int bytesRead) {
+        public override int Read(Stream stream) {
             String @string = new String();
-            @string.Read(stream, out bytesRead);
+            int bytesRead = @string.Read(stream);
 
             Value = JSON.DeserializeDynamic(@string.Value);
+            return bytesRead;
         }
 
         public override void Write(Stream stream) {
@@ -21,6 +22,7 @@ namespace nylium.Networking.DataTypes {
         }
 
         // awful hack because you can't use dynamic variables in base constructor or something
+        // TODO find a better way to do this
         public void SetValue(dynamic value) {
             Value = value;
         }

@@ -9,13 +9,13 @@ namespace nylium.Networking.DataTypes {
         public VarInt() : base(0) { }
         public VarInt(int value) : base(value) { }
 
-        public override void Read(Stream stream, out int bytesRead) {
-            bytesRead = 0;
+        public override int Read(Stream stream) {
+            int bytesRead = 0;
             int result = 0;
             byte[] read = new byte[1];
 
             do {
-                stream.Read(read, 0, 1);
+                bytesRead += stream.Read(read, 0, 1);
 
                 int value = (read[0] & 0b01111111);
                 result |= (value << (7 * bytesRead));
@@ -28,6 +28,7 @@ namespace nylium.Networking.DataTypes {
             } while((read[0] & 0b10000000) != 0);
 
             Value = result;
+            return bytesRead;
         }
 
         public override void Write(Stream stream) {

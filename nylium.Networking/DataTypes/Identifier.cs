@@ -7,12 +7,14 @@ namespace nylium.Networking.DataTypes {
         public Identifier() : base(new ResourceLocation("minecraft", "none")) { }
         public Identifier(ResourceLocation value) : base(value) { }
 
-        public override void Read(Stream stream, out int bytesRead) {
+        public override int Read(Stream stream) {
             String str = new String();
-            str.Read(stream, out bytesRead);
+            int bytesRead = str.Read(stream);
 
             string[] arr = str.Value.Split(":");
             Value = new ResourceLocation(arr[0], arr[1]);
+
+            return bytesRead;
         }
 
         public override void Write(Stream stream) {

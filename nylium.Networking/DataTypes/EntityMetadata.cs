@@ -45,62 +45,56 @@ namespace nylium.Networking.DataTypes {
         public EntityMetadata() : base(new List<EntityMetadataEntry> { new EntityMetadataEntry(0xff, EntityMetadataEntry.DataType.Unknown, null) }) { }
         public EntityMetadata(List<EntityMetadataEntry> value) : base(value) { }
 
-        public override void Read(Stream stream, out int bytesRead) {
-            bytesRead = 0;
+        public override int Read(Stream stream) {
             byte[] read = new byte[1];
-
-            bytesRead += stream.Read(read, 0, 1);
+            int bytesRead = stream.Read(read, 0, 1);
 
             while(read[0] != 0xff) {
                 byte index = read[0];
 
                 VarInt varInt = new VarInt();
-                varInt.Read(stream, out _);
+                bytesRead += varInt.Read(stream);
 
                 EntityMetadataEntry.DataType type = (EntityMetadataEntry.DataType) varInt.Value;
                 dynamic value = null;
 
-                int _bytesRead = 0;
-
                 switch(type) {
                     case EntityMetadataEntry.DataType.Byte: {
                             Byte @byte = new Byte();
-                            @byte.Read(stream, out _bytesRead);
+                            bytesRead += @byte.Read(stream);
                             value = @byte.Value;
                             break;
                         }
                     case EntityMetadataEntry.DataType.VarInt: {
-                            varInt.Read(stream, out _bytesRead);
+                            bytesRead += varInt.Read(stream);
                             value = varInt.Value;
                             break;
                         }
                     case EntityMetadataEntry.DataType.Float: {
                             Float @float = new Float();
-                            @float.Read(stream, out _bytesRead);
+                            bytesRead += @float.Read(stream);
                             value = @float.Value;
                             break;
                         }
                     case EntityMetadataEntry.DataType.String: {
                             String @string = new String();
-                            @string.Read(stream, out _bytesRead);
+                            bytesRead += @string.Read(stream);
                             value = @string.Value;
                             break;
                         }
                     case EntityMetadataEntry.DataType.Chat: {
                             Chat chat = new Chat();
-                            chat.Read(stream, out _bytesRead);
+                            bytesRead += chat.Read(stream);
                             value = chat.Value;
                             break;
                         }
                     case EntityMetadataEntry.DataType.OptChat: {
                             Boolean boolean = new Boolean();
-                            boolean.Read(stream, out _bytesRead);
+                            bytesRead += boolean.Read(stream);
 
                             if(boolean.Value) {
-                                bytesRead += _bytesRead;
-
                                 Chat chat = new Chat();
-                                chat.Read(stream, out _bytesRead);
+                                bytesRead += chat.Read(stream);
                                 value = chat.Value;
                             }
                             break;
@@ -111,7 +105,7 @@ namespace nylium.Networking.DataTypes {
                         }
                     case EntityMetadataEntry.DataType.Boolean: {
                             Boolean boolean = new Boolean();
-                            boolean.Read(stream, out _bytesRead);
+                            bytesRead += boolean.Read(stream);
                             value = boolean.Value;
                             break;
                         }
@@ -125,64 +119,54 @@ namespace nylium.Networking.DataTypes {
                         }
                     case EntityMetadataEntry.DataType.OptPosition: {
                             Boolean boolean = new Boolean();
-                            boolean.Read(stream, out _bytesRead);
+                            bytesRead += boolean.Read(stream);
 
                             if(boolean.Value) {
-                                bytesRead += _bytesRead;
-
                                 // TODO read position
                             }
                             break;
                         }
                     case EntityMetadataEntry.DataType.Direction: {
-                            varInt.Read(stream, out _bytesRead);
+                            bytesRead += varInt.Read(stream);
                             value = (Direction) varInt.Value;
                             break;
                         }
                     case EntityMetadataEntry.DataType.OptUUID: {
                             Boolean boolean = new Boolean();
-                            boolean.Read(stream, out _bytesRead);
+                            bytesRead += boolean.Read(stream);
 
                             if(boolean.Value) {
-                                bytesRead += _bytesRead;
-
                                 UUID uuid = new UUID();
-                                uuid.Read(stream, out _bytesRead);
+                                bytesRead += uuid.Read(stream);
                                 value = uuid.Value;
                             }
                             break;
                         }
                     case EntityMetadataEntry.DataType.OptBlockID: {
                             Boolean boolean = new Boolean();
-                            boolean.Read(stream, out _bytesRead);
+                            bytesRead += boolean.Read(stream);
 
                             if(boolean.Value) {
-                                bytesRead += _bytesRead;
-
                                 // TODO read blockid
                             }
                             break;
                         }
                     case EntityMetadataEntry.DataType.NBT: {
                             Boolean boolean = new Boolean();
-                            boolean.Read(stream, out _bytesRead);
+                            bytesRead += boolean.Read(stream);
 
                             if(boolean.Value) {
-                                bytesRead += _bytesRead;
-
                                 NBT nbt = new NBT();
-                                nbt.Read(stream, out _bytesRead);
+                                bytesRead += nbt.Read(stream);
                                 value = nbt.Value;
                             }
                             break;
                         }
                     case EntityMetadataEntry.DataType.Particle: {
                             Boolean boolean = new Boolean();
-                            boolean.Read(stream, out _bytesRead);
+                            bytesRead += boolean.Read(stream);
 
                             if(boolean.Value) {
-                                bytesRead += _bytesRead;
-
                                 // TODO read particle
                             }
                             break;
@@ -193,12 +177,10 @@ namespace nylium.Networking.DataTypes {
                         }
                     case EntityMetadataEntry.DataType.OptVarInt: {
                             Boolean boolean = new Boolean();
-                            boolean.Read(stream, out _bytesRead);
+                            bytesRead += boolean.Read(stream);
 
                             if(boolean.Value) {
-                                bytesRead += _bytesRead;
-
-                                varInt.Read(stream, out _bytesRead);
+                                bytesRead += varInt.Read(stream);
                                 value = varInt.Value;
                             }
                             break;
@@ -211,9 +193,10 @@ namespace nylium.Networking.DataTypes {
 
                 Value.Add(new EntityMetadataEntry(index, type, value));
 
-                bytesRead += _bytesRead;
                 bytesRead += stream.Read(read, 0, 1);
             }
+
+            return bytesRead;
         }
 
         public override void Write(Stream stream) {
