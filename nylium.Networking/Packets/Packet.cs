@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using nylium.Networking.DataTypes;
 using nylium.Utilities;
@@ -11,20 +11,51 @@ namespace nylium.Networking.Packets {
 
     public class Packet : IDisposable {
 
-        private static readonly Dictionary<PacketAttribute, Type> packets = new Dictionary<PacketAttribute, Type>();
+        //private static readonly Dictionary<PacketAttribute, Type> packets = new Dictionary<PacketAttribute, Type>();
+        private static readonly Func<Stream, Packet>[][] clientPacketConstructors = new Func<Stream, Packet>[][] {
+            new Func<Stream, Packet>[0xff], // Handshaking packets
+            new Func<Stream, Packet>[0xff], // Status packets
+            new Func<Stream, Packet>[0xff], // Login packets
+            new Func<Stream, Packet>[0xff] // Play packets
+        };
 
         public int Length { get; set; }
         public int Id { get; set; }
         public MemoryStream Data { get; set; }
 
-        static Packet() {
+        public static void Initialize() {
             Type[] packetTypes = Assembly.GetExecutingAssembly().GetTypes()
-                      .Where(t => string.Equals(t.Namespace, "nylium.Networking.Packets.Client")
-                        || string.Equals(t.Namespace, "nylium.Networking.Packets.Server"))
+                      .Where(t => string.Equals(t.Namespace, "nylium.Networking.Packets.Client.Handshake")
+                        || string.Equals(t.Namespace, "nylium.Networking.Packets.Client.Status")
+                        || string.Equals(t.Namespace, "nylium.Networking.Packets.Client.Login")
+                        || string.Equals(t.Namespace, "nylium.Networking.Packets.Client.Play"))
                       .ToArray();
 
-            foreach(Type t in packetTypes) {
-                packets.Add(t.GetCustomAttribute<PacketAttribute>(false), t);
+            Type[] ctorParams = new Type[] { typeof(Stream) };
+
+            for(int i = 0; i < packetTypes.Length; i++) {
+                Type t = packetTypes[i];
+
+                ConstructorInfo constructor = t.GetConstructor(ctorParams);
+                ParameterExpression parameter = Expression.Parameter(typeof(Stream));
+                Func<Stream, Packet> ctor = Expression.Lambda<Func<Stream, Packet>>(Expression.New(constructor, parameter), parameter).Compile();
+
+                string state = t.Namespace.Substring(t.Namespace.LastIndexOf('.') + 1);
+
+                switch(state) {
+                    case "Handshake":
+                        clientPacketConstructors[0][t.GetCustomAttribute<PacketAttribute>(false).Id] = ctor;
+                        break;
+                    case "Status":
+                        clientPacketConstructors[1][t.GetCustomAttribute<PacketAttribute>(false).Id] = ctor;
+                        break;
+                    case "Login":
+                        clientPacketConstructors[2][t.GetCustomAttribute<PacketAttribute>(false).Id] = ctor;
+                        break;
+                    case "Play":
+                        clientPacketConstructors[3][t.GetCustomAttribute<PacketAttribute>(false).Id] = ctor;
+                        break;
+                }
             }
         }
 
@@ -40,7 +71,7 @@ namespace nylium.Networking.Packets {
             Read(stream);
         }
 
-        public static Packet CreatePacket(Stream stream, ProtocolState state, PacketSide side) {
+        public static Packet CreateClientPacket(Stream stream, ProtocolState state, PacketSide side) {
             VarInt varInt = new VarInt();
             varInt.Read(stream);
             varInt.Read(stream);
@@ -48,17 +79,32 @@ namespace nylium.Networking.Packets {
             int id = varInt.Value;
             stream.Seek(0, SeekOrigin.Begin);
 
-            Type t;
+            Func<Stream, Packet> ctor;
 
-            if(!packets.TryGetValue(new PacketAttribute(id, state, side), out t)) {
-                return null;
+            switch(state) {
+                case ProtocolState.HANDSHAKING:
+                    ctor = clientPacketConstructors[0][id];
+
+                    if(ctor == null) return null;
+                    return (Packet) ctor(stream);
+                case ProtocolState.STATUS:
+                    ctor = clientPacketConstructors[1][id];
+
+                    if(ctor == null) return null;
+                    return (Packet) ctor(stream);
+                case ProtocolState.LOGIN:
+                    ctor = clientPacketConstructors[2][id];
+
+                    if(ctor == null) return null;
+                    return (Packet) ctor(stream);
+                case ProtocolState.PLAY:
+                    ctor = clientPacketConstructors[3][id];
+
+                    if(ctor == null) return null;
+                    return (Packet) ctor(stream);
             }
 
-            if(t.GetConstructor(new Type[] { typeof(Stream) }) == null) {
-                return (Packet) Activator.CreateInstance(t);
-            } else {
-                return (Packet) Activator.CreateInstance(t, stream);
-            }
+            return null;
         }
 
         private void Read(Stream stream) {
@@ -67,13 +113,13 @@ namespace nylium.Networking.Packets {
 
             Length = varInt.Value;
 
-            varInt.Read(stream);
+            int bytesRead = varInt.Read(stream);
 
             Id = varInt.Value;
 
-            byte[] data = new byte[Length];
+            byte[] data = new byte[Length - bytesRead];
 
-            stream.Read(data, 0, Length);
+            stream.Read(data, 0, data.Length);
             Data.Write(data);
         }
 

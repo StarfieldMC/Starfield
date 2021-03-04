@@ -1,6 +1,6 @@
 ﻿using nylium.Networking.DataTypes;
 
-namespace nylium.Networking.Packets.Server {
+namespace nylium.Networking.Packets.Server.Status {
 
     [Packet(0, ProtocolState.STATUS, PacketSide.SERVER)]
     public class SS00Response : Packet {

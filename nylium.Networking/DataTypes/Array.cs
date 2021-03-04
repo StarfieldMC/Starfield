@@ -6,42 +6,53 @@ using System.Reflection;
 
 namespace nylium.Networking.DataTypes {
 
-    public class Array<I, T> : DataType<T[]> where T : DataType<I> {
+    // class/primitive which the data type represents (e.g. int)      the Data type (e.g. nylium.Networking.DataTypes.Int)
+    //                 |                                                                         |
+    //                 |  +----------------------------------------------------------------------+
+    //                 |  |
+    public class Array<I, T> : DataType<I[]> where T : DataType<I> {
 
         private static readonly Func<T> defaultCtor;
+        private static readonly Func<I, T> valueCtor;
 
         public int Count { get; }
 
         static Array() {
-            ConstructorInfo constructor = typeof(T).GetConstructor(new Type[0]);
+            ConstructorInfo constructor = typeof(T).GetConstructor(Type.EmptyTypes);
             defaultCtor = Expression.Lambda<Func<T>>(Expression.New(constructor)).Compile();
+
+            constructor = typeof(T).GetConstructor(new Type[] { typeof(I) });
+            ParameterExpression parameter = Expression.Parameter(typeof(I));
+            valueCtor = Expression.Lambda<Func<I, T>>(Expression.New(constructor, parameter), parameter).Compile();
         }
 
-        public Array(int count) : base(new T[count]) {
+        public Array(int count) : base(new I[count]) {
             Count = count;
         }
 
-        public Array(T[] value) : base(value) {
+        public Array(I[] value) : base(value) {
             Count = value.Length;
         }
 
         public override int Read(Stream stream) {
             int bytesRead = 0;
-            T[] arr = new T[Count];
+            I[] arr = new I[Count];
 
             for(int i = 0; i < Count; i++) {
                 T t = defaultCtor();
                 bytesRead += t.Read(stream);
 
-                arr[i] = t;
+                arr[i] = t.Value;
             }
 
+            Value = arr;
             return bytesRead;
         }
 
         public override void Write(Stream stream) {
             for(int i = 0; i < Count; i++) {
-                Value[Count].Write(stream);
+                T t = valueCtor(Value[i]);
+                t.Write(stream);
             }
         }
     }

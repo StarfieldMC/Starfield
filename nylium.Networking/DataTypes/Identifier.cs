@@ -1,18 +1,19 @@
 ﻿using System.IO;
+using U = nylium.Utilities;
 
 namespace nylium.Networking.DataTypes {
 
-    public class Identifier : DataType<ResourceLocation> {
+    public class Identifier : DataType<U.Identifier> {
 
-        public Identifier() : base(new ResourceLocation("minecraft", "none")) { }
-        public Identifier(ResourceLocation value) : base(value) { }
+        public Identifier() : base(new U.Identifier("minecraft", "none")) { }
+        public Identifier(U.Identifier value) : base(value) { }
 
         public override int Read(Stream stream) {
             String str = new String();
             int bytesRead = str.Read(stream);
 
             string[] arr = str.Value.Split(":");
-            Value = new ResourceLocation(arr[0], arr[1]);
+            Value = new U.Identifier(arr[0], arr[1]);
 
             return bytesRead;
         }
@@ -20,17 +21,6 @@ namespace nylium.Networking.DataTypes {
         public override void Write(Stream stream) {
             String str = new String(Value.Namespace + ":" + Value.Id);
             str.Write(stream);
-        }
-    }
-
-    public class ResourceLocation {
-
-        public string Namespace { get; set; }
-        public string Id { get; set; }
-
-        public ResourceLocation(string _namespace, string id) {
-            Namespace = _namespace;
-            Id = id;
         }
     }
 }

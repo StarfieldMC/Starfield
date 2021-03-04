@@ -15,7 +15,7 @@ namespace nylium.Networking.DataTypes {
             byte[] read = new byte[1];
 
             do {
-                bytesRead += stream.Read(read, 0, 1);
+                stream.Read(read, 0, 1);
 
                 int value = (read[0] & 0b01111111);
                 result |= (value << (7 * bytesRead));
