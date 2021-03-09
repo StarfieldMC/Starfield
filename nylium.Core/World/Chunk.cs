@@ -16,6 +16,7 @@ namespace nylium.Core.World {
         public B.Block[][][] Blocks { get; }
 
         public Chunk(World parent, int x, int z) {
+            parent.Chunks.TryAdd((x, z), this);
             Parent = parent;
 
             X = x;
@@ -25,6 +26,7 @@ namespace nylium.Core.World {
         }
 
         public Chunk(World parent, int x, int z, B.Block[][][] blocks) {
+            parent.Chunks.TryAdd((x, z), this);
             Parent = parent;
 
             X = x;
