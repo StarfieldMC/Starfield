@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using nylium.Core.World.Generation;
@@ -13,12 +14,13 @@ namespace nylium.Core.World {
 
         public string Name { get; }
 
-        public List<Chunk> Chunks { get; }
+        public Dictionary<(int, int), Chunk> Chunks { get; }
+
         public List<E.Entity> Entities { get; }
 
         public IWorldGenerator Generator { get; set; }
 
-        public World(string name, List<Chunk> chunks, List<E.Entity> entities, IWorldGenerator generator) {
+        public World(string name, Dictionary<(int, int), Chunk> chunks, List<E.Entity> entities, IWorldGenerator generator) {
             Name = name;
             Chunks = chunks;
             Entities = entities;
@@ -29,8 +31,8 @@ namespace nylium.Core.World {
         public World(string name, IWorldGenerator generator) {
             Name = name;
 
-            Chunks = new List<Chunk>();
-            Entities = new List<E.Entity>();
+            Chunks = new();
+            Entities = new();
 
             Generator = generator;
 
@@ -47,7 +49,7 @@ namespace nylium.Core.World {
                     //Console.Write(string.Format("Generating chunk at [{0},{1}] ({2}/{3})... ", x, z, i + 1, Math.Pow(initializationChunks, 2)));
 
                     //chunkStopwatch.Start();
-                    Chunks.Add(GenerateChunk(x, z));
+                    GenerateChunk(x, z);
                     //i++;
                     //chunkStopwatch.Stop();
 
@@ -75,25 +77,15 @@ namespace nylium.Core.World {
             chunk.SetBlock(block, x % Chunk.XSize, y, z % Chunk.ZSize);
         }
 
-        // TODO better way to do this?
+        // pisspart u need to remember to repopulate the chunks array when u restart server else it will regenerate the chunks tak tak byczq
         public Chunk GetChunk(int x, int z) {
-            for(int i = 0; i < Chunks.Count; i++) {
-                Chunk chunk = Chunks[i];
-
-                if(chunk.X == x && chunk.Z == z) {
-                    return chunk;
-                }
-            }
-
-            Chunk generated = GenerateChunk(x, z);
-            Chunks.Add(generated);
-
-            return generated;
+            return Chunks.ContainsKey((x, z)) ? Chunks[(x, z)] : GenerateChunk(x, z);
         }
 
         public Chunk GenerateChunk(int x, int z) {
             Chunk chunk = new(this, x, z);
             Generator.GenerateChunk(this, chunk);
+            Chunks.TryAdd((x, z), chunk);
 
             return chunk;
         }
