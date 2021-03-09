@@ -26,7 +26,8 @@ If applicable, add screenshots to help explain your problem.
 **System Information (please complete the following information):**
  - OS: [e.g. Ubuntu x64]
  - OS Version: [e.g. 20.04]
- - nylium Version [e.g. 1.0.0/bdaecae]
+ - nylium Version: [e.g. 1.0.0/bdaecae]
+ - Minecraft Version: [e.g. 1.16.5]
 
 **Additional context**
 Add any other context about the problem here.
