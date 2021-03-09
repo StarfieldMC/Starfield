@@ -4,10 +4,10 @@ using U = nylium.Utilities;
 
 namespace nylium.Networking.DataTypes {
 
-    public class Position : DataType<U.Position> {
+    public class Position : DataType<U.Position.Int> {
 
         public Position() : base(null) { }
-        public Position(U.Position value) : base(value) { }
+        public Position(U.Position.Int value) : base(value) { }
 
         public override int Read(Stream stream) {
             byte[] read = new byte[8];
@@ -23,7 +23,7 @@ namespace nylium.Networking.DataTypes {
             if(y >= (2 ^ 11)) { y -= 2 ^ 12; }
             if(z >= (2 ^ 25)) { z -= 2 ^ 26; }
 
-            Value = new U.Position(x, y, z);
+            Value = new U.Position.Int(x, y, z);
             return bytesRead;
         }
 

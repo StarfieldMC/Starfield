@@ -1,7 +1,6 @@
-﻿using System;
-using fNbt;
+﻿using fNbt;
 
-namespace nylium.Core.Inventory {
+namespace nylium.Core.Entity.Inventory {
 
     public class InventorySlot {
 

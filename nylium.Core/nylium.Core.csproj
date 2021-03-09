@@ -10,4 +10,9 @@
     <PackageReference Include="CoreFNBT" Version="1.0.9" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\nylium.Extensions\nylium.Extensions.csproj" />
+    <ProjectReference Include="..\nylium.Utilities\nylium.Utilities.csproj" />
+  </ItemGroup>
+
 </Project>

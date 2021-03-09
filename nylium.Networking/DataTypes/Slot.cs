@@ -1,5 +1,5 @@
 ﻿using System.IO;
-using nylium.Core.Inventory;
+using nylium.Core.Entity.Inventory;
 using nylium.Utilities;
 
 namespace nylium.Networking.DataTypes {
@@ -27,7 +27,7 @@ namespace nylium.Networking.DataTypes {
                     bytesRead += nbt.Read(stream);
                 }
 
-                Value = new InventorySlot(itemId.Value, count.Value, nbt == null ? null : nbt.Value);
+                Value = new InventorySlot(itemId.Value, count.Value, nbt?.Value);
             } else {
                 Value = null;
             }

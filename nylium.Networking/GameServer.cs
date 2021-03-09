@@ -45,16 +45,16 @@ namespace nylium.Networking {
 
         private const string timeoutMessage = @"{""text"":""Timed out""}";
 
-        private static readonly NbtFile dimensionCodec = new NbtFile();
-        private static readonly NbtFile overworldDimension = new NbtFile();
-        private static readonly NbtFile netherDimension = new NbtFile();
-        private static readonly NbtFile theEndDimension = new NbtFile();
+        private static readonly NbtFile dimensionCodec = new();
+        private static readonly NbtFile overworldDimension = new();
+        private static readonly NbtFile netherDimension = new();
+        private static readonly NbtFile theEndDimension = new();
 
         private readonly IPAddress ip;
         private readonly int port;
 
         private Socket listener;
-        private ManualResetEvent done = new ManualResetEvent(false);
+        private ManualResetEvent done = new(false);
 
         static GameServer() {
             dimensionCodec.LoadFromBuffer(Properties.Resources.dimension_codec, 0,
@@ -115,7 +115,7 @@ namespace nylium.Networking {
                 Console.WriteLine(string.Format("User [{0}:{1}] connected", localEndPoint.Address, localEndPoint.Port));
             }
 
-            StateObject state = new StateObject {
+            StateObject state = new() {
                 socket = handler,
                 protocolState = ProtocolState.HANDSHAKING,
             };
@@ -137,7 +137,7 @@ namespace nylium.Networking {
                 Packet packet = Packet.CreateClientPacket(mem, state.protocolState, PacketSide.CLIENT);
 
                 if(packet == null) {
-                    VarInt varInt = new VarInt();
+                    VarInt varInt = new();
                     varInt.Read(mem);
                     varInt.Read(mem);
 
@@ -162,14 +162,14 @@ namespace nylium.Networking {
                     case ProtocolState.STATUS:
                         switch(packet) {
                             case CS00Request: {
-                                    SS00Response response = new SS00Response(json);
+                                    SS00Response response = new(json);
                                     Send(socket, response.ToArray());
                                     break;
                                 }
                             case CS01Ping: {
                                     CS01Ping ping = (CS01Ping) packet;
 
-                                    SS01Pong pong = new SS01Pong(ping.Payload);
+                                    SS01Pong pong = new(ping.Payload);
                                     Send(socket, pong.ToArray());
 
                                     socket.Close();
@@ -182,7 +182,7 @@ namespace nylium.Networking {
                             case CL00LoginStart: {
                                     CL00LoginStart loginStart = (CL00LoginStart) packet;
 
-                                    SL02LoginSuccess loginSuccess = new SL02LoginSuccess(
+                                    SL02LoginSuccess loginSuccess = new(
                                         UUIDFactory.CreateUUID(3, 1, "OfflinePlayer:" + loginStart.Username),
                                         loginStart.Username);
                                     Send(socket, loginSuccess.ToArray());
@@ -220,7 +220,7 @@ namespace nylium.Networking {
         }
 
         private void Timeout(Socket handler) {
-            SP19Disconnect disconnect = new SP19Disconnect(timeoutMessage);
+            SP19Disconnect disconnect = new(timeoutMessage);
             Send(handler, disconnect.ToArray());
         }
 
