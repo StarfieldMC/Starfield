@@ -3,7 +3,7 @@ using U = nylium.Utilities;
 
 namespace nylium.Networking.Packets.Server.Play {
 
-    [Packet(0x17, ProtocolState.PLAY, PacketSide.SERVER)]
+    [Packet(0x17, ProtocolState.Play, PacketSide.Server)]
     public class SP17PluginMessage : Packet {
 
         public U.Identifier Channel { get; }
@@ -13,10 +13,10 @@ namespace nylium.Networking.Packets.Server.Play {
             Channel = channel;
             MessageData = data;
 
-            Identifier identifier = new Identifier(channel);
+            Identifier identifier = new(channel);
             identifier.Write(Data);
 
-            ByteArray byteArray = new ByteArray(data);
+            ByteArray byteArray = new(data);
             byteArray.Write(Data);
         }
     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -11,7 +12,6 @@ namespace nylium.Networking.Packets {
 
     public class Packet : IDisposable {
 
-        //private static readonly Dictionary<PacketAttribute, Type> packets = new Dictionary<PacketAttribute, Type>();
         private static readonly Func<Stream, Packet>[][] clientPacketConstructors = new Func<Stream, Packet>[][] {
             new Func<Stream, Packet>[0xff], // Handshaking packets
             new Func<Stream, Packet>[0xff], // Status packets
@@ -24,6 +24,9 @@ namespace nylium.Networking.Packets {
         public MemoryStream Data { get; set; }
 
         public static void Initialize() {
+            Stopwatch stopwatch = new();
+            stopwatch.Start();
+
             Type[] packetTypes = Assembly.GetExecutingAssembly().GetTypes()
                       .Where(t => string.Equals(t.Namespace, "nylium.Networking.Packets.Client.Handshake")
                         || string.Equals(t.Namespace, "nylium.Networking.Packets.Client.Status")
@@ -37,6 +40,12 @@ namespace nylium.Networking.Packets {
                 Type t = packetTypes[i];
 
                 ConstructorInfo constructor = t.GetConstructor(ctorParams);
+
+                if(constructor == null) {
+                    Console.WriteLine(string.Format("Type [{0}] is probably not a packet, ignoring", t.FullName));
+                    continue;
+                }
+
                 ParameterExpression parameter = Expression.Parameter(typeof(Stream));
                 Func<Stream, Packet> ctor = Expression.Lambda<Func<Stream, Packet>>(Expression.New(constructor, parameter), parameter).Compile();
 
@@ -57,6 +66,10 @@ namespace nylium.Networking.Packets {
                         break;
                 }
             }
+
+            stopwatch.Stop();
+            Console.WriteLine("Initialized packets in " + Math.Round(stopwatch.Elapsed.TotalMilliseconds, 2) + "ms");
+            stopwatch = null;
         }
 
         public Packet() {
@@ -71,8 +84,8 @@ namespace nylium.Networking.Packets {
             Read(stream);
         }
 
-        public static Packet CreateClientPacket(Stream stream, ProtocolState state, PacketSide side) {
-            VarInt varInt = new VarInt();
+        public static Packet CreateClientPacket(Stream stream, ProtocolState state) {
+            VarInt varInt = new();
             varInt.Read(stream);
             varInt.Read(stream);
 
@@ -82,33 +95,33 @@ namespace nylium.Networking.Packets {
             Func<Stream, Packet> ctor;
 
             switch(state) {
-                case ProtocolState.HANDSHAKING:
+                case ProtocolState.Handshaking:
                     ctor = clientPacketConstructors[0][id];
 
                     if(ctor == null) return null;
-                    return (Packet) ctor(stream);
-                case ProtocolState.STATUS:
+                    return ctor(stream);
+                case ProtocolState.Status:
                     ctor = clientPacketConstructors[1][id];
 
                     if(ctor == null) return null;
-                    return (Packet) ctor(stream);
-                case ProtocolState.LOGIN:
+                    return ctor(stream);
+                case ProtocolState.Login:
                     ctor = clientPacketConstructors[2][id];
 
                     if(ctor == null) return null;
-                    return (Packet) ctor(stream);
-                case ProtocolState.PLAY:
+                    return ctor(stream);
+                case ProtocolState.Play:
                     ctor = clientPacketConstructors[3][id];
 
                     if(ctor == null) return null;
-                    return (Packet) ctor(stream);
+                    return ctor(stream);
             }
 
             return null;
         }
 
         private void Read(Stream stream) {
-            VarInt varInt = new VarInt();
+            VarInt varInt = new();
             varInt.Read(stream);
 
             Length = varInt.Value;
@@ -120,14 +133,16 @@ namespace nylium.Networking.Packets {
             byte[] data = new byte[Length - bytesRead];
 
             stream.Read(data, 0, data.Length);
+
             Data.Write(data);
+            Data.Seek(0, SeekOrigin.Begin);
         }
 
-        public byte[] ToArray() {
+        public byte[] ToBytes() {
             byte[] bytes;
 
-            using(MemoryStream temp = new MemoryStream()) {
-                VarInt varInt = new VarInt(Id);
+            using(MemoryStream temp = new()) {
+                VarInt varInt = new(Id);
 
                 if(Length <= 0) {
                     varInt.Write(temp);

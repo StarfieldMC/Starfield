@@ -1,11 +1,19 @@
 ﻿using System;
+using System.Buffers.Binary;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using System.Threading;
 using DaanV2.UUID;
 using fNbt;
-using Jil;
+using fNbt.Tags;
+using nylium.Core.Block;
+using nylium.Core.Entity;
+using nylium.Core.Item;
+using nylium.Core.Tags;
+using nylium.Core.World;
+using nylium.Core.World.Generation.Generators;
 using nylium.Extensions;
 using nylium.Networking.DataTypes;
 using nylium.Networking.Packets;
@@ -45,6 +53,8 @@ namespace nylium.Networking {
 
         private const string timeoutMessage = @"{""text"":""Timed out""}";
 
+        private static readonly Random random = new();
+
         private static readonly NbtFile dimensionCodec = new();
         private static readonly NbtFile overworldDimension = new();
         private static readonly NbtFile netherDimension = new();
@@ -53,8 +63,10 @@ namespace nylium.Networking {
         private readonly IPAddress ip;
         private readonly int port;
 
-        private Socket listener;
-        private ManualResetEvent done = new(false);
+        private readonly Socket listener;
+        private readonly ManualResetEvent done = new(false);
+
+        private readonly World world;
 
         static GameServer() {
             dimensionCodec.LoadFromBuffer(Properties.Resources.dimension_codec, 0,
@@ -72,6 +84,12 @@ namespace nylium.Networking {
             this.port = port;
 
             Packet.Initialize();
+            Block.Initialize();
+            Entity.Initialize();
+            Item.Initialize();
+            Tag.Initialize();
+
+            world = new World("world", new FlatWorldGenerator());
 
             listener = new Socket(AddressFamily.InterNetwork,
                 SocketType.Stream, ProtocolType.Tcp);
@@ -117,10 +135,10 @@ namespace nylium.Networking {
 
             StateObject state = new() {
                 socket = handler,
-                protocolState = ProtocolState.HANDSHAKING,
+                protocolState = ProtocolState.Handshaking,
             };
 
-            state.keepAlive = new KeepAlive(handler, Send, Timeout, 5000);
+            //state.keepAlive = new KeepAlive(handler, Send, Timeout, 5000);
 
             handler.BeginReceive(state.buffer, 0, StateObject.BUFFER_SIZE, 0,
                 new AsyncCallback(ReadCallback), state);
@@ -134,7 +152,7 @@ namespace nylium.Networking {
 
             if(bytesRead > 0) {
                 MemoryStream mem = RMSManager.Get().GetStream("nylium.Networking.Server.ReadCallback", state.buffer);
-                Packet packet = Packet.CreateClientPacket(mem, state.protocolState, PacketSide.CLIENT);
+                Packet packet = Packet.CreateClientPacket(mem, state.protocolState);
 
                 if(packet == null) {
                     VarInt varInt = new();
@@ -150,7 +168,7 @@ namespace nylium.Networking {
                 Console.WriteLine("Received packet in state " + state.protocolState + " with id " + packet.Id);
 
                 switch(state.protocolState) {
-                    case ProtocolState.HANDSHAKING:
+                    case ProtocolState.Handshaking:
                         switch(packet) {
                             case CH00Handshake: {
                                     CH00Handshake handshake = (CH00Handshake) packet;
@@ -159,25 +177,25 @@ namespace nylium.Networking {
                                 }
                         }
                         break;
-                    case ProtocolState.STATUS:
+                    case ProtocolState.Status:
                         switch(packet) {
                             case CS00Request: {
                                     SS00Response response = new(json);
-                                    Send(socket, response.ToArray());
+                                    Send(socket, response.ToBytes());
                                     break;
                                 }
                             case CS01Ping: {
                                     CS01Ping ping = (CS01Ping) packet;
 
                                     SS01Pong pong = new(ping.Payload);
-                                    Send(socket, pong.ToArray());
+                                    Send(socket, pong.ToBytes());
 
                                     socket.Close();
                                     break;
                                 }
                         }
                         break;
-                    case ProtocolState.LOGIN:
+                    case ProtocolState.Login:
                         switch(packet) {
                             case CL00LoginStart: {
                                     CL00LoginStart loginStart = (CL00LoginStart) packet;
@@ -185,20 +203,139 @@ namespace nylium.Networking {
                                     SL02LoginSuccess loginSuccess = new(
                                         UUIDFactory.CreateUUID(3, 1, "OfflinePlayer:" + loginStart.Username),
                                         loginStart.Username);
-                                    Send(socket, loginSuccess.ToArray());
+                                    Send(socket, loginSuccess.ToBytes());
 
-                                    state.protocolState = ProtocolState.PLAY;
+                                    state.protocolState = ProtocolState.Play;
+                                    state.player = new(world, "minecraft:player", 0, 1, 0, 0, 0);
 
-                                    // TODO send join game packet
-                                    // TODO send "minecraft:brand" plugin message
+                                    SP24JoinGame joinGame = new(state.player.EntityId, false, Gamemode.Creative, Gamemode.Creative,
+                                        new Utilities.Identifier[] { new("world") }, dimensionCodec.RootTag, overworldDimension.RootTag,
+                                        new("world"), 0, 99, 8, false, true, false, true);
+                                    Send(socket, joinGame.ToBytes());
+
+                                    SP17PluginMessage brand = new(new Utilities.Identifier("minecraft", "brand"),
+                                        (sbyte[]) (Array) Encoding.UTF8.GetBytes("nylium"));
+                                    Send(socket, brand.ToBytes());
                                     break;
                                 }
                         }
                         break;
-                    case ProtocolState.PLAY:
+                    case ProtocolState.Play:
                         switch(packet) {
                             case CP10KeepAlive: {
-                                    state.keepAlive.HasResponded = true;
+                                    //state.keepAlive.HasResponded = true;
+                                    break;
+                                }
+                            case CP05ClientSettings: {
+                                    CP05ClientSettings clientSettings = (CP05ClientSettings) packet;
+                                    state.viewDistance = clientSettings.ViewDistance;
+
+                                    SP3FHeldItemChange heldItemChange = new(0);
+                                    Send(socket, heldItemChange.ToBytes());
+
+                                    SP5ADeclareRecipes declareRecipes = new(null); // TODO generate recipes from recipes.json
+                                    Send(socket, declareRecipes.ToBytes());
+
+                                    SP5BTags tags = new(Tag.blockTags.ToArray(),
+                                        Tag.itemTags.ToArray(),
+                                        Tag.fluidTags.ToArray(),
+                                        Tag.entityTags.ToArray());
+                                    Send(socket, tags.ToBytes());
+
+                                    SP34PlayerPositionAndLook playerPositionAndLook = new(state.player.X, state.player.Y, state.player.Z,
+                                        state.player.Yaw, state.player.Pitch, 0, random.Next(int.MaxValue));
+                                    Send(socket, playerPositionAndLook.ToBytes());
+
+                                    SP40UpdateViewPosition updateViewPosition = new(0, 0);
+                                    Send(socket, updateViewPosition.ToBytes());
+
+                                    Chunk[] chunks = world.GetChunksInViewDistance((int) Math.Floor(state.player.X / 16), (int) Math.Floor(state.player.Z / 16),
+                                        state.viewDistance);
+
+                                    byte sections0 = 0;
+                                    byte sections1 = 0;
+
+                                    sections0.SetBit(0, true);
+
+                                    int mask = sections0 | (sections1 << 8);
+
+                                    // idk
+                                    byte[] a = new byte[] { 0x01, 0x00, 0x80, 0x40, 0x20, 0x10, 0x08, 0x04 };
+                                    byte[] b = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x20, 0x10, 0x08, 0x04 };
+
+                                    long al = BinaryPrimitives.ReadInt64LittleEndian(a);
+                                    long bl = BinaryPrimitives.ReadInt64LittleEndian(b);
+
+                                    NbtCompound heightmap = new("") {
+                                        new NbtLongArray("MOTION_BLOCKING", new long[] {
+                                            al, al, al, al, al, al, al, al, al, al, al, al, al, al, al, al, al, al, al, al,
+                                            al, al, al, al, al, al, al, al, al, al, al, al, al, al, al,
+                                            bl
+                                        }),
+                                        new NbtLongArray("WORLD_SURFACE")
+                                    };
+
+                                    for(int i = 0; i < chunks.Length; i++) {
+                                        Chunk chunk = chunks[i];
+                                        sbyte[] data = null;
+
+                                        using(MemoryStream stream = RMSManager.Get().GetStream("chunk data convert thing")) {
+                                            // only 1 section sent (see primary bit mask) therefore no loop
+                                            int nonAirBlockCount = chunk.GetBlockIdsInSection(0, true).Length;
+
+                                            Short blockCount = new((short) nonAirBlockCount);
+                                            UByte bitsPerBlock = new(8);
+
+                                            VarInt paletteLength = new(2);
+                                            VarInt stone = new(1);
+                                            VarInt air = new(0);
+
+                                            int[] blockIds = chunk.GetBlockIdsInSection(0);
+
+                                            VarInt dataArrayLength = new(16 * 16 * 16);
+                                            byte[] dataArrayRaw = new byte[16 * 16 * 16];
+
+                                            int k = 0;
+
+                                            for(int j = blockIds.Length - 1; j >= 0; j--) {
+                                                int id = blockIds[j];
+
+                                                byte bb = 0;
+
+                                                // hardcode idk
+                                                if(id == 1) {
+                                                    bb.SetBit(7, true);
+                                                }
+
+                                                dataArrayRaw[k] = bb;
+                                                k++;
+                                            }
+
+                                            ByteArray dataArray = new((sbyte[]) (Array) dataArrayRaw);
+
+                                            blockCount.Write(stream);
+                                            bitsPerBlock.Write(stream);
+                                            paletteLength.Write(stream);
+                                            stone.Write(stream);
+                                            air.Write(stream);
+                                            dataArrayLength.Write(stream);
+                                            dataArray.Write(stream);
+
+                                            data = (sbyte[]) (Array) stream.ToArray();
+                                        }
+
+                                        SP20ChunkData chunkData = new(chunk.X, chunk.Z, true, mask, heightmap,
+                                            new int[] { 0 }, data, new NbtCompound[] { });
+                                        Send(socket, chunkData.ToBytes()); // TODO this packet crashes the client with "Root tag must be a named compound tag"
+                                    }
+
+                                    SP3DWorldBorder worldBorder = new(0, 0, 0, 64, 0, 29999984, 16, 2);
+                                    Send(socket, worldBorder.ToBytes());
+
+                                    SP42SpawnPosition spawnPosition = new(new(0, 1, 0));
+                                    Send(socket, spawnPosition.ToBytes());
+
+                                    Send(socket, playerPositionAndLook.ToBytes());
                                     break;
                                 }
                         }
@@ -207,6 +344,8 @@ namespace nylium.Networking {
 
                 packet.Dispose();
                 mem.Close();
+                packet = null;
+                mem = null;
             }
 
             try {
@@ -215,18 +354,25 @@ namespace nylium.Networking {
                         new AsyncCallback(ReadCallback), state);
                 } else {
                     socket.Dispose();
+                    socket = null;
                 }
             } catch(ObjectDisposedException) { }
         }
 
         private void Timeout(Socket handler) {
             SP19Disconnect disconnect = new(timeoutMessage);
-            Send(handler, disconnect.ToArray());
+            Send(handler, disconnect.ToBytes());
         }
 
         private void Send(Socket handler, byte[] data) {
-            handler.BeginSend(data, 0, data.Length, 0,
-                new AsyncCallback(SendCallback), handler);
+            try {
+                if(handler.IsConnected()) {
+                    handler.BeginSend(data, 0, data.Length, 0,
+                        new AsyncCallback(SendCallback), handler);
+                } else {
+                    handler.Dispose();
+                }
+            } catch(ObjectDisposedException) { } catch(SocketException) { }
         }
 
         private void SendCallback(IAsyncResult ar) {
@@ -250,5 +396,10 @@ namespace nylium.Networking {
         public KeepAlive keepAlive;
 
         public ProtocolState protocolState;
+
+        // TODO add other things from 0x05 client settings
+        public sbyte viewDistance;
+
+        public Entity player;
     }
 }

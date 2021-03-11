@@ -3,7 +3,7 @@ using nylium.Networking.DataTypes;
 
 namespace nylium.Networking.Packets.Client.Handshake {
 
-    [Packet(0, ProtocolState.HANDSHAKING, PacketSide.CLIENT)]
+    [Packet(0, ProtocolState.Handshaking, PacketSide.Client)]
     public class CH00Handshake : Packet {
 
         public int ProtocolVersion { get; }
@@ -12,16 +12,13 @@ namespace nylium.Networking.Packets.Client.Handshake {
         public ProtocolState NextState { get; }
 
         public CH00Handshake(Stream stream) : base(stream) {
-            VarInt varInt = new VarInt();
-            varInt.Read(Data);
+            VarInt varInt = new(Data);
             ProtocolVersion = varInt.Value;
 
-            String @string = new String();
-            @string.Read(Data);
+            String @string = new(Data);
             ServerAddress = @string.Value;
 
-            UShort @ushort = new UShort();
-            @ushort.Read(Data);
+            UShort @ushort = new(Data);
             ServerPort = @ushort.Value;
 
             varInt.Read(Data);

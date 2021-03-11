@@ -7,9 +7,10 @@ namespace nylium.Networking.DataTypes {
 
         public NBT() : base(null) { }
         public NBT(NbtFile value) : base(value) { }
+        public NBT(Stream stream) : base(null) { Read(stream); }
 
         public override int Read(Stream stream) {
-            NbtFile file = new NbtFile();
+            NbtFile file = new();
             int bytesRead = (int) file.LoadFromStream(stream, NbtCompression.AutoDetect);
 
             Value = file;
@@ -18,7 +19,7 @@ namespace nylium.Networking.DataTypes {
 
         public override void Write(Stream stream) {
             // TODO benchmark zlib, gzip and none
-            Value.SaveToStream(stream, NbtCompression.ZLib);
+            Value.SaveToStream(stream, NbtCompression.None);
         }
     }
 }

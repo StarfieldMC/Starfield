@@ -5,11 +5,12 @@ namespace nylium.Networking.DataTypes {
 
     public class String : DataType<string> {
 
-        public String() : base("") { }
+        public String() : base(null) { }
         public String(string value) : base(value) { }
+        public String(Stream stream) : base(null) { Read(stream); }
 
         public override int Read(Stream stream) {
-            VarInt length = new VarInt();
+            VarInt length = new();
             int bytesRead = length.Read(stream);
 
             byte[] read = new byte[length.Value];
@@ -23,7 +24,7 @@ namespace nylium.Networking.DataTypes {
         public override void Write(Stream stream) {
             byte[] bytes = Encoding.UTF8.GetBytes(Value);
 
-            new VarInt(Encoding.UTF8.GetByteCount(Value)).Write(stream);
+            new VarInt(bytes.Length).Write(stream);
             stream.Write(bytes);
         }
     }

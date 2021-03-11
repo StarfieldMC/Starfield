@@ -34,6 +34,10 @@ namespace nylium.Networking.DataTypes {
             Count = value.Length;
         }
 
+        public Array(int count, Stream stream) : base(new I[count]) {
+            Read(stream);
+        }
+
         public override int Read(Stream stream) {
             int bytesRead = 0;
             I[] arr = new I[Count];

@@ -2,7 +2,7 @@
 
 namespace nylium.Networking.Packets.Server.Login {
 
-    [Packet(2, ProtocolState.LOGIN, PacketSide.SERVER)]
+    [Packet(2, ProtocolState.Login, PacketSide.Server)]
     public class SL02LoginSuccess : Packet {
 
         public DaanV2.UUID.UUID UUID { get; }
@@ -12,10 +12,10 @@ namespace nylium.Networking.Packets.Server.Login {
             UUID = value;
             Username = username;
 
-            UUID uuid = new UUID(value);
+            UUID uuid = new(value);
             uuid.Write(Data);
 
-            String @string = new String(username);
+            String @string = new(username);
             @string.Write(Data);
         }
     }

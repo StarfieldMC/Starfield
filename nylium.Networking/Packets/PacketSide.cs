@@ -4,7 +4,7 @@ namespace nylium.Networking.Packets {
 
     public enum PacketSide {
 
-        CLIENT, // sent from client
-        SERVER // sent from server 
+        Client, // sent from client
+        Server // sent from server 
     }
 }

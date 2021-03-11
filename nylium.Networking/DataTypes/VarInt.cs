@@ -8,6 +8,7 @@ namespace nylium.Networking.DataTypes {
 
         public VarInt() : base(0) { }
         public VarInt(int value) : base(value) { }
+        public VarInt(Stream stream) : base(0) { Read(stream); }
 
         public override int Read(Stream stream) {
             int bytesRead = 0;

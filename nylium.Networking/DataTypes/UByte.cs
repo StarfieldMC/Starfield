@@ -6,6 +6,7 @@ namespace nylium.Networking.DataTypes {
 
         public UByte() : base(0) { }
         public UByte(byte value) : base(value) { }
+        public UByte(Stream stream) : base(0) { Read(stream); }
 
         public override int Read(Stream stream) {
             byte[] read = new byte[1];

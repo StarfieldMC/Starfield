@@ -2,7 +2,7 @@
 
 namespace nylium.Networking.Packets.Server.Login {
 
-    [Packet(0, ProtocolState.LOGIN, PacketSide.SERVER)]
+    [Packet(0, ProtocolState.Login, PacketSide.Server)]
     public class SL00Disconnect : Packet {
 
         public dynamic Reason { get; }
@@ -10,8 +10,7 @@ namespace nylium.Networking.Packets.Server.Login {
         public SL00Disconnect(dynamic reason) {
             Reason = reason;
 
-            Chat chat = new Chat();
-            chat.SetValue(reason);
+            Chat chat = new(reason);
             chat.Write(Data);
         }
     }

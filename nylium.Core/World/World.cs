@@ -9,7 +9,7 @@ namespace nylium.Core.World {
 
     public class World {
 
-        private const int initializationChunks = 15; // how big of a chunk grid (square) to generate on initialization
+        private const int initializationChunks = 128; // how big of a chunk grid (square) to generate on initialization
         private int lastEntityId = 0;
 
         public string Name { get; }
@@ -68,18 +68,32 @@ namespace nylium.Core.World {
         }
 
         public Block.Block GetBlock(int x, int y, int z) {
-            Chunk chunk = GetChunk((int) Math.Floor(x / (double) Chunk.XSize), (int) Math.Floor(z / (double) Chunk.ZSize));
-            return chunk.GetBlock(x % Chunk.XSize, y, z % Chunk.ZSize);
+            Chunk chunk = GetChunk((int) Math.Floor(x / (double) Chunk.X_SIZE), (int) Math.Floor(z / (double) Chunk.Z_SIZE));
+            return chunk.GetBlock(x % Chunk.X_SIZE, y, z % Chunk.Z_SIZE);
         }
 
         public void SetBlock(Block.Block block, int x, int y, int z) {
-            Chunk chunk = GetChunk((int) Math.Floor(x / (double) Chunk.XSize), (int) Math.Floor(z / (double) Chunk.ZSize));
-            chunk.SetBlock(block, x % Chunk.XSize, y, z % Chunk.ZSize);
+            Chunk chunk = GetChunk((int) Math.Floor(x / (double) Chunk.X_SIZE), (int) Math.Floor(z / (double) Chunk.Z_SIZE));
+            chunk.SetBlock(block, x % Chunk.X_SIZE, y, z % Chunk.Z_SIZE);
         }
 
         // pisspart u need to remember to repopulate the chunks array when u restart server else it will regenerate the chunks tak tak byczq
-        public Chunk GetChunk(int x, int z) {
-            return Chunks.ContainsKey((x, z)) ? Chunks[(x, z)] : GenerateChunk(x, z);
+        public Chunk GetChunk(int chunkX, int chunkZ) {
+            return Chunks.ContainsKey((chunkX, chunkZ)) ? Chunks[(chunkX, chunkZ)] : GenerateChunk(chunkX, chunkZ);
+        }
+
+        public Chunk[] GetChunksInViewDistance(int chunkX, int chunkZ, sbyte viewDistance) {
+            Chunk[] chunks = new Chunk[(int) Math.Pow((viewDistance * 2) + 1, 2)];
+            int i = 0;
+
+            for(int x = chunkX - viewDistance; x <= chunkX + viewDistance; x++) {
+                for(int z = chunkZ - viewDistance; z <= chunkZ + viewDistance; z++) {
+                    chunks[i] = GetChunk(x, z);
+                    i++;
+                }
+            }
+
+            return chunks;
         }
 
         public Chunk GenerateChunk(int x, int z) {

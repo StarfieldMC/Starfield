@@ -5,11 +5,12 @@ namespace nylium.Networking.DataTypes {
 
     public class Identifier : DataType<U.Identifier> {
 
-        public Identifier() : base(new U.Identifier("minecraft", "none")) { }
+        public Identifier() : base(null) { }
         public Identifier(U.Identifier value) : base(value) { }
+        public Identifier(Stream stream) : base(null) { Read(stream); }
 
         public override int Read(Stream stream) {
-            String str = new String();
+            String str = new();
             int bytesRead = str.Read(stream);
 
             string[] arr = str.Value.Split(":");
@@ -19,7 +20,7 @@ namespace nylium.Networking.DataTypes {
         }
 
         public override void Write(Stream stream) {
-            String str = new String(Value.Namespace + ":" + Value.Id);
+            String str = new(Value.ToString());
             str.Write(stream);
         }
     }

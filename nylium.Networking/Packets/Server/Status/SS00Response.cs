@@ -2,7 +2,7 @@
 
 namespace nylium.Networking.Packets.Server.Status {
 
-    [Packet(0, ProtocolState.STATUS, PacketSide.SERVER)]
+    [Packet(0, ProtocolState.Status, PacketSide.Server)]
     public class SS00Response : Packet {
 
         public string JsonResponse { get; }
@@ -10,7 +10,7 @@ namespace nylium.Networking.Packets.Server.Status {
         public SS00Response(string jsonResponse) {
             JsonResponse = jsonResponse;
 
-            String @string = new String(jsonResponse);
+            String @string = new(jsonResponse);
             @string.Write(Data);
         }
     }

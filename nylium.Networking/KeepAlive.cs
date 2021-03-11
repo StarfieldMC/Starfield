@@ -7,7 +7,7 @@ namespace nylium.Networking {
 
     class KeepAlive {
 
-        private readonly Random random = new Random();
+        private readonly Random random = new();
 
         private Socket Socket { get; }
         private Action<Socket, byte[]> Send { get; }
@@ -45,8 +45,8 @@ namespace nylium.Networking {
         private void KeepAliveTimer_Elapsed(object sender, ElapsedEventArgs e) {
             TimeoutTimer.Stop();
 
-            SP1FKeepAlive keepAlive = new SP1FKeepAlive(LongRandom(random));
-            Send(Socket, keepAlive.ToArray());
+            SP1FKeepAlive keepAlive = new(LongRandom(random));
+            Send(Socket, keepAlive.ToBytes());
 
             HasResponded = false;
             TimeoutTimer.Start();

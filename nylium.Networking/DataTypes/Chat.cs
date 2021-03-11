@@ -1,15 +1,16 @@
 ﻿using System.IO;
 using Jil;
-using nylium.Utilities;
 
 namespace nylium.Networking.DataTypes {
 
     public class Chat : DataType<dynamic> {
 
         public Chat() : base(null) { }
+        public Chat(dynamic json) : base(null) { Value = json; }
+        public Chat(Stream stream) : base(null) { Read(stream); }
 
         public override int Read(Stream stream) {
-            String @string = new String();
+            String @string = new();
             int bytesRead = @string.Read(stream);
 
             Value = JSON.DeserializeDynamic(@string.Value);
@@ -17,14 +18,8 @@ namespace nylium.Networking.DataTypes {
         }
 
         public override void Write(Stream stream) {
-            String @string = new String(Value);
+            String @string = new(Value);
             @string.Write(stream);
-        }
-
-        // awful hack because you can't use dynamic variables in base constructor or something
-        // TODO find a better way to do this
-        public void SetValue(dynamic value) {
-            Value = value;
         }
     }
 }

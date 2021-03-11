@@ -8,6 +8,7 @@ namespace nylium.Networking.DataTypes {
 
         public UShort() : base(0) { }
         public UShort(ushort value) : base(value) { }
+        public UShort(Stream stream) : base(0) { Read(stream); }
 
         public override int Read(Stream stream) {
             byte[] read = new byte[2];

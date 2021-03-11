@@ -10,6 +10,7 @@ namespace nylium.Networking.DataTypes {
 
         public UUID() : base(null) { }
         public UUID(DaanV2.UUID.UUID value) : base(value) { }
+        public UUID(Stream stream) : base(null) { Read(stream); }
 
         public override int Read(Stream stream) {
             byte[] read = new byte[16];
@@ -61,7 +62,9 @@ namespace nylium.Networking.DataTypes {
         }
 
         public override void Write(Stream stream) {
-            string s = new string(Value.Chars);
+            string s = new(Value.Chars);
+            s = s.Replace("-", "");
+
             stream.Write(s.HexToBytes());
         }
     }

@@ -7,6 +7,7 @@ namespace nylium.Networking.DataTypes {
 
         public Double() : base(0) { }
         public Double(double value) : base(value) { }
+        public Double(Stream stream) : base(0) { Read(stream); }
 
         public override int Read(Stream stream) {
             byte[] read = new byte[8];

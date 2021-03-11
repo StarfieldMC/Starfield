@@ -7,6 +7,7 @@ namespace nylium.Networking.DataTypes {
 
         public Angle() : base(0) { }
         public Angle(double value) : base(value) { }
+        public Angle(Stream stream) : base(0) { Read(stream); }
 
         public override int Read(Stream stream) {
             byte[] read = new byte[1];

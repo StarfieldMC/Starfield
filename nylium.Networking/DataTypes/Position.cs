@@ -8,6 +8,7 @@ namespace nylium.Networking.DataTypes {
 
         public Position() : base(null) { }
         public Position(U.Position.Int value) : base(value) { }
+        public Position(Stream stream) : base(null) { Read(stream); }
 
         public override int Read(Stream stream) {
             byte[] read = new byte[8];

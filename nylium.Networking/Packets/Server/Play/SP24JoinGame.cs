@@ -7,7 +7,7 @@ using fNbt;
 
 namespace nylium.Networking.Packets.Server.Play {
 
-    [Packet(0x24, ProtocolState.PLAY, PacketSide.SERVER)]
+    [Packet(0x24, ProtocolState.Play, PacketSide.Server)]
     public class SP24JoinGame : Packet {
         
         public int EntityId { get; }
@@ -46,19 +46,19 @@ namespace nylium.Networking.Packets.Server.Play {
             IsDebug = isDebug;
             IsFlat = isFlat;
 
-            Int eId = new Int(entityId);
-            Boolean hc = new Boolean(isHardcore);
-            UByte gm = new UByte((byte) (sbyte) gamemode);
-            Byte pGm = new Byte((sbyte) gamemode);
-            VarInt wc = new VarInt(worldNames.Length);
-            Array<U.Identifier, DT.Identifier> wns = new Array<U.Identifier, DT.Identifier>(worldNames);
-            NBT dc = new NBT(new NbtFile(dimensionCodec));
-            NBT d = new NBT(new NbtFile(dimension));
-            DT.Identifier wn = new DT.Identifier(worldName);
-            Long hs = new Long(hashedSeed);
-            VarInt mp = new VarInt(maxPlayers);
-            VarInt vd = new VarInt(viewDistance);
-            Boolean rdi = new Boolean(reducedDebugInfo);
+            Int eId = new(entityId);
+            Boolean hc = new(isHardcore);
+            UByte gm = new((byte) (sbyte) gamemode);
+            Byte pGm = new((sbyte) gamemode);
+            VarInt wc = new(worldNames.Length);
+            Array<U.Identifier, DT.Identifier> wns = new(worldNames);
+            NBT dc = new(new NbtFile(dimensionCodec));
+            NBT d = new(new NbtFile(dimension));
+            DT.Identifier wn = new(worldName);
+            Long hs = new(hashedSeed);
+            VarInt mp = new(maxPlayers);
+            VarInt vd = new(viewDistance);
+            Boolean rdi = new(reducedDebugInfo);
 
             eId.Write(Data);
             hc.Write(Data);

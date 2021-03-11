@@ -8,6 +8,7 @@ namespace nylium.Networking.DataTypes {
 
         public VarLong() : base(0) { }
         public VarLong(long value) : base(value) { }
+        public VarLong(Stream stream) : base(0) { Read(stream); }
 
         public override int Read(Stream stream) {
             int bytesRead = 0;

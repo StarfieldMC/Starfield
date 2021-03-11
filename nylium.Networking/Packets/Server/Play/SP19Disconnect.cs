@@ -2,7 +2,7 @@
 
 namespace nylium.Networking.Packets.Server.Play {
 
-    [Packet(0x19, ProtocolState.PLAY, PacketSide.SERVER)]
+    [Packet(0x19, ProtocolState.Play, PacketSide.Server)]
     public class SP19Disconnect : Packet {
 
         public dynamic Reason { get; }
@@ -10,8 +10,7 @@ namespace nylium.Networking.Packets.Server.Play {
         public SP19Disconnect(dynamic reason) {
             Reason = reason;
 
-            Chat chat = new Chat();
-            chat.SetValue(reason);
+            Chat chat = new(reason);
             chat.Write(Data);
         }
     }

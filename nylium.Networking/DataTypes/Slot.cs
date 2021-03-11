@@ -8,16 +8,17 @@ namespace nylium.Networking.DataTypes {
 
         public Slot() : base(null) { }
         public Slot(InventorySlot value) : base(value) { }
+        public Slot(Stream stream) : base(null) { Read(stream); }
 
         public override int Read(Stream stream) {
-            Boolean boolean = new Boolean();
+            Boolean boolean = new();
             int bytesRead = boolean.Read(stream);
 
             if(boolean.Value) {
-                VarInt itemId = new VarInt();
+                VarInt itemId = new();
                 bytesRead += itemId.Read(stream);
 
-                Byte count = new Byte();
+                Byte count = new();
                 bytesRead += count.Read(stream);
 
                 NBT nbt = null;

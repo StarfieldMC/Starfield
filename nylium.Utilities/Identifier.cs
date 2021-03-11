@@ -11,5 +11,13 @@ namespace nylium.Utilities {
             Namespace = _namespace;
             Id = id;
         }
+
+        public Identifier(string id) {
+            Id = id;
+        }
+
+        public override string ToString() {
+            return string.IsNullOrWhiteSpace(Namespace) ? Id : Namespace + ":" + Id;
+        }
     }
 }

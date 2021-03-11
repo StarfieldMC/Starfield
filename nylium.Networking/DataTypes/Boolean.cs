@@ -7,6 +7,7 @@ namespace nylium.Networking.DataTypes {
 
         public Boolean() : base(false) { }
         public Boolean(bool value) : base(value) { }
+        public Boolean(Stream stream) : base(false) { Read(stream); }
 
         public override int Read(Stream stream) {
             bool result;

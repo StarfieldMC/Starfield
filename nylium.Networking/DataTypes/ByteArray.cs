@@ -13,6 +13,10 @@ namespace nylium.Networking.DataTypes {
 
         public ByteArray(sbyte[] value) : base(value) { }
 
+        public ByteArray(int count, Stream stream) : base(new sbyte[count]) {
+            Read(stream);
+        }
+
         public override int Read(Stream stream) {
             return stream.Read((byte[]) (Array) Value, 0, Count);
         }

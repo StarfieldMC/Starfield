@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using nylium.Extensions;
 
 namespace nylium.Networking.DataTypes {
@@ -8,6 +7,7 @@ namespace nylium.Networking.DataTypes {
 
         public Short() : base(0) { }
         public Short(short value) : base(value) { }
+        public Short(Stream stream) : base(0) { Read(stream); }
 
         public override int Read(Stream stream) {
             byte[] read = new byte[2];
