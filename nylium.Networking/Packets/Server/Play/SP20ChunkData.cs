@@ -28,16 +28,16 @@ namespace nylium.Networking.Packets.Server.Play {
             Data = data;
             BlockEntities = blockEntities;
 
-            VarInt varInt = new(chunkX);
-            varInt.Write(base.Data);
+            Int _int = new(chunkX);
+            _int.Write(base.Data);
 
-            varInt.Value = chunkZ;
-            varInt.Write(base.Data);
+            _int.Value = chunkZ;
+            _int.Write(base.Data);
 
             Boolean boolean = new(fullChunk);
             boolean.Write(base.Data);
 
-            varInt.Value = primaryBitMask;
+            VarInt varInt = new(primaryBitMask);
             varInt.Write(base.Data);
 
             base.Data.Write(new NbtFile(heightmaps).SaveToBuffer(NbtCompression.None));

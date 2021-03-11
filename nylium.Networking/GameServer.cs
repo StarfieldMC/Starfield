@@ -325,8 +325,8 @@ namespace nylium.Networking {
                                         }
 
                                         SP20ChunkData chunkData = new(chunk.X, chunk.Z, true, mask, heightmap,
-                                            new int[] { 0 }, data, new NbtCompound[] { });
-                                        Send(socket, chunkData.ToBytes()); // TODO this packet crashes the client with "Root tag must be a named compound tag"
+                                            new int[] { 0 }, data, new NbtCompound[] { new NbtCompound("root") });
+                                        Send(socket, chunkData.ToBytes()); // TODO this packet crashes the client with "Root tag must be a named compound tag" // this and modification in chunkdata shouldve fixed it but other stuff just check discord - zcri
                                     }
 
                                     SP3DWorldBorder worldBorder = new(0, 0, 0, 64, 0, 29999984, 16, 2);
