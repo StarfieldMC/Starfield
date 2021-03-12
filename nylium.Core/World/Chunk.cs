@@ -53,47 +53,67 @@ namespace nylium.Core.World {
             return Blocks[y][x][z];
         }
 
-        public int[] GetBlockIdsInSection(int section, bool nonAirOnly = false) {
-            if(nonAirOnly) {
-                List<int> blocks = new();
+        public int GetBlockCountInSection(int section, bool nonAir = true) {
+            int count = 0;
 
-                int startY = section * 16;
-                int endY = startY + 15;
+            int startY = section * 16;
+            int endY = startY + 15;
 
+            if(nonAir) {
                 for(int y = startY; y <= endY; y++) {
                     for(int x = 0; x < X_SIZE; x++) {
                         for(int z = 0; z < Z_SIZE; z++) {
                             B.Block block = GetBlock(x, y, z);
-
-                            if(block != null) { // air
-                                blocks.Add(block.Id);
+                            
+                            if(block != null) {
+                                count++;
                             }
                         }
                     }
                 }
-
-                return blocks.ToArray();
             } else {
-                int[] blocks = new int[16 * 16 * 16]; // a section is 16x16x16 blocks
-
-                int startY = section * 16;
-                int endY = startY + 15;
-
-                int i = 0;
-
                 for(int y = startY; y <= endY; y++) {
                     for(int x = 0; x < X_SIZE; x++) {
                         for(int z = 0; z < Z_SIZE; z++) {
                             B.Block block = GetBlock(x, y, z);
-                            blocks[i] = block == null ? 0 : block.Id;
 
-                            i++;
+                            if(block == null) {
+                                count++;
+                            }
                         }
                     }
                 }
-
-                return blocks;
             }
+
+            return count;
+        }
+
+        public int[] GetBlocksInSection(int section) {
+            int[] blocks = new int[16 * 16 * 16];
+
+            int startY = section * 16;
+            int endY = startY + 15;
+
+            int i = 0;
+
+            for(int y = startY; y <= endY; y++) {
+                for(int x = 0; x < X_SIZE; x++) {
+                    for(int z = 0; z < Z_SIZE; z++) {
+                        B.Block block = GetBlock(x, y, z);
+
+                        if(block != null) {
+                            System.Console.WriteLine(blocks);
+                            blocks[i] = block.Id;
+                        } else {
+                            blocks[i] = 0;
+                        }
+
+                        i++;
+                    }
+                }
+            }
+
+            return blocks;
         }
     }
 }

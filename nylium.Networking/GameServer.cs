@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Buffers.Binary;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -138,8 +139,6 @@ namespace nylium.Networking {
                 protocolState = ProtocolState.Handshaking,
             };
 
-            //state.keepAlive = new KeepAlive(handler, Send, Timeout, 5000);
-
             handler.BeginReceive(state.buffer, 0, StateObject.BUFFER_SIZE, 0,
                 new AsyncCallback(ReadCallback), state);
         }
@@ -191,7 +190,7 @@ namespace nylium.Networking {
                                     Send(socket, pong.ToBytes());
 
                                     socket.Close();
-                                    break;
+                                    return;
                                 }
                         }
                         break;
@@ -206,16 +205,19 @@ namespace nylium.Networking {
                                     Send(socket, loginSuccess.ToBytes());
 
                                     state.protocolState = ProtocolState.Play;
-                                    state.player = new(world, "minecraft:player", 0, 1, 0, 0, 0);
+                                    state.player = new(world, "minecraft:player", 0, 260, 0, 0, 0);
 
                                     SP24JoinGame joinGame = new(state.player.EntityId, false, Gamemode.Creative, Gamemode.Creative,
                                         new Utilities.Identifier[] { new("world") }, dimensionCodec.RootTag, overworldDimension.RootTag,
                                         new("world"), 0, 99, 8, false, true, false, true);
                                     Send(socket, joinGame.ToBytes());
 
+                                    state.keepAlive = new(socket, Send, Timeout, 1000);
+
                                     SP17PluginMessage brand = new(new Utilities.Identifier("minecraft", "brand"),
                                         (sbyte[]) (Array) Encoding.UTF8.GetBytes("nylium"));
-                                    Send(socket, brand.ToBytes());
+                                    // TODO this causes out of bounds on the client
+                                    //Send(socket, brand.ToBytes());
                                     break;
                                 }
                         }
@@ -223,7 +225,16 @@ namespace nylium.Networking {
                     case ProtocolState.Play:
                         switch(packet) {
                             case CP10KeepAlive: {
-                                    //state.keepAlive.HasResponded = true;
+                                    if(state.keepAlive != null) {
+                                        state.keepAlive.HasResponded = true;
+                                    } else {
+                                        SP19Disconnect disconnect = new(new {
+                                            text = "keepAlive == null"
+                                        });
+
+                                        socket.Close();
+                                        return;
+                                    }
                                     break;
                                 }
                             case CP05ClientSettings: {
@@ -250,12 +261,12 @@ namespace nylium.Networking {
                                     Send(socket, updateViewPosition.ToBytes());
 
                                     Chunk[] chunks = world.GetChunksInViewDistance((int) Math.Floor(state.player.X / 16), (int) Math.Floor(state.player.Z / 16),
-                                        state.viewDistance);
+                                        (sbyte)(state.viewDistance - 1));
 
                                     byte sections0 = 0;
                                     byte sections1 = 0;
 
-                                    sections0.SetBit(0, true);
+                                    sections0.SetBit(7, true);
 
                                     int mask = sections0 | (sections1 << 8);
 
@@ -275,22 +286,24 @@ namespace nylium.Networking {
                                         new NbtLongArray("WORLD_SURFACE")
                                     };
 
+                                    int[] biomes = Enumerable.Repeat(127, 1024).ToArray();
+
                                     for(int i = 0; i < chunks.Length; i++) {
                                         Chunk chunk = chunks[i];
                                         sbyte[] data = null;
 
                                         using(MemoryStream stream = RMSManager.Get().GetStream("chunk data convert thing")) {
                                             // only 1 section sent (see primary bit mask) therefore no loop
-                                            int nonAirBlockCount = chunk.GetBlockIdsInSection(0, true).Length;
+                                            int nonAirBlockCount = chunk.GetBlockCountInSection(0, false);
 
                                             Short blockCount = new((short) nonAirBlockCount);
                                             UByte bitsPerBlock = new(8);
 
-                                            VarInt paletteLength = new(2);
+                                            VarInt paletteLength = new(3);
                                             VarInt stone = new(1);
                                             VarInt air = new(0);
 
-                                            int[] blockIds = chunk.GetBlockIdsInSection(0);
+                                            int[] blockIds = chunk.GetBlocksInSection(0);
 
                                             VarInt dataArrayLength = new(16 * 16 * 16);
                                             byte[] dataArrayRaw = new byte[16 * 16 * 16];
@@ -304,7 +317,7 @@ namespace nylium.Networking {
 
                                                 // hardcode idk
                                                 if(id == 1) {
-                                                    bb.SetBit(7, true);
+                                                    bb.SetBit(0, true);
                                                 }
 
                                                 dataArrayRaw[k] = bb;
@@ -316,8 +329,9 @@ namespace nylium.Networking {
                                             blockCount.Write(stream);
                                             bitsPerBlock.Write(stream);
                                             paletteLength.Write(stream);
-                                            stone.Write(stream);
                                             air.Write(stream);
+                                            stone.Write(stream);
+                                            stone.Write(stream);
                                             dataArrayLength.Write(stream);
                                             dataArray.Write(stream);
 
@@ -325,17 +339,19 @@ namespace nylium.Networking {
                                         }
 
                                         SP20ChunkData chunkData = new(chunk.X, chunk.Z, true, mask, heightmap,
-                                            new int[] { 0 }, data, new NbtCompound[] { new NbtCompound("root") });
-                                        Send(socket, chunkData.ToBytes()); // TODO this packet crashes the client with "Root tag must be a named compound tag" // this and modification in chunkdata shouldve fixed it but other stuff just check discord - zcri
+                                            biomes, data, new NbtCompound[] { });
+                                        Send(socket, chunkData.ToBytes());
                                     }
 
                                     SP3DWorldBorder worldBorder = new(0, 0, 0, 64, 0, 29999984, 16, 2);
                                     Send(socket, worldBorder.ToBytes());
 
-                                    SP42SpawnPosition spawnPosition = new(new(0, 1, 0));
+                                    SP42SpawnPosition spawnPosition = new(new(0, 260, 0));
                                     Send(socket, spawnPosition.ToBytes());
 
                                     Send(socket, playerPositionAndLook.ToBytes());
+
+                                    state.keepAlive.Start();
                                     break;
                                 }
                         }
@@ -353,10 +369,21 @@ namespace nylium.Networking {
                     socket.BeginReceive(state.buffer, 0, StateObject.BUFFER_SIZE, 0,
                         new AsyncCallback(ReadCallback), state);
                 } else {
+                    if(state.keepAlive != null) {
+                        state.keepAlive.Stop();
+                    }
+
                     socket.Dispose();
                     socket = null;
+                    state = null;
                 }
-            } catch(ObjectDisposedException) { }
+            } catch(ObjectDisposedException) {
+                if(state.keepAlive != null) {
+                    state.keepAlive.Stop();
+                }
+
+                state = null;
+            }
         }
 
         private void Timeout(Socket handler) {

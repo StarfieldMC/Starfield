@@ -18,7 +18,7 @@ namespace nylium.Networking.DataTypes {
         }
 
         public override void Write(Stream stream) {
-            String @string = new(Value);
+            String @string = new(JSON.SerializeDynamic(Value));
             @string.Write(stream);
         }
     }

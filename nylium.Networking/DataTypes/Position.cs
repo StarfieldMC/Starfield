@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Buffers.Binary;
+using System.IO;
 using nylium.Extensions;
 using U = nylium.Utilities;
 
@@ -29,7 +30,10 @@ namespace nylium.Networking.DataTypes {
         }
 
         public override void Write(Stream stream) {
-            stream.Write((((Value.X & 0x3FFFFFF) << 38) | ((Value.Z & 0x3FFFFFF) << 12) | (Value.Y & 0xFFF)).WriteBigEndian());
+            byte[] b = new byte[8];
+            BinaryPrimitives.WriteInt64LittleEndian(b, ((Value.X & 0x3FFFFFF) << 38) | ((Value.Z & 0x3FFFFFF) << 12) | (Value.Y & 0xFFF));
+
+            stream.Write(b);
         }
     }
 }
