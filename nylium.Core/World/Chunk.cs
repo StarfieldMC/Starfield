@@ -106,7 +106,7 @@ namespace nylium.Core.World {
                         } else {
                             blocks[i] = 0;
                         }
-
+                        
                         i++;
                     }
                 }

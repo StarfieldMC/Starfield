@@ -7,7 +7,8 @@
                 for(int z = 0; z < Chunk.Z_SIZE; z++) {
                     chunk.SetBlock(Block.Block.Create(world, "minecraft:stone", x, 0, z), x, 0, z);
 
-                    if(chunk.X % 2 == 1 && chunk.Z % 2 == 1) {
+                    // checkerboard pattern
+                    if((chunk.X + chunk.Z) % 2 != 0) {
                         chunk.SetBlock(Block.Block.Create(world, "minecraft:stone", x, 1, z), x, 1, z);
                     }
                 }

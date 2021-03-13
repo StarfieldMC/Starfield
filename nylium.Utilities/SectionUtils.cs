@@ -63,7 +63,7 @@ namespace nylium.Utilities {
                 }
             }
 
-            Console.WriteLine(array.Count(i => i != 0));
+            Array.Reverse(array); // reverse, otherwise the Y coordinate will be flipped
 
             return array;
         }
