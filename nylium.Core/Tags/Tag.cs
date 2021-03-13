@@ -44,7 +44,7 @@ namespace nylium.Core.Tags {
                                     int[] ids = new int[tag.Value.values.Length];
 
                                     for(int i = 0; i < tag.Value.values.Length; i++) {
-                                        int id = Block.Block.GetBlockProtocolId((string) tag.Value.values[i]);
+                                        int id = Block.GameBlock.GetBlockProtocolId((string) tag.Value.values[i]);
 
                                         if(id != -1) {
                                             ids[i] = id;
@@ -57,7 +57,7 @@ namespace nylium.Core.Tags {
                                     ids = new int[tag.Value.values.Length];
 
                                     for(int i = 0; i < tag.Value.values.Length; i++) {
-                                        int id = Item.Item.GetItemProtocolId((string) tag.Value.values[i]);
+                                        int id = Item.GameItem.GetItemProtocolId((string) tag.Value.values[i]);
 
                                         if(id != -1) {
                                             ids[i] = id;
@@ -70,7 +70,7 @@ namespace nylium.Core.Tags {
                                     ids = new int[tag.Value.values.Length];
 
                                     for(int i = 0; i < tag.Value.values.Length; i++) {
-                                        int id = Block.Block.GetBlockProtocolId((string) tag.Value.values[i]);
+                                        int id = Block.GameBlock.GetBlockProtocolId((string) tag.Value.values[i]);
 
                                         if(id != -1) {
                                             ids[i] = id;
@@ -83,7 +83,7 @@ namespace nylium.Core.Tags {
                                     ids = new int[tag.Value.values.Length];
 
                                     for(int i = 0; i < tag.Value.values.Length; i++) {
-                                        int id = Entity.Entity.GetEntityProtocolId((string) tag.Value.values[i]);
+                                        int id = Entity.GameEntity.GetEntityProtocolId((string) tag.Value.values[i]);
 
                                         if(id != -1) {
                                             ids[i] = id;

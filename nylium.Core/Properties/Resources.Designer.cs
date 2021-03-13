@@ -93,6 +93,16 @@ namespace nylium.Core.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] dimension_codec {
+            get {
+                object obj = ResourceManager.GetObject("dimension_codec", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] entities {
             get {
                 object obj = ResourceManager.GetObject("entities", resourceCulture);
@@ -113,6 +123,26 @@ namespace nylium.Core.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] nether {
+            get {
+                object obj = ResourceManager.GetObject("nether", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] overworld {
+            get {
+                object obj = ResourceManager.GetObject("overworld", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] recipes {
             get {
                 object obj = ResourceManager.GetObject("recipes", resourceCulture);
@@ -126,6 +156,16 @@ namespace nylium.Core.Properties {
         internal static byte[] tags {
             get {
                 object obj = ResourceManager.GetObject("tags", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] the_end {
+            get {
+                object obj = ResourceManager.GetObject("the_end", resourceCulture);
                 return ((byte[])(obj));
             }
         }

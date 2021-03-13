@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\nylium.Networking\nylium.Networking.csproj" />
+    <ProjectReference Include="..\nylium.Core\nylium.Core.csproj" />
   </ItemGroup>
 
 </Project>

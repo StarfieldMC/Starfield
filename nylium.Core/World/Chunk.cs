@@ -9,23 +9,23 @@ namespace nylium.Core.World {
         public const int Z_SIZE = 16;
         public const int Y_SIZE = 256;
 
-        public World Parent { get; }
+        public GameWorld Parent { get; }
 
         public int X { get; }
         public int Z { get; }
 
-        public B.Block[][][] Blocks { get; }
+        public B.GameBlock[][][] Blocks { get; }
 
-        public Chunk(World parent, int x, int z) {
+        public Chunk(GameWorld parent, int x, int z) {
             Parent = parent;
 
             X = x;
             Z = z;
 
-            Blocks = new B.Block[Y_SIZE][][];
+            Blocks = new B.GameBlock[Y_SIZE][][];
         }
 
-        public Chunk(World parent, int x, int z, B.Block[][][] blocks) {
+        public Chunk(GameWorld parent, int x, int z, B.GameBlock[][][] blocks) {
             Parent = parent;
 
             X = x;
@@ -34,19 +34,19 @@ namespace nylium.Core.World {
             Blocks = blocks;
         }
 
-        public void SetBlock(B.Block block, int x, int y, int z) {
+        public void SetBlock(B.GameBlock block, int x, int y, int z) {
             if(Blocks[y] == null) {
-                Blocks[y] = new B.Block[X_SIZE][];
+                Blocks[y] = new B.GameBlock[X_SIZE][];
             }
 
             if(Blocks[y][x] == null) {
-                Blocks[y][x] = new B.Block[Z_SIZE];
+                Blocks[y][x] = new B.GameBlock[Z_SIZE];
             }
 
             Blocks[y][x][z] = block;
         }
 
-        public B.Block GetBlock(int x, int y, int z) {
+        public B.GameBlock GetBlock(int x, int y, int z) {
             if(Blocks[y] == null) return null;
             if(Blocks[y][x] == null) return null;
 
@@ -63,7 +63,7 @@ namespace nylium.Core.World {
                 for(int y = startY; y <= endY; y++) {
                     for(int x = 0; x < X_SIZE; x++) {
                         for(int z = 0; z < Z_SIZE; z++) {
-                            B.Block block = GetBlock(x, y, z);
+                            B.GameBlock block = GetBlock(x, y, z);
 
                             if(block != null) {
                                 count++;
@@ -75,7 +75,7 @@ namespace nylium.Core.World {
                 for(int y = startY; y <= endY; y++) {
                     for(int x = 0; x < X_SIZE; x++) {
                         for(int z = 0; z < Z_SIZE; z++) {
-                            B.Block block = GetBlock(x, y, z);
+                            B.GameBlock block = GetBlock(x, y, z);
 
                             if(block == null) {
                                 count++;
@@ -99,7 +99,7 @@ namespace nylium.Core.World {
             for(int y = startY; y <= endY; y++) {
                 for(int x = 0; x < X_SIZE; x++) {
                     for(int z = 0; z < Z_SIZE; z++) {
-                        B.Block block = GetBlock(x, y, z);
+                        B.GameBlock block = GetBlock(x, y, z);
 
                         if(block != null) {
                             blocks[i] = block.Id;
