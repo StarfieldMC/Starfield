@@ -11,4 +11,8 @@
     <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="1.4.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\nylium.Extensions\nylium.Extensions.csproj" />
+  </ItemGroup>
+
 </Project>

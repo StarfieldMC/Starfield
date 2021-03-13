@@ -205,7 +205,7 @@ namespace nylium.Networking {
                                     Send(socket, loginSuccess.ToBytes());
 
                                     state.protocolState = ProtocolState.Play;
-                                    state.player = new(world, "minecraft:player", 0, 260, 0, 0, 0);
+                                    state.player = new(world, "minecraft:player", 0, 16, 0, 0, 0);
 
                                     SP24JoinGame joinGame = new(state.player.EntityId, false, Gamemode.Creative, Gamemode.Creative,
                                         new Utilities.Identifier[] { new("world") }, dimensionCodec.RootTag, overworldDimension.RootTag,
@@ -263,14 +263,9 @@ namespace nylium.Networking {
                                     Chunk[] chunks = world.GetChunksInViewDistance((int) Math.Floor(state.player.X / 16), (int) Math.Floor(state.player.Z / 16),
                                         (sbyte)(state.viewDistance - 1));
 
-                                    byte sections0 = 0;
-                                    byte sections1 = 0;
+                                    // TODO unhardcode everything here
+                                    int mask = 0b00000000_00000000_00000000_00000001;
 
-                                    sections0.SetBit(7, true);
-
-                                    int mask = sections0 | (sections1 << 8);
-
-                                    // idk
                                     byte[] a = new byte[] { 0x01, 0x00, 0x80, 0x40, 0x20, 0x10, 0x08, 0x04 };
                                     byte[] b = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x20, 0x10, 0x08, 0x04 };
 
@@ -288,6 +283,7 @@ namespace nylium.Networking {
 
                                     int[] biomes = Enumerable.Repeat(127, 1024).ToArray();
 
+                                    // TODO somehow the entire chunk is underwater?
                                     for(int i = 0; i < chunks.Length; i++) {
                                         Chunk chunk = chunks[i];
                                         sbyte[] data = null;
@@ -297,41 +293,20 @@ namespace nylium.Networking {
                                             int nonAirBlockCount = chunk.GetBlockCountInSection(0, false);
 
                                             Short blockCount = new((short) nonAirBlockCount);
-                                            UByte bitsPerBlock = new(8);
+                                            UByte bitsPerBlock = new((byte) Block.bitsPerBlock);
 
                                             VarInt paletteLength = new(3);
                                             VarInt stone = new(1);
                                             VarInt air = new(0);
 
                                             int[] blockIds = chunk.GetBlocksInSection(0);
+                                            long[] compactedLong = SectionUtils.ToCompactedLongArray(blockIds, Block.bitsPerBlock);
 
-                                            VarInt dataArrayLength = new(16 * 16 * 16);
-                                            byte[] dataArrayRaw = new byte[16 * 16 * 16];
-
-                                            int k = 0;
-
-                                            for(int j = blockIds.Length - 1; j >= 0; j--) {
-                                                int id = blockIds[j];
-
-                                                byte bb = 0;
-
-                                                // hardcode idk
-                                                if(id == 1) {
-                                                    bb.SetBit(0, true);
-                                                }
-
-                                                dataArrayRaw[k] = bb;
-                                                k++;
-                                            }
-
-                                            ByteArray dataArray = new((sbyte[]) (Array) dataArrayRaw);
+                                            VarInt dataArrayLength = new(compactedLong.Length);
+                                            Array<long, Long> dataArray = new(compactedLong);
 
                                             blockCount.Write(stream);
                                             bitsPerBlock.Write(stream);
-                                            paletteLength.Write(stream);
-                                            air.Write(stream);
-                                            stone.Write(stream);
-                                            stone.Write(stream);
                                             dataArrayLength.Write(stream);
                                             dataArray.Write(stream);
 
@@ -346,7 +321,7 @@ namespace nylium.Networking {
                                     SP3DWorldBorder worldBorder = new(0, 0, 0, 64, 0, 29999984, 16, 2);
                                     Send(socket, worldBorder.ToBytes());
 
-                                    SP42SpawnPosition spawnPosition = new(new(0, 260, 0));
+                                    SP42SpawnPosition spawnPosition = new(new(0, 16, 0));
                                     Send(socket, spawnPosition.ToBytes());
 
                                     Send(socket, playerPositionAndLook.ToBytes());

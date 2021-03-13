@@ -5,19 +5,7 @@ using System.Runtime.InteropServices;
 
 namespace nylium.Extensions {
 
-    unsafe delegate void MemCpyImpl(byte* src, byte* dest, int len);
-
     public static class BigEndianExtensions {
-
-        static MemCpyImpl memcpyimpl = (MemCpyImpl) Delegate.CreateDelegate(
-            typeof(MemCpyImpl), typeof(Buffer).GetMethod("memcpyimpl",
-                BindingFlags.Static | BindingFlags.NonPublic));
-
-        unsafe public static void UnsafeCopy(this byte[] _in, byte[] _out) {
-            fixed(byte* pSrc = _in)
-            fixed(byte* pDest = _out)
-                memcpyimpl(pSrc, pDest, _in.Length);
-        }
 
         unsafe public static float ReadBigEndianF(this byte[] x) {
             if(BitConverter.IsLittleEndian) {

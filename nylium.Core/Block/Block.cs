@@ -16,6 +16,8 @@ namespace nylium.Core.Block {
         //                                  id   x    y    z
         private static readonly Dictionary<(int, int, int, int), Block> blockCache = new();
 
+        public static int bitsPerBlock = 0;
+
         public World.World Parent { get; }
         public int Id { get; set; }
 
@@ -55,7 +57,9 @@ namespace nylium.Core.Block {
             Stopwatch stopwatch = new();
             stopwatch.Start();
 
-            using(MemoryStream compressedStream = RMSManager.Get().GetStream(Properties.Resources.blocks)) {
+            int maxStateId = 0;
+
+            using(MemoryStream compressedStream = RMSManager.Get().GetStream(Properties.Resources.blockstates)) {
                 using(GZipStream zipStream = new(compressedStream, CompressionMode.Decompress)) {
                     using(MemoryStream resultStream = RMSManager.Get().GetStream()) {
                         zipStream.CopyTo(resultStream);
@@ -65,12 +69,18 @@ namespace nylium.Core.Block {
                         foreach(dynamic block in json[0].blocks.block) {
                             string namedId = block.Value.text_id;
                             int id = block.Value.numeric_id;
+                            
+                            if(block.Value.max_state_id > maxStateId) {
+                                maxStateId = block.Value.max_state_id;
+                            }
 
                             blocks.Add(namedId, id);
                         }
                     }
                 }
             }
+
+            bitsPerBlock = (int) Math.Ceiling(Math.Log2(maxStateId));
 
             stopwatch.Stop();
             Console.WriteLine("Initialized blocks in " + Math.Round(stopwatch.Elapsed.TotalMilliseconds, 2) + "ms");

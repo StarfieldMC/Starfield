@@ -9,7 +9,7 @@ namespace nylium.Core.World {
 
     public class World {
 
-        private const int initializationChunks = 128; // how big of a chunk grid (square) to generate on initialization
+        private const int initializationChunks = 32; // how big of a chunk grid (square) to generate on initialization
         private int lastEntityId = 0;
 
         public string Name { get; }
@@ -37,7 +37,7 @@ namespace nylium.Core.World {
             Generator = generator;
 
             int a = (int) Math.Floor(initializationChunks / 2d);
-            //int i = 0;
+            int i = 0;
 
             //Stopwatch chunkStopwatch = new();
             Stopwatch totalStopwatch = new();
@@ -50,7 +50,7 @@ namespace nylium.Core.World {
 
                     //chunkStopwatch.Start();
                     GenerateChunk(x, z);
-                    //i++;
+                    i++;
                     //chunkStopwatch.Stop();
 
                     //Console.WriteLine(Math.Round(chunkStopwatch.Elapsed.TotalMilliseconds, 4) + "μs");
@@ -59,7 +59,7 @@ namespace nylium.Core.World {
             }
 
             totalStopwatch.Stop();
-            Console.WriteLine(string.Format("Finished generating world! Took {0}ms", Math.Round(totalStopwatch.Elapsed.TotalMilliseconds, 2)));
+            Console.WriteLine(string.Format("Finished generating world! ({0} chunks) Took {1}ms", i, Math.Round(totalStopwatch.Elapsed.TotalMilliseconds, 2)));
         }
 
         // TODO better way to do this?
@@ -99,7 +99,7 @@ namespace nylium.Core.World {
         public Chunk GenerateChunk(int x, int z) {
             Chunk chunk = new(this, x, z);
             Generator.GenerateChunk(this, chunk);
-            Chunks.TryAdd((x, z), chunk);
+            Chunks.Add((x, z), chunk);
 
             return chunk;
         }

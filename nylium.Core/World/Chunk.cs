@@ -64,7 +64,7 @@ namespace nylium.Core.World {
                     for(int x = 0; x < X_SIZE; x++) {
                         for(int z = 0; z < Z_SIZE; z++) {
                             B.Block block = GetBlock(x, y, z);
-                            
+
                             if(block != null) {
                                 count++;
                             }
@@ -102,7 +102,6 @@ namespace nylium.Core.World {
                         B.Block block = GetBlock(x, y, z);
 
                         if(block != null) {
-                            System.Console.WriteLine(blocks);
                             blocks[i] = block.Id;
                         } else {
                             blocks[i] = 0;
