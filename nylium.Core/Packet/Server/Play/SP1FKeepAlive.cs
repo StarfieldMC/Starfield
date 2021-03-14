@@ -10,8 +10,7 @@ namespace nylium.Core.Packet.Server.Play {
         public SP1FKeepAlive(long keepAliveId) {
             KeepAliveId = keepAliveId;
 
-            Long @long = new(keepAliveId);
-            @long.Write(Data);
+            WriteLong(keepAliveId);
         }
     }
 }

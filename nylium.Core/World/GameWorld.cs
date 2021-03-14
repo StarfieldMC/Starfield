@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
+using nylium.Core.Entity.Entities;
 using nylium.Core.Packet.Server.Play;
 using nylium.Core.World.Generation;
 using E = nylium.Core.Entity;
@@ -20,7 +21,10 @@ namespace nylium.Core.World {
         public long Age { get; set; }
 
         public Dictionary<(int, int), Chunk> Chunks { get; }
+
+        public List<PlayerEntity> PlayerEntities { get; }
         public List<E.GameEntity> Entities { get; }
+
         public IWorldGenerator Generator { get; set; }
 
         private Thread WorldThread { get; }
@@ -31,6 +35,7 @@ namespace nylium.Core.World {
             Name = name;
 
             Chunks = chunks;
+            PlayerEntities = new();
             Entities = entities;
             Generator = generator;
 
@@ -45,6 +50,7 @@ namespace nylium.Core.World {
             Name = name;
 
             Chunks = new();
+            PlayerEntities = new();
             Entities = new();
 
             Generator = generator;
@@ -52,22 +58,13 @@ namespace nylium.Core.World {
             int a = (int) Math.Floor(initializationChunks / 2d);
             int i = 0;
 
-            //Stopwatch chunkStopwatch = new();
             Stopwatch totalStopwatch = new();
-
             totalStopwatch.Start();
 
             for(int x = -a; x <= a; x++) {
                 for(int z = -a; z <= a; z++) {
-                    //Console.Write(string.Format("Generating chunk at [{0},{1}] ({2}/{3})... ", x, z, i + 1, Math.Pow(initializationChunks, 2)));
-
-                    //chunkStopwatch.Start();
                     GenerateChunk(x, z);
                     i++;
-                    //chunkStopwatch.Stop();
-
-                    //Console.WriteLine(Math.Round(chunkStopwatch.Elapsed.TotalMilliseconds, 4) + "μs");
-                    //chunkStopwatch.Reset();
                 }
             }
 
@@ -99,9 +96,7 @@ namespace nylium.Core.World {
             Age++;
 
             SP4ETimeUpdate timeUpdate = new(Age, Age % 24000);
-            Server.Multicast(timeUpdate);
-
-            timeUpdate.Dispose();
+            Server.MulticastAsync(timeUpdate);
         }
 
         // TODO better way to do this?

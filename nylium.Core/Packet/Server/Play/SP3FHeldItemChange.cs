@@ -10,8 +10,7 @@ namespace nylium.Core.Packet.Server.Play {
         public SP3FHeldItemChange(sbyte slot) {
             Slot = slot;
 
-            DataTypes.Byte @byte = new(slot);
-            @byte.Write(Data);
+            WriteByte(slot);
         }
     }
 }

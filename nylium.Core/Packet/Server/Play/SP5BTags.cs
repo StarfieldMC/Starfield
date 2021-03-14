@@ -17,63 +17,55 @@ namespace nylium.Core.Packet.Server.Play {
             FluidTags = fluidTags;
             EntityTags = entityTags;
 
-            VarInt varInt = new(blockTags.Length);
-            varInt.Write(Data);
+            WriteVarInt(blockTags.Length);
 
             for(int i = 0; i < blockTags.Length; i++) {
                 Tag tag = blockTags[i];
 
                 Identifier name = new(tag.Name);
-                varInt.Value = tag.Entries.Length;
                 Array<int, VarInt> entries = new(tag.Entries);
 
                 name.Write(Data);
-                varInt.Write(Data);
+                WriteVarInt(tag.Entries.Length);
                 entries.Write(Data);
             }
 
-            varInt.Value = itemTags.Length;
-            varInt.Write(Data);
+            WriteVarInt(itemTags.Length);
 
             for(int i = 0; i < itemTags.Length; i++) {
                 Tag tag = itemTags[i];
 
                 Identifier name = new(tag.Name);
-                varInt.Value = tag.Entries.Length;
                 Array<int, VarInt> entries = new(tag.Entries);
 
                 name.Write(Data);
-                varInt.Write(Data);
+                WriteVarInt(tag.Entries.Length);
                 entries.Write(Data);
             }
 
-            varInt.Value = fluidTags.Length;
-            varInt.Write(Data);
+            WriteVarInt(fluidTags.Length);
 
             for(int i = 0; i < fluidTags.Length; i++) {
                 Tag tag = fluidTags[i];
 
                 Identifier name = new(tag.Name);
-                varInt.Value = tag.Entries.Length;
                 Array<int, VarInt> entries = new(tag.Entries);
 
                 name.Write(Data);
-                varInt.Write(Data);
+                WriteVarInt(tag.Entries.Length);
                 entries.Write(Data);
             }
 
-            varInt.Value = entityTags.Length;
-            varInt.Write(Data);
+            WriteVarInt(entityTags.Length);
 
             for(int i = 0; i < entityTags.Length; i++) {
                 Tag tag = entityTags[i];
 
                 Identifier name = new(tag.Name);
-                varInt.Value = tag.Entries.Length;
                 Array<int, VarInt> entries = new(tag.Entries);
 
                 name.Write(Data);
-                varInt.Write(Data);
+                WriteVarInt(tag.Entries.Length);
                 entries.Write(Data);
             }
         }

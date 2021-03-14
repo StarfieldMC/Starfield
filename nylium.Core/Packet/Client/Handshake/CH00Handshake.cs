@@ -12,17 +12,10 @@ namespace nylium.Core.Packet.Client.Handshake {
         public ProtocolState NextState { get; }
 
         public CH00Handshake(Stream stream) : base(stream) {
-            VarInt varInt = new(Data);
-            ProtocolVersion = varInt.Value;
-
-            String @string = new(Data);
-            ServerAddress = @string.Value;
-
-            UShort @ushort = new(Data);
-            ServerPort = @ushort.Value;
-
-            varInt.Read(Data);
-            NextState = (ProtocolState) varInt.Value;
+            ProtocolVersion = ReadVarInt();
+            ServerAddress = ReadString();
+            ServerPort = ReadUnsignedShort();
+            NextState = (ProtocolState) ReadVarInt();
         }
     }
 }

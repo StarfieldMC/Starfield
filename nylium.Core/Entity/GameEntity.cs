@@ -18,24 +18,33 @@ namespace nylium.Core.Entity {
         public string Id { get; }
         public int EntityId { get; }
 
-        public double X { get; }
-        public double Y { get; }
-        public double Z { get; }
+        public double X { get; set; }
+        public double Y { get; set; }
+        public double Z { get; set; }
 
-        public int Yaw { get; }
-        public int Pitch { get; }
+        public double LastX { get; set; }
+        public double LastY { get; set; }
+        public double LastZ { get; set; }
 
-        public GameEntity(World.GameWorld parent, string id, double x, double y, double z, int yaw, int pitch) {
+        public float Yaw { get; set; }
+        public float Pitch { get; set; }
+
+        public bool OnGround { get; set; }
+        public bool LastOnGround { get; set; }
+
+        public GameEntity(World.GameWorld parent, string id, double x, double y, double z, float yaw, float pitch, bool onGround) {
             Parent = parent;
             Id = id;
             EntityId = parent.GetNextEntityId(this);
 
-            X = x;
-            Y = y;
-            Z = z;
+            X = LastX = x;
+            Y = LastY = y;
+            Z = LastZ = z;
 
             Yaw = yaw;
             Pitch = pitch;
+
+            OnGround = LastOnGround = onGround;
         }
 
         public static int GetEntityProtocolId(string sid) {
@@ -68,7 +77,6 @@ namespace nylium.Core.Entity {
 
             stopwatch.Stop();
             Console.WriteLine("Initialized entities in " + Math.Round(stopwatch.Elapsed.TotalMilliseconds, 2) + "ms");
-            stopwatch = null;
         }
     }
 }

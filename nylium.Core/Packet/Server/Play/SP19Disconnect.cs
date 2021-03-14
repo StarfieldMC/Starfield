@@ -10,8 +10,7 @@ namespace nylium.Core.Packet.Server.Play {
         public SP19Disconnect(dynamic reason) {
             Reason = reason;
 
-            Chat chat = new(reason);
-            chat.Write(Data);
+            WriteChat(reason);
         }
     }
 }

@@ -35,11 +35,8 @@ namespace nylium.Core.Packet.Server.Play {
             Action = 0;
             Diameter = diameter;
 
-            VarInt varInt = new(Action);
-            varInt.Write(Data);
-
-            Double @double = new(diameter);
-            @double.Write(Data);
+            WriteVarInt(Action);
+            WriteDouble(diameter);
         }
 
         /// <summary>
@@ -51,17 +48,10 @@ namespace nylium.Core.Packet.Server.Play {
             NewDiameter = newDiameter;
             Speed = speed;
 
-            VarInt varInt = new(Action);
-            varInt.Write(Data);
-
-            Double @double = new(oldDiameter);
-            @double.Write(Data);
-
-            @double.Value = newDiameter;
-            @double.Write(Data);
-
-            VarLong varLong = new(speed);
-            varLong.Write(Data);
+            WriteVarInt(Action);
+            WriteDouble(oldDiameter);
+            WriteDouble(newDiameter);
+            WriteVarLong(speed);
         }
 
         /// <summary>
@@ -72,14 +62,9 @@ namespace nylium.Core.Packet.Server.Play {
             X = x;
             Z = z;
 
-            VarInt varInt = new(Action);
-            varInt.Write(Data);
-
-            Double @double = new(x);
-            @double.Write(Data);
-
-            @double.Value = z;
-            @double.Write(Data);
+            WriteVarInt(Action);
+            WriteDouble(x);
+            WriteDouble(z);
         }
 
         /// <summary>
@@ -98,32 +83,15 @@ namespace nylium.Core.Packet.Server.Play {
             WarningBlocks = warningBlocks;
             WarningTime = warningTime;
 
-            VarInt varInt = new(Action);
-            varInt.Write(Data);
-
-            Double @double = new(x);
-            @double.Write(Data);
-
-            @double.Value = z;
-            @double.Write(Data);
-
-            @double.Value = oldDiameter;
-            @double.Write(Data);
-
-            @double.Value = newDiameter;
-            @double.Write(Data);
-
-            VarLong varLong = new(speed);
-            varLong.Write(Data);
-
-            varInt.Value = portalTeleportBoundary;
-            varInt.Write(Data);
-
-            varInt.Value = warningBlocks;
-            varInt.Write(Data);
-
-            varInt.Value = warningTime;
-            varInt.Write(Data);
+            WriteVarInt(Action);
+            WriteDouble(x);
+            WriteDouble(z);
+            WriteDouble(oldDiameter);
+            WriteDouble(newDiameter);
+            WriteVarLong(speed);
+            WriteVarInt(portalTeleportBoundary);
+            WriteVarInt(warningBlocks);
+            WriteVarInt(warningTime);
         }
 
         /// <summary>
@@ -139,11 +107,8 @@ namespace nylium.Core.Packet.Server.Play {
                 WarningTime = warning;
             }
 
-            VarInt varInt = new(Action);
-            varInt.Write(Data);
-
-            varInt.Value = warning;
-            varInt.Write(Data);
+            WriteVarInt(Action);
+            WriteVarInt(warning);
         }
     }
 }

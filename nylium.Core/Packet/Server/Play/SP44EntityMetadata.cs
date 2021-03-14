@@ -14,8 +14,7 @@ namespace nylium.Core.Packet.Server.Play {
             EntityId = entityId;
             Metadata = metadata;
 
-            VarInt varInt = new(entityId);
-            varInt.Write(Data);
+            WriteVarInt(entityId);
 
             EntityMetadata entityMetadata = new(metadata);
             entityMetadata.Write(Data);

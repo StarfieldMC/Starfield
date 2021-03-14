@@ -1,6 +1,6 @@
 ﻿namespace nylium.Utilities {
 
-    public enum Gamemode : sbyte {
+    public enum Gamemode : int {
 
         Unknown = -1,
         Survival,

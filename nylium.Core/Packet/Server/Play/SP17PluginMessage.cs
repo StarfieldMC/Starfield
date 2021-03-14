@@ -16,8 +16,7 @@ namespace nylium.Core.Packet.Server.Play {
             Identifier identifier = new(channel);
             identifier.Write(Data);
 
-            ByteArray byteArray = new(data);
-            byteArray.Write(Data);
+            WriteByteArray(data);
         }
     }
 }

@@ -9,8 +9,7 @@ namespace nylium.Core.Packet.Client.Play {
         public int TeleportId { get; }
 
         public CP00TeleportConfirm(Stream stream) : base(stream) {
-            VarInt varInt = new(stream);
-            TeleportId = varInt.Value;
+            TeleportId = ReadVarInt();
         }
     }
 }

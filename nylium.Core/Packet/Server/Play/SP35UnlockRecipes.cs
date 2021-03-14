@@ -35,48 +35,30 @@ namespace nylium.Core.Packet.Server.Play {
             SmokerRecipeBookOpen = smokerRecipeBookOpen;
             SmokerRecipeBookFilterActive = smokerRecipeBookFilterActive;
 
-            VarInt varInt = new((int) Action);
-            varInt.Write(Data);
+            WriteVarInt((int) action);
 
-            Boolean boolean = new(craftingRecipeBookOpen);
-            boolean.Write(Data);
+            WriteBoolean(craftingRecipeBookOpen);
+            WriteBoolean(craftingRecipeBookFilterActive);
+            WriteBoolean(smeltingRecipeBookOpen);
+            WriteBoolean(smeltingRecipeBookFilterActive);
+            WriteBoolean(blastFurnaceRecipeBookOpen);
+            WriteBoolean(blastFurnaceRecipeBookFilterActive);
+            WriteBoolean(smokerRecipeBookOpen);
+            WriteBoolean(smokerRecipeBookFilterActive);
 
-            boolean.Value = craftingRecipeBookFilterActive;
-            boolean.Write(Data);
-
-            boolean.Value = smeltingRecipeBookOpen;
-            boolean.Write(Data);
-
-            boolean.Value = smeltingRecipeBookFilterActive;
-            boolean.Write(Data);
-
-            boolean.Value = blastFurnaceRecipeBookOpen;
-            boolean.Write(Data);
-
-            boolean.Value = blastFurnaceRecipeBookFilterActive;
-            boolean.Write(Data);
-
-            boolean.Value = smokerRecipeBookOpen;
-            boolean.Write(Data);
-
-            boolean.Value = smokerRecipeBookFilterActive;
-            boolean.Write(Data);
-
-            varInt.Value = recipeIds.Length;
-            varInt.Write(Data);
+            WriteVarInt(recipeIds.Length);
 
             Array<U.Identifier, Identifier> array = new(recipeIds);
             array.Write(Data);
 
             if(action == RecipeAction.Init) {
                 if(recipeIdsInit != null) {
-                    varInt.Value = recipeIdsInit.Length;
-                    varInt.Write(Data);
+                    WriteVarInt(recipeIdsInit.Length);
 
                     array = new(recipeIdsInit);
                     array.Write(Data);
                 } else {
-                    throw new System.ArgumentNullException("recipeIdsInit", "recipeIdsInit should be provided when action is init!");
+                    throw new System.ArgumentNullException(nameof(recipeIdsInit), "recipeIdsInit should be provided when action is init!");
                 }
             }
         }

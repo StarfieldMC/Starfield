@@ -13,11 +13,8 @@ namespace nylium.Core.Packet.Server.Play {
             ChunkX = chunkX;
             ChunkZ = chunkZ;
 
-            VarInt varInt = new(chunkX);
-            varInt.Write(Data);
-
-            varInt.Value = chunkZ;
-            varInt.Write(Data);
+            WriteVarInt(chunkX);
+            WriteVarInt(chunkZ);
         }
     }
 }

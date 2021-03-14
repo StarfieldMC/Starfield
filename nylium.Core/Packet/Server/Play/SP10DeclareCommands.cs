@@ -9,9 +9,8 @@ namespace nylium.Core.Packet.Server.Play {
         // TODO https://wiki.vg/Protocol#Declare_Commands
 
         public SP10DeclareCommands() {
-            VarInt varInt = new(0);
-            varInt.Write(Data);
-            varInt.Write(Data);
+            WriteVarInt(0);
+            WriteVarInt(0);
         }
     }
 }

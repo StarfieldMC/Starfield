@@ -10,8 +10,7 @@ namespace nylium.Core.Packet.Server.Status {
         public SS01Pong(long payload) {
             Payload = payload;
 
-            Long _long = new(payload);
-            _long.Write(Data);
+            WriteLong(payload);
         }
     }
 }

@@ -24,20 +24,12 @@ namespace nylium.Core.Packet.Client.Play {
         public MainHandSetting MainHand { get; }
 
         public CP05ClientSettings(Stream stream) : base(stream) {
-            String @string = new(Data);
-            Locale = @string.Value;
+            Locale = ReadString();
+            ViewDistance = ReadByte();
+            ChatMode = (ChatModeSetting) ReadVarInt();
+            ChatColors = ReadBoolean();
 
-            Byte @byte = new(Data);
-            ViewDistance = @byte.Value;
-
-            VarInt varInt = new(Data);
-            ChatMode = (ChatModeSetting) varInt.Value;
-
-            Boolean boolean = new(Data);
-            ChatColors = boolean.Value;
-
-            UByte ubyte = new(Data);
-            byte displayedSkinParts = ubyte.Value;
+            byte displayedSkinParts = ReadUnsignedByte();
 
             if(displayedSkinParts.IsBitSet(0)) {
                 CapeEnabled = true;
@@ -67,8 +59,7 @@ namespace nylium.Core.Packet.Client.Play {
                 HatEnabled = true;
             }
 
-            varInt.Read(Data);
-            MainHand = (MainHandSetting) varInt.Value;
+            MainHand = (MainHandSetting) ReadVarInt();
         }
 
         public enum ChatModeSetting : int {

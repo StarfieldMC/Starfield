@@ -24,26 +24,15 @@ namespace nylium.Core.Packet.Server.Play {
             Flags = flags;
             TeleportId = teleportId;
 
-            Double @double = new(x);
-            @double.Write(Data);
+            WriteDouble(x);
+            WriteDouble(y);
+            WriteDouble(z);
 
-            @double.Value = y;
-            @double.Write(Data);
-            
-            @double.Value = z;
-            @double.Write(Data);
+            WriteFloat(yaw);
+            WriteFloat(pitch);
 
-            Float @float = new(yaw);
-            @float.Write(Data);
-
-            @float.Value = pitch;
-            @float.Write(Data);
-
-            Byte @byte = new(flags);
-            @byte.Write(Data);
-
-            VarInt varInt = new(teleportId);
-            varInt.Write(Data);
+            WriteByte(flags);
+            WriteVarInt(teleportId);
         }
     }
 }

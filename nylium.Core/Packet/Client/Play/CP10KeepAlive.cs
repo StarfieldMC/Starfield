@@ -9,8 +9,7 @@ namespace nylium.Core.Packet.Client.Play {
         public long KeepAliveId { get; }
 
         public CP10KeepAlive(Stream stream) : base(stream) {
-            Long @long = new(Data);
-            KeepAliveId = @long.Value;
+            KeepAliveId = ReadLong();
         }
     }
 }

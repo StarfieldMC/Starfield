@@ -9,14 +9,11 @@ namespace nylium.Core.Packet.Server.Play {
 
         public Recipe[] Recipes { get; }
 
+        // TODO
         public SP5ADeclareRecipes(Recipe[] recipes) {
             Recipes = recipes;
 
-            VarInt varInt = new(0); // hardcode for now
-            varInt.Write(Data);
-
-            // TODO array needs to be changed in a way so that it can also accept non-datatype values something idk aaaaaaa
-            // Array<>
+            WriteVarInt(0); // hardcode for now
         }
 
         public class Recipe {

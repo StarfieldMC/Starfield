@@ -3,10 +3,10 @@ using System.IO;
 
 namespace nylium.Core.DataTypes {
 
-    public class Angle : DataType<double> {
+    public class Angle : DataType<float> {
 
         public Angle() : base(0) { }
-        public Angle(double value) : base(value) { }
+        public Angle(float value) : base(value) { }
         public Angle(Stream stream) : base(0) { Read(stream); }
 
         public override int Read(Stream stream) {
@@ -18,7 +18,7 @@ namespace nylium.Core.DataTypes {
         }
 
         public override void Write(Stream stream) {
-            stream.Write(new byte[1] { (byte) Math.Round((256 / 360) * Value, MidpointRounding.AwayFromZero) }); ;
+            stream.Write(new byte[1] { (byte) Math.Round((256 / 360) * Value, MidpointRounding.AwayFromZero) });
         }
     }
 }

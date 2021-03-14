@@ -10,8 +10,7 @@ namespace nylium.Core.Packet.Server.Status {
         public SS00Response(string jsonResponse) {
             JsonResponse = jsonResponse;
 
-            String @string = new(jsonResponse);
-            @string.Write(Data);
+            WriteString(jsonResponse);
         }
     }
 }

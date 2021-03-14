@@ -12,11 +12,8 @@ namespace nylium.Core.Packet.Server.Play {
             WorldAge = worldAge;
             TimeOfDay = timeOfDay;
 
-            Long @long = new(worldAge);
-            @long.Write(Data);
-
-            @long.Value = timeOfDay;
-            @long.Write(Data);
+            WriteLong(worldAge);
+            WriteLong(timeOfDay);
         }
     }
 }

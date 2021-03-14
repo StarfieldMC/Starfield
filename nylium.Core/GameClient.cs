@@ -11,6 +11,7 @@ using nylium.Core.Block;
 using nylium.Core.Configuration;
 using nylium.Core.DataTypes;
 using nylium.Core.Entity;
+using nylium.Core.Entity.Entities;
 using nylium.Core.Packet;
 using nylium.Core.Packet.Client.Handshake;
 using nylium.Core.Packet.Client.Login;
@@ -27,8 +28,7 @@ namespace nylium.Core {
 
     public class GameClient : TcpSession {
 
-        public const string TIMEOUT_MESSAGE = @"{""text"":""Timed out""}";
-
+        private readonly dynamic TIMEOUT_MESSAGE = new { text = "Timed out" };
         private readonly Random random = new();
 
         public State GameState { get; set; }
@@ -42,7 +42,7 @@ namespace nylium.Core {
 
         public ClientConfiguration Configuration { get; }
 
-        public GameEntity Player { get; set; }
+        public PlayerEntity Player { get; set; }
         public GameWorld World { get; set; }
 
         public GameClient(GameServer server) : base(server) {
@@ -82,8 +82,7 @@ namespace nylium.Core {
 
                         SS01Pong pong = new(ping.Payload);
                         Send(pong);
-
-                        Dispose();
+                        Disconnect();
                         break;
                     }
                 default:
@@ -98,16 +97,16 @@ namespace nylium.Core {
                 case CL00LoginStart: {
                         CL00LoginStart loginStart = (CL00LoginStart) packet;
 
-                        SL02LoginSuccess loginSuccess = new(
-                            UUIDFactory.CreateUUID(3, 1, "OfflinePlayer:" + loginStart.Username),
-                            loginStart.Username);
+                        DaanV2.UUID.UUID playerUuid = UUIDFactory.CreateUUID(3, 1, "OfflinePlayer:" + loginStart.Username);
+
+                        SL02LoginSuccess loginSuccess = new(playerUuid, loginStart.Username);
                         Send(loginSuccess);
 
                         ProtocolState = ProtocolState.Play;
                         World = Server.World;
-                        Player = new(World, "minecraft:player", 0, 16, 0, 0, 0);
+                        Player = new(World, loginStart.Username, playerUuid, Gamemode.Creative, 0, 1, 0, 0, 0, true);
 
-                        SP24JoinGame joinGame = new(Player.EntityId, false, Gamemode.Creative, Gamemode.Creative,
+                        SP24JoinGame joinGame = new(Player.EntityId, false, Player.Gamemode, Player.Gamemode,
                             new Utilities.Identifier[] { new("world") }, Server.DimensionCodec.RootTag, Server.OverworldDimension.RootTag,
                             new("world"), 0, 99, 8, false, true, false, true);
                         Send(joinGame);
@@ -137,7 +136,8 @@ namespace nylium.Core {
                                 text = "keepAlive == null"
                             });
 
-                            Dispose();
+                            Send(disconnect);
+                            Disconnect();
                         }
 
                         break;
@@ -168,9 +168,6 @@ namespace nylium.Core {
                         SP34PlayerPositionAndLook playerPositionAndLook = new(Player.X, Player.Y, Player.Z,
                             Player.Yaw, Player.Pitch, 0, random.Next(int.MaxValue));
                         Send(playerPositionAndLook);
-
-                        SP32PlayerInfo playerInfo = new();
-                        Send(playerInfo);
 
                         SP40UpdateViewPosition updateViewPosition = new(0, 0);
                         Send(updateViewPosition);
@@ -236,15 +233,148 @@ namespace nylium.Core {
                         SP3DWorldBorder worldBorder = new(0, 0, 0, 64, 0, 29999984, 16, 2);
                         Send(worldBorder);
 
-                        GameState = State.Playing;
-
                         SP42SpawnPosition spawnPosition = new(new(0, 16, 0));
                         Send(spawnPosition);
 
-                        //playerPositionAndLook = new(Player.X, Player.Y, Player.Z,
-                        //    Player.Yaw, Player.Pitch, 0, random.Next(int.MaxValue));
-                        //Send(playerPositionAndLook);
+                        GameState = State.Playing;
 
+                        for(int i = 0; i < World.PlayerEntities.Count; i++) {
+                            PlayerEntity player = World.PlayerEntities[i];
+
+                            SP32PlayerInfo _playerInfo = new(player.Uuid, player.Username, player.Gamemode, 0);
+                            Send(_playerInfo);
+
+                            _playerInfo = new(player.Uuid, 100); // TODO actual ping
+                            Send(_playerInfo);
+                        }
+
+                        World.PlayerEntities.Add(Player);
+
+                        SP32PlayerInfo playerInfo = new(Player.Uuid, Player.Username, Player.Gamemode, 0);
+                        Server.Multicast(playerInfo);
+
+                        playerInfo = new(Player.Uuid, 100); // TODO actual ping
+                        Server.Multicast(playerInfo);
+
+                        SP04SpawnPlayer spawnPlayer = new(Player.EntityId, Player.Uuid, Player.X, Player.Y, Player.Z,
+                            Player.Yaw, Player.Pitch);
+                        Server.MulticastAsync(spawnPlayer, this);
+                        break;
+                    }
+                case CP12PlayerPosition: {
+                        Player.LastX = Player.X;
+                        Player.LastY = Player.Y;
+                        Player.LastZ = Player.Z;
+                        Player.LastOnGround = Player.OnGround;
+
+                        CP12PlayerPosition playerPosition = (CP12PlayerPosition) packet;
+
+                        if(double.IsInfinity(playerPosition.X) || double.IsInfinity(playerPosition.FeetY) || double.IsInfinity(playerPosition.Z)
+                            || playerPosition.X > 3.2 * Math.Pow(10, 7) || playerPosition.Z > 3.2 * Math.Pow(10, 7)) {
+
+                            SP19Disconnect disconnect = new(new {
+                                text = "Invalid move packet received"
+                            });
+                            Send(disconnect);
+                            Disconnect();
+                            break;
+                        }
+
+                        double deltaX = Player.LastX - playerPosition.X;
+                        double deltaY = Player.LastY - playerPosition.FeetY;
+                        double deltaZ = Player.LastZ - playerPosition.Z;
+
+                        double total = Math.Pow(deltaX, 2) + Math.Pow(deltaY, 2) + Math.Pow(deltaZ, 2);
+                        double expected = Math.Pow(Player.LastX, 2) + Math.Pow(Player.LastY, 2) + Math.Pow(Player.LastZ, 2);
+                        
+                        // TODO               300 if elytra
+                        if(total - expected > 100) {
+                            Console.WriteLine($"Client with id [{Id}] moved too fast!");
+
+                            SP56EntityTeleport teleport = new(Player.EntityId, Player.LastX, Player.LastY, Player.LastZ,
+                                Player.Yaw, Player.Pitch, Player.LastOnGround);
+                            Send(teleport);
+                            break;
+                        }
+
+                        Player.X = playerPosition.X;
+                        Player.Y = playerPosition.FeetY;
+                        Player.Z = playerPosition.Z;
+                        Player.OnGround = playerPosition.OnGround;
+
+                        SP27EntityPosition entityPosition = new(Player.EntityId, (short) deltaX, (short) deltaY, (short) deltaZ, Player.OnGround);
+                        Server.MulticastAsync(entityPosition, this);
+                        break;
+                    }
+                case CP13PlayerPositionAndRotation: {
+                        CP13PlayerPositionAndRotation playerPositionAndRotation = (CP13PlayerPositionAndRotation) packet;
+
+                        Player.LastX = Player.X;
+                        Player.LastY = Player.Y;
+                        Player.LastZ = Player.Z;
+                        Player.LastOnGround = Player.OnGround;
+
+                        if(double.IsInfinity(playerPositionAndRotation.X) || double.IsInfinity(playerPositionAndRotation.FeetY) || double.IsInfinity(playerPositionAndRotation.Z)
+                            || playerPositionAndRotation.X > 3.2 * Math.Pow(10, 7) || playerPositionAndRotation.Z > 3.2 * Math.Pow(10, 7)) {
+
+                            SP19Disconnect disconnect = new(new {
+                                text = "Invalid move packet received"
+                            });
+                            Send(disconnect);
+                            Disconnect();
+                            break;
+                        }
+
+                        double deltaX = Player.LastX - playerPositionAndRotation.X;
+                        double deltaY = Player.LastY - playerPositionAndRotation.FeetY;
+                        double deltaZ = Player.LastZ - playerPositionAndRotation.Z;
+
+                        double total = Math.Pow(deltaX, 2) + Math.Pow(deltaY, 2) + Math.Pow(deltaZ, 2);
+                        double expected = Math.Pow(Player.LastX, 2) + Math.Pow(Player.LastY, 2) + Math.Pow(Player.LastZ, 2);
+
+                        // TODO               300 if elytra
+                        if(total - expected > 100) {
+                            Console.WriteLine($"Client with id [{Id}] moved too fast!");
+
+                            SP56EntityTeleport teleport = new(Player.EntityId, Player.LastX, Player.LastY, Player.LastZ,
+                                Player.Yaw, Player.Pitch, Player.LastOnGround);
+                            Send(teleport);
+                            break;
+                        }
+
+                        Player.X = playerPositionAndRotation.X;
+                        Player.Y = playerPositionAndRotation.FeetY;
+                        Player.Z = playerPositionAndRotation.Z;
+                        Player.OnGround = playerPositionAndRotation.OnGround;
+
+                        Player.Yaw = playerPositionAndRotation.Yaw;
+                        Player.Pitch = playerPositionAndRotation.Pitch;
+
+                        SP28EntityPositionAndRotation entityPositionAndRotation = new(Player.EntityId,
+                            (short) deltaX, (short) deltaY, (short) deltaZ, Player.Yaw, Player.Pitch, Player.OnGround);
+                        Server.MulticastAsync(entityPositionAndRotation, this);
+                        break;
+                    }
+                case CP14PlayerRotation: {
+                        Player.LastOnGround = Player.OnGround;
+
+                        CP14PlayerRotation playerRotation = (CP14PlayerRotation) packet;
+
+                        Player.Yaw = playerRotation.Yaw;
+                        Player.Pitch = playerRotation.Pitch;
+                        Player.OnGround = playerRotation.OnGround;
+
+                        SP29EntityRotation entityRotation = new(Player.EntityId, Player.Yaw, Player.Pitch, Player.OnGround);
+                        Server.MulticastAsync(entityRotation, this);
+                        break;
+                    }
+                case CP15PlayerMovement: {
+                        Player.LastOnGround = Player.OnGround;
+                        CP15PlayerMovement playerMovement = (CP15PlayerMovement) packet;
+                        Player.OnGround = playerMovement.OnGround;
+
+                        SP2AEntityMovement entityMovement = new(Player.EntityId);
+                        Server.MulticastAsync(entityMovement, this);
                         break;
                     }
                 default:
@@ -305,10 +435,18 @@ namespace nylium.Core {
                     }
                     break;
             }
+
+            mem.Dispose();
+            packet.Dispose();
         }
 
         protected override void OnDisconnected() {
             Console.WriteLine($"Client with id [{Id}] disconnected");
+
+            if(ProtocolState == ProtocolState.Play && Player != null) {
+                World.PlayerEntities.Remove(Player);
+            }
+
             ProtocolState = ProtocolState.Unknown;
             GameState = State.Disconnected;
 
@@ -324,9 +462,12 @@ namespace nylium.Core {
         public void Send(NetworkPacket packet) {
             Console.WriteLine($"Sending packet in state [{ProtocolState}] with id [{packet.Id:X}]");
             base.Send(packet.ToBytes());
+
+            packet.Dispose();
         }
 
         public enum State {
+
             Disconnected,
             Connecting,
             Playing

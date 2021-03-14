@@ -12,8 +12,7 @@ namespace nylium.Core.Packet.Server.Play {
             EntityId = entityId;
             Status = status;
 
-            Byte @byte = new((sbyte) Status);
-            @byte.Write(Data);
+            WriteByte((sbyte) status);
         }
 
         // TODO there's so much more shit here

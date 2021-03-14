@@ -46,39 +46,31 @@ namespace nylium.Core.Packet.Server.Play {
             IsDebug = isDebug;
             IsFlat = isFlat;
 
-            Int eId = new(entityId);
-            Boolean hc = new(isHardcore);
-            UByte gm = new((byte) (sbyte) gamemode);
-            Byte pGm = new((sbyte) gamemode);
-            VarInt wc = new(worldNames.Length);
-            Array<U.Identifier, DT.Identifier> wns = new(worldNames);
-            NBT dc = new(new NbtFile(dimensionCodec));
-            NBT d = new(new NbtFile(dimension));
-            DT.Identifier wn = new(worldName);
-            Long hs = new(hashedSeed);
-            VarInt mp = new(maxPlayers);
-            VarInt vd = new(viewDistance);
-            Boolean rdi = new(reducedDebugInfo);
+            WriteInt(entityId);
+            WriteBoolean(isHardcore);
+            WriteUnsignedByte((byte) gamemode);
+            WriteByte((sbyte) previousGamemode);
+            WriteVarInt(worldNames.Length);
 
-            eId.Write(Data);
-            hc.Write(Data);
-            gm.Write(Data);
-            pGm.Write(Data);
-            wc.Write(Data);
-            wns.Write(Data);
-            dc.Write(Data);
-            d.Write(Data);
-            wn.Write(Data);
-            hs.Write(Data);
-            mp.Write(Data);
-            vd.Write(Data);
-            rdi.Write(Data);
-            rdi.Value = enableRespawnScreen;
-            rdi.Write(Data);
-            rdi.Value = isDebug;
-            rdi.Write(Data);
-            rdi.Value = isFlat;
-            rdi.Write(Data);
+            Array<U.Identifier, DT.Identifier> array = new(worldNames);
+            array.Write(Data);
+
+            NBT nbt = new(new NbtFile(dimensionCodec));
+            nbt.Write(Data);
+
+            nbt.Value = new NbtFile(dimension);
+            nbt.Write(Data);
+
+            DT.Identifier identifier = new(worldName);
+            identifier.Write(Data);
+
+            WriteLong(hashedSeed);
+            WriteVarInt(maxPlayers);
+            WriteVarInt(viewDistance);
+            WriteBoolean(reducedDebugInfo);
+            WriteBoolean(enableRespawnScreen);
+            WriteBoolean(isDebug);
+            WriteBoolean(isFlat);
         }
     }
 }

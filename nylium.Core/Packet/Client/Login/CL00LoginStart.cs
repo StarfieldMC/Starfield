@@ -9,8 +9,7 @@ namespace nylium.Core.Packet.Client.Login {
         public string Username { get; }
 
         public CL00LoginStart(Stream stream) : base(stream) {
-            String @string = new(Data);
-            Username = @string.Value;
+            Username = ReadString();
         }
     }
 }

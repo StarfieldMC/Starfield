@@ -10,8 +10,7 @@ namespace nylium.Core.Packet.Client.Status {
         public long Payload { get; }
 
         public CS01Ping(Stream stream) : base(stream) {
-            Long _long = new(Data);
-            Payload = _long.Value;
+            Payload = ReadLong();
         }
     }
 }

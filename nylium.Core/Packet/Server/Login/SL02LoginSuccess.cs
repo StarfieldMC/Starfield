@@ -8,15 +8,12 @@ namespace nylium.Core.Packet.Server.Login {
         public DaanV2.UUID.UUID UUID { get; }
         public string Username { get; }
 
-        public SL02LoginSuccess(DaanV2.UUID.UUID value, string username) {
-            UUID = value;
+        public SL02LoginSuccess(DaanV2.UUID.UUID uuid, string username) {
+            UUID = uuid;
             Username = username;
 
-            UUID uuid = new(value);
-            uuid.Write(Data);
-
-            String @string = new(username);
-            @string.Write(Data);
+            WriteUuid(uuid);
+            WriteString(username);
         }
     }
 }

@@ -32,34 +32,22 @@ namespace nylium.Core.Packet.Server.Play {
             Data = data;
             BlockEntities = blockEntities;
 
-            Int _int = new(chunkX);
-            _int.Write(base.Data);
-
-            _int.Value = chunkZ;
-            _int.Write(base.Data);
-
-            Boolean boolean = new(fullChunk);
-            boolean.Write(base.Data);
-
-            VarInt varInt = new(primaryBitMask);
-            varInt.Write(base.Data);
+            WriteInt(chunkX);
+            WriteInt(chunkZ);
+            WriteBoolean(fullChunk);
+            WriteVarInt(primaryBitMask);
 
             base.Data.Write(new NbtFile(heightmaps).SaveToBuffer(NbtCompression.None));
 
-            varInt.Value = biomes.Length;
-            varInt.Write(base.Data);
+            WriteVarInt(biomes.Length);
 
             Array<int, VarInt> array = new(biomes);
             array.Write(base.Data);
 
-            varInt.Value = data.Length;
-            varInt.Write(base.Data);
+            WriteVarInt(data.Length);
+            WriteByteArray(data);
 
-            ByteArray byteArray = new(data);
-            byteArray.Write(base.Data);
-
-            varInt.Value = blockEntities.Length;
-            varInt.Write(base.Data);
+            WriteVarInt(blockEntities.Length);
 
             for(int i = 0; i < blockEntities.Length; i++) {
                 base.Data.Write(new NbtFile(blockEntities[i]).SaveToBuffer(NbtCompression.None));

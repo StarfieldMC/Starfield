@@ -138,6 +138,145 @@ namespace nylium.Core.Packet {
             Data.Seek(0, SeekOrigin.Begin);
         }
 
+        protected int ReadVarInt() {
+            return new VarInt(Data).Value;
+        }
+
+        protected long ReadVarLong() {
+            return new VarLong(Data).Value;
+        }
+
+        protected int ReadInt() {
+            return new Int(Data).Value;
+        }
+
+        protected long ReadLong() {
+            return new Long(Data).Value;
+        }
+
+        protected double ReadDouble() {
+            return new DataTypes.Double(Data).Value;
+        }
+
+        protected float ReadFloat() {
+            return new Float(Data).Value;
+        }
+
+        protected bool ReadBoolean() {
+            return new DataTypes.Boolean(Data).Value;
+        }
+
+        protected short ReadShort() {
+            return new Short(Data).Value;
+        }
+
+        protected byte ReadUnsignedByte() {
+            return new UByte(Data).Value;
+        }
+
+        protected sbyte ReadByte() {
+            return new DataTypes.Byte(Data).Value;
+        }
+
+        protected sbyte[] ReadByteArray(int length) {
+            ByteArray byteArray = new(length);
+            byteArray.Read(Data);
+
+            return byteArray.Value;
+        }
+
+        protected ushort ReadUnsignedShort() {
+            return new UShort(Data).Value;
+        }
+
+        protected string ReadString() {
+            return new DataTypes.String(Data).Value;
+        }
+
+        protected dynamic ReadChat() {
+            return new Chat(Data).Value;
+        }
+
+        protected Utilities.Position.Int ReadPosition() {
+            return new DataTypes.Position(Data).Value;
+        }
+
+        protected DaanV2.UUID.UUID ReadUuid() {
+            return new UUID(Data).Value;
+        }
+
+        protected float ReadAngle() {
+            return new Angle(Data).Value;
+        }
+
+        protected void WriteVarInt(int value) {
+            new VarInt(value).Write(Data);
+        }
+
+        protected void WriteVarLong(long value) {
+            new VarLong(value).Write(Data);
+        }
+
+        protected void WriteInt(int value) {
+            new Int(value).Write(Data);
+        }
+
+        protected void WriteLong(long value) {
+            new Long(value).Write(Data);
+        }
+
+        protected void WriteDouble(double value) {
+            new DataTypes.Double(value).Write(Data);
+        }
+
+        protected void WriteFloat(float value) {
+            new Float(value).Write(Data);
+        }
+
+        protected void WriteBoolean(bool value) {
+            new DataTypes.Boolean(value).Write(Data);
+        }
+
+        protected void WriteShort(short value) {
+            new Short(value).Write(Data);
+        }
+
+        protected void WriteUnsignedByte(byte value) {
+            new UByte(value).Write(Data);
+        }
+
+        protected void WriteByte(sbyte value) {
+            new DataTypes.Byte(value).Write(Data);
+        }
+
+        protected void WriteByteArray(sbyte[] value) {
+            new ByteArray(value).Write(Data);
+        }
+
+        protected void WriteUnsignedShort(ushort value) {
+            new UShort(value).Write(Data);
+        }
+
+        protected void WriteString(string value) {
+            new DataTypes.String(value).Write(Data);
+        }
+
+        protected void WriteChat(dynamic value) {
+            new Chat(value).Write(Data);
+        }
+
+        protected void WritePosition(Utilities.Position.Int value) {
+            new DataTypes.Position(value).Write(Data);
+        }
+
+        protected void WriteUuid(DaanV2.UUID.UUID value) {
+            new UUID(value).Write(Data);
+        }
+
+        protected void WriteAngle(float value) {
+            new Angle(value).Write(Data);
+        }
+
         public byte[] ToBytes() {
             byte[] bytes;
 
@@ -171,6 +310,8 @@ namespace nylium.Core.Packet {
         public void Dispose() {
             Data.Close();
             Data = null;
+
+            GC.SuppressFinalize(this);
         }
     }
 }

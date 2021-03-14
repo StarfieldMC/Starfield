@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 using fNbt;
 using NetCoreServer;
 using nylium.Core.Block;
@@ -76,26 +77,62 @@ namespace nylium.Core {
             Console.WriteLine($"Error in server occured: {error}");
         }
 
-        public bool Multicast(NetworkPacket packet) {
-            return Multicast(packet.ToBytes());
-        }
+        public void Multicast(NetworkPacket packet, TcpSession excludeSession = null) {
+            byte[] buffer = packet.ToBytes();
+            int size = buffer.Length;
 
-        public override bool Multicast(byte[] buffer, long offset, long size) {
             if(!IsStarted)
-                return false;
+                return;
 
-            if(size == 0)
-                return true;
+            if(packet == null)
+                return;
 
             foreach(TcpSession session in Sessions.Values) {
                 if(session is GameClient client) {
                     if(client.GameState != GameClient.State.Playing) continue;
                 }
 
-                session.SendAsync(buffer, offset, size);
+                if(excludeSession != null) {
+                    if(session != excludeSession) {
+                        session.SendAsync(buffer, 0, size);
+                    }
+                } else {
+                    session.SendAsync(buffer, 0, size);
+                }
             }
 
-            return true;
+            packet.Dispose();
+        }
+
+        public void MulticastAsync(NetworkPacket packet, TcpSession excludeSession = null) {
+            Task.Run(() => {
+                byte[] buffer = packet.ToBytes();
+                int size = buffer.Length;
+
+                if(!IsStarted)
+                    return;
+
+                if(packet == null)
+                    return;
+
+                int i = 0;
+
+                foreach(TcpSession session in Sessions.Values) {
+                    if(session is GameClient client) {
+                        if(client.GameState != GameClient.State.Playing) continue;
+                    }
+
+                    if(excludeSession != null) {
+                        if(session != excludeSession) {
+                            session.SendAsync(buffer, 0, size);
+                        }
+                    } else {
+                        session.SendAsync(buffer, 0, size);
+                    }
+                }
+
+                packet.Dispose();
+            });
         }
     }
 }

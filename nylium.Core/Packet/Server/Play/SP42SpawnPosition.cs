@@ -12,8 +12,7 @@ namespace nylium.Core.Packet.Server.Play {
         public SP42SpawnPosition(U.Position.Int location) {
             Location = location;
 
-            Position position = new(location);
-            position.Write(Data);
+            WritePosition(location);
         }
     }
 }
