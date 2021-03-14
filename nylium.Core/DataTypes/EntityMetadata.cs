@@ -207,8 +207,144 @@ namespace nylium.Core.DataTypes {
         }
 
         public override void Write(Stream stream) {
-            // TODO
-            throw new NotImplementedException();
+            UByte ubyte = new();
+            VarInt varInt = new();
+
+            for(int i = 0; i < Value.Count; i++) {
+                EntityMetadataEntry entry = Value[i];
+
+                ubyte.Value = entry.Index;
+                ubyte.Write(stream);
+
+                varInt.Value = (int) entry.Type;
+                varInt.Write(stream);
+
+                switch(entry.Type) {
+                    case EntityMetadataEntry.DataType.Byte: {
+                            Byte @byte = new(entry.Value);
+                            @byte.Write(stream);
+                            break;
+                        }
+                    case EntityMetadataEntry.DataType.VarInt: {
+                            varInt.Value = entry.Value;
+                            varInt.Write(stream);
+                            break;
+                        }
+                    case EntityMetadataEntry.DataType.Float: {
+                            Float @float = new(entry.Value);
+                            @float.Write(stream);
+                            break;
+                        }
+                    case EntityMetadataEntry.DataType.String: {
+                            String @string = new(entry.Value);
+                            @string.Write(stream);
+                            break;
+                        }
+                    case EntityMetadataEntry.DataType.Chat: {
+                            Chat chat = new(entry.Value);
+                            chat.Write(stream);
+                            break;
+                        }
+                    case EntityMetadataEntry.DataType.OptChat: {
+                            Boolean boolean = new(entry.Value != null);
+                            boolean.Write(stream);
+
+                            if(boolean.Value) {
+                                Chat chat = new(entry.Value);
+                                chat.Write(stream);
+                            }
+                            break;
+                        }
+                    case EntityMetadataEntry.DataType.Slot: {
+                            Slot slot = new(entry.Value);
+                            slot.Write(stream);
+                            break;
+                        }
+                    case EntityMetadataEntry.DataType.Boolean: {
+                            Boolean boolean = new(entry.Value);
+                            boolean.Write(stream);
+                            break;
+                        }
+                    case EntityMetadataEntry.DataType.Rotation: {
+                            // TODO write rotation
+                            break;
+                        }
+                    case EntityMetadataEntry.DataType.Position: {
+                            Position pos = new(entry.Value);
+                            pos.Write(stream);
+                            break;
+                        }
+                    case EntityMetadataEntry.DataType.OptPosition: {
+                            Boolean boolean = new(entry.Value != null);
+                            boolean.Write(stream);
+
+                            if(boolean.Value) {
+                                Position pos = new(entry.Value);
+                                pos.Write(stream);
+                            }
+                            break;
+                        }
+                    case EntityMetadataEntry.DataType.Direction: {
+                            varInt.Value = entry.Value;
+                            varInt.Write(stream);
+                            break;
+                        }
+                    case EntityMetadataEntry.DataType.OptUUID: {
+                            Boolean boolean = new(entry.Value != null);
+                            boolean.Write(stream);
+
+                            if(boolean.Value) {
+                                UUID uuid = new(entry.Value);
+                                uuid.Write(stream);
+                            }
+                            break;
+                        }
+                    case EntityMetadataEntry.DataType.OptBlockID: {
+                            varInt.Value = entry.Value == null ? 0 : entry.Value;
+                            varInt.Write(stream);
+                            break;
+                        }
+                    case EntityMetadataEntry.DataType.NBT: {
+                            Boolean boolean = new(entry.Value != null);
+                            boolean.Write(stream);
+
+                            if(boolean.Value) {
+                                NBT nbt = new(entry.Value);
+                                nbt.Write(stream);
+                            }
+                            break;
+                        }
+                    case EntityMetadataEntry.DataType.Particle: {
+                            Boolean boolean = new(entry.Value != null);
+                            boolean.Write(stream);
+
+                            if(boolean.Value) {
+                                // TODO write particle
+                            }
+                            break;
+                        }
+                    case EntityMetadataEntry.DataType.VillagerData: {
+                            // TODO write villagerdata
+                            break;
+                        }
+                    case EntityMetadataEntry.DataType.OptVarInt: {
+                            Boolean boolean = new(entry.Value != null);
+                            boolean.Write(stream);
+
+                            if(boolean.Value) {
+                                varInt.Value = entry.Value;
+                                varInt.Write(stream);
+                            }
+                            break;
+                        }
+                    case EntityMetadataEntry.DataType.Pose: {
+                            // TODO write pose
+                            break;
+                        }
+                }
+            }
+
+            stream.WriteByte(0xff);
         }
     }
 }

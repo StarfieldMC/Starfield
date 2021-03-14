@@ -35,6 +35,7 @@
     <PackageReference Include="DaanV2.UUID.Net" Version="1.1.0" />
     <PackageReference Include="DeepCloner" Version="0.10.2" />
     <PackageReference Include="Jil" Version="2.17.0" />
+    <PackageReference Include="NetCoreServer" Version="5.0.15" />
     <PackageReference Include="Sigil" Version="5.0.0" />
   </ItemGroup>
 

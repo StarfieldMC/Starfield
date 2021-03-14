@@ -14,6 +14,8 @@ namespace nylium.Core.World {
         private const int initializationChunks = 32; // how big of a chunk grid (square) to generate on initialization
         private int lastEntityId = 0;
 
+        public GameServer Server { get; }
+
         public string Name { get; }
         public long Age { get; set; }
 
@@ -23,7 +25,9 @@ namespace nylium.Core.World {
 
         private Thread WorldThread { get; }
 
-        public GameWorld(string name, Dictionary<(int, int), Chunk> chunks, List<E.GameEntity> entities, IWorldGenerator generator) {
+        public GameWorld(GameServer server, string name, Dictionary<(int, int), Chunk> chunks, List<E.GameEntity> entities, IWorldGenerator generator) {
+            Server = server;
+
             Name = name;
 
             Chunks = chunks;
@@ -35,7 +39,9 @@ namespace nylium.Core.World {
             WorldThread.Start();
         }
 
-        public GameWorld(string name, IWorldGenerator generator) {
+        public GameWorld(GameServer server, string name, IWorldGenerator generator) {
+            Server = server;
+
             Name = name;
 
             Chunks = new();
@@ -93,7 +99,7 @@ namespace nylium.Core.World {
             Age++;
 
             SP4ETimeUpdate timeUpdate = new(Age, Age % 24000);
-            GameServer.Broadcast(timeUpdate.ToBytes());
+            Server.Multicast(timeUpdate);
 
             timeUpdate.Dispose();
         }

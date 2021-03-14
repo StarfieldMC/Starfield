@@ -5,6 +5,7 @@
         Handshaking,
         Status,
         Login,
-        Play
+        Play,
+        Unknown = ushort.MaxValue
     }
 }

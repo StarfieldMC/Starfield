@@ -13,7 +13,11 @@ namespace nylium.Core.Packet.Server.Play {
         public int PrimaryBitMask { get; }
         public NbtCompound Heightmaps { get; }
         public int[] Biomes { get; }
+
+#pragma warning disable 0108
         public sbyte[] Data { get; }
+#pragma warning restore 0108
+
         public NbtCompound[] BlockEntities { get; }
 
         public SP20ChunkData(int chunkX, int chunkZ, bool fullChunk, int primaryBitMask,
