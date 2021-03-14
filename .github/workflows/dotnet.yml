@@ -33,24 +33,24 @@ jobs:
       uses: actions/upload-artifact@v2.2.2
       with:
         name: linux-x64
-        path: nylium.Core/bin/Debug/netcoreapp3.1/linux-x64/publish/*
+        path: nylium.Core/bin/Debug/net5.0/linux-x64/publish/*
     - name: Upload Linux ARM build
       uses: actions/upload-artifact@v2.2.2
       with:
         name: linux-arm
-        path: nylium.Core/bin/Debug/netcoreapp3.1/linux-arm/publish/*
+        path: nylium.Core/bin/Debug/net5.0/linux-arm/publish/*
     - name: Upload Linux ARM64 build
       uses: actions/upload-artifact@v2.2.2
       with:
         name: linux-arm64
-        path: nylium.Core/bin/Debug/netcoreapp3.1/linux-arm64/publish/*
+        path: nylium.Core/bin/Debug/net5.0/linux-arm64/publish/*
     - name: Upload Windows build
       uses: actions/upload-artifact@v2.2.2
       with:
         name: windows-x64
-        path: nylium.Core/bin/Debug/netcoreapp3.1/windows-x64/publish/*
+        path: nylium.Core/bin/Debug/net5.0/windows-x64/publish/*
     - name: Upload macOS build
       uses: actions/upload-artifact@v2.2.2
       with:
         name: osx-x64
-        path: nylium.Core/bin/Debug/netcoreapp3.1/linux-x64/publish/*
+        path: nylium.Core/bin/Debug/net5.0/linux-x64/publish/*
