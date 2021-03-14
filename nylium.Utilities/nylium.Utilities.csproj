@@ -1,14 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <RuntimeIdentifiers>win-x64;osx-x64;linux-x64;linux-musl-x64;linux-arm;linux-arm64</RuntimeIdentifiers>
     <LangVersion>9.0</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Jil" Version="2.17.0" />
-    <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="1.4.0" />
+    <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="1.4.1" />
+    <PackageReference Include="Sigil" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>

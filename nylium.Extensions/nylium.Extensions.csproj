@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <RuntimeIdentifiers>win-x64;osx-x64;linux-x64;linux-musl-x64;linux-arm;linux-arm64</RuntimeIdentifiers>
     <LangVersion>9.0</LangVersion>
   </PropertyGroup>
