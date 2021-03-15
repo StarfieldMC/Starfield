@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers.Binary;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
@@ -44,6 +45,8 @@ namespace nylium.Core {
 
         public PlayerEntity Player { get; set; }
         public GameWorld World { get; set; }
+
+        public Chunk[] LoadedChunks { get; set; }
 
         public GameClient(GameServer server) : base(server) {
             GameState = State.Disconnected;
@@ -175,62 +178,10 @@ namespace nylium.Core {
                         Chunk[] chunks = World.GetChunksInViewDistance((int) Math.Floor(Player.X / 16), (int) Math.Floor(Player.Z / 16),
                             (sbyte) (Configuration.ViewDistance - 1));
 
-                        // TODO unhardcode everything here
-                        int mask = 0b00000000_00000000_00000000_00000001;
+                        LoadChunks(chunks);
+                        LoadedChunks = chunks;
 
-                        byte[] a = new byte[] { 0x01, 0x00, 0x80, 0x40, 0x20, 0x10, 0x08, 0x04 };
-                        byte[] b = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x20, 0x10, 0x08, 0x04 };
-
-                        long al = BinaryPrimitives.ReadInt64LittleEndian(a);
-                        long bl = BinaryPrimitives.ReadInt64LittleEndian(b);
-
-                        NbtCompound heightmap = new("") {
-                            new NbtLongArray("MOTION_BLOCKING", new long[] {
-                                            al, al, al, al, al, al, al, al, al, al, al, al, al, al, al, al, al, al, al, al,
-                                            al, al, al, al, al, al, al, al, al, al, al, al, al, al, al,
-                                            bl
-                                        }),
-                            new NbtLongArray("WORLD_SURFACE")
-                        };
-
-                        int[] biomes = Enumerable.Repeat(127, 1024).ToArray();
-
-                        // TODO somehow the entire chunk is underwater?
-                        for(int i = 0; i < chunks.Length; i++) {
-                            Chunk chunk = chunks[i];
-                            sbyte[] data = null;
-
-                            using(MemoryStream stream = RMSManager.Get().GetStream("chunk data convert thing")) {
-                                // only 1 section sent (see primary bit mask) therefore no loop
-                                int nonAirBlockCount = chunk.GetBlockCountInSection(0, false);
-
-                                Short blockCount = new((short) nonAirBlockCount);
-                                UByte bitsPerBlock = new((byte) GameBlock.bitsPerBlock);
-
-                                VarInt paletteLength = new(3);
-                                VarInt stone = new(1);
-                                VarInt air = new(0);
-
-                                int[] blockIds = chunk.GetBlocksInSection(0);
-                                long[] compactedLong = SectionUtils.ToCompactedLongArray(blockIds, GameBlock.bitsPerBlock);
-
-                                VarInt dataArrayLength = new(compactedLong.Length);
-                                Array<long, Long> dataArray = new(compactedLong);
-
-                                blockCount.Write(stream);
-                                bitsPerBlock.Write(stream);
-                                dataArrayLength.Write(stream);
-                                dataArray.Write(stream);
-
-                                data = (sbyte[]) (Array) stream.ToArray();
-                            }
-
-                            SP20ChunkData chunkData = new(chunk.X, chunk.Z, true, mask, heightmap,
-                                biomes, data, Array.Empty<NbtCompound>());
-                            Send(chunkData);
-                        }
-
-                        SP3DWorldBorder worldBorder = new(0, 0, 0, 64, 0, 29999984, 16, 2);
+                        SP3DWorldBorder worldBorder = new(0, 0, 0, 4096, 0, 2048, 16, 2);
                         Send(worldBorder);
 
                         SP42SpawnPosition spawnPosition = new(new(0, 16, 0));
@@ -312,6 +263,21 @@ namespace nylium.Core {
                             (short) (((Player.Z * 32) - (Player.LastZ * 32)) * 128),
                             Player.OnGround);
                         Server.MulticastAsync(entityPosition, this);
+
+                        if(Math.Floor(Player.X / 16) != Math.Floor(Player.LastX / 16)
+                            || Math.Floor(Player.Z / 16) != Math.Floor(Player.LastZ / 16)) {
+
+                            // player changed chunks
+                            Chunk[] chunks = World.GetChunksInViewDistance((int) Math.Floor(Player.X / 16), (int) Math.Floor(Player.Z / 16), Configuration.ViewDistance);
+
+                            IEnumerable<Chunk> toUnload = LoadedChunks.Except(chunks);
+                            IEnumerable<Chunk> toLoad = chunks.Except(LoadedChunks);
+
+                            LoadedChunks = chunks;
+
+                            UnloadChunks(toUnload);
+                            LoadChunks(toLoad);
+                        }
                         break;
                     }
                 case CP13PlayerPositionAndRotation: {
@@ -379,6 +345,21 @@ namespace nylium.Core {
                             (short) (((Player.Z * 32) - (Player.LastZ * 32)) * 128),
                             Player.Yaw, Player.Pitch, Player.OnGround);
                         Server.MulticastAsync(entityPositionAndRotation, this);
+
+                        if(Math.Floor(Player.X / 16) != Math.Floor(Player.LastX / 16)
+                            || Math.Floor(Player.Z / 16) != Math.Floor(Player.LastZ / 16)) {
+
+                            // player changed chunks
+                            Chunk[] chunks = World.GetChunksInViewDistance((int) Math.Floor(Player.X / 16), (int) Math.Floor(Player.Z / 16), Configuration.ViewDistance);
+
+                            IEnumerable<Chunk> toUnload = LoadedChunks.Except(chunks);
+                            IEnumerable<Chunk> toLoad = chunks.Except(LoadedChunks);
+
+                            LoadedChunks = chunks;
+
+                            UnloadChunks(toUnload);
+                            LoadChunks(toLoad);
+                        }
                         break;
                     }
                 case CP14PlayerRotation: {
@@ -424,6 +405,69 @@ namespace nylium.Core {
             }
 
             return true;
+        }
+
+        // TODO unhardcode everything here
+        private void LoadChunks(IEnumerable<Chunk> chunks) {
+            int mask = 0b00000000_00000000_00000000_00000001;
+
+            byte[] a = new byte[] { 0x01, 0x00, 0x80, 0x40, 0x20, 0x10, 0x08, 0x04 };
+            byte[] b = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x20, 0x10, 0x08, 0x04 };
+
+            long al = BinaryPrimitives.ReadInt64LittleEndian(a);
+            long bl = BinaryPrimitives.ReadInt64LittleEndian(b);
+
+            NbtCompound heightmap = new("") {
+                new NbtLongArray("MOTION_BLOCKING", new long[] {
+                                            al, al, al, al, al, al, al, al, al, al, al, al, al, al, al, al, al, al, al, al,
+                                            al, al, al, al, al, al, al, al, al, al, al, al, al, al, al,
+                                            bl
+                                        }),
+                new NbtLongArray("WORLD_SURFACE")
+            };
+
+            int[] biomes = Enumerable.Repeat(127, 1024).ToArray();
+
+            // TODO somehow the entire chunk is underwater?
+            foreach(Chunk chunk in chunks) {
+                sbyte[] data = null;
+
+                using(MemoryStream stream = RMSManager.Get().GetStream("chunk data convert thing")) {
+                    // only 1 section sent (see primary bit mask) therefore no loop
+                    int nonAirBlockCount = chunk.GetBlockCountInSection(0, false);
+
+                    Short blockCount = new((short) nonAirBlockCount);
+                    UByte bitsPerBlock = new((byte) GameBlock.bitsPerBlock);
+
+                    VarInt paletteLength = new(3);
+                    VarInt stone = new(1);
+                    VarInt air = new(0);
+
+                    int[] blockIds = chunk.GetBlocksInSection(0);
+                    long[] compactedLong = SectionUtils.ToCompactedLongArray(blockIds, GameBlock.bitsPerBlock);
+
+                    VarInt dataArrayLength = new(compactedLong.Length);
+                    Array<long, Long> dataArray = new(compactedLong);
+
+                    blockCount.Write(stream);
+                    bitsPerBlock.Write(stream);
+                    dataArrayLength.Write(stream);
+                    dataArray.Write(stream);
+
+                    data = (sbyte[]) (Array) stream.ToArray();
+                }
+
+                SP20ChunkData chunkData = new(chunk.X, chunk.Z, true, mask, heightmap,
+                    biomes, data, Array.Empty<NbtCompound>());
+                Send(chunkData);
+            }
+        }
+
+        private void UnloadChunks(IEnumerable<Chunk> chunks) {
+            foreach(Chunk chunk in chunks) {
+                SP1CUnloadChunk unloadChunk = new(chunk.X, chunk.Z);
+                SendAsync(unloadChunk);
+            }
         }
 
         protected override void OnConnected() {
@@ -504,6 +548,13 @@ namespace nylium.Core {
         public void Send(NetworkPacket packet) {
             Console.WriteLine($"Sending packet in state [{ProtocolState}] with id [0x{packet.Id:X}]");
             base.Send(packet.ToBytes());
+
+            packet.Dispose();
+        }
+
+        public void SendAsync(NetworkPacket packet) {
+            Console.WriteLine($"Sending packet in state [{ProtocolState}] with id [0x{packet.Id:X}]");
+            base.SendAsync(packet.ToBytes());
 
             packet.Dispose();
         }
