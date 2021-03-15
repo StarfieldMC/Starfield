@@ -78,14 +78,14 @@ namespace nylium.Core {
         }
 
         public void Multicast(NetworkPacket packet, TcpSession excludeSession = null) {
-            byte[] buffer = packet.ToBytes();
-            int size = buffer.Length;
-
             if(!IsStarted)
                 return;
 
             if(packet == null)
                 return;
+
+            byte[] buffer = packet.ToBytes();
+            int size = buffer.Length;
 
             foreach(TcpSession session in Sessions.Values) {
                 if(session is GameClient client) {
@@ -94,10 +94,10 @@ namespace nylium.Core {
 
                 if(excludeSession != null) {
                     if(session != excludeSession) {
-                        session.SendAsync(buffer, 0, size);
+                        session.Send(buffer, 0, size);
                     }
                 } else {
-                    session.SendAsync(buffer, 0, size);
+                    session.Send(buffer, 0, size);
                 }
             }
 
@@ -106,16 +106,14 @@ namespace nylium.Core {
 
         public void MulticastAsync(NetworkPacket packet, TcpSession excludeSession = null) {
             Task.Run(() => {
-                byte[] buffer = packet.ToBytes();
-                int size = buffer.Length;
-
                 if(!IsStarted)
                     return;
 
                 if(packet == null)
                     return;
 
-                int i = 0;
+                byte[] buffer = packet.ToBytes();
+                int size = buffer.Length;
 
                 foreach(TcpSession session in Sessions.Values) {
                     if(session is GameClient client) {

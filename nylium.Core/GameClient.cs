@@ -246,6 +246,10 @@ namespace nylium.Core {
 
                             _playerInfo = new(player.Uuid, 100); // TODO actual ping
                             Send(_playerInfo);
+
+                            SP04SpawnPlayer _spawnPlayer = new(player.EntityId, player.Uuid, player.X, player.Y, player.Z,
+                                player.Yaw, player.Pitch);
+                            Send(_spawnPlayer);
                         }
 
                         World.PlayerEntities.Add(Player);
@@ -280,9 +284,9 @@ namespace nylium.Core {
                             break;
                         }
 
-                        double deltaX = Player.LastX - playerPosition.X;
-                        double deltaY = Player.LastY - playerPosition.FeetY;
-                        double deltaZ = Player.LastZ - playerPosition.Z;
+                        double deltaX = playerPosition.X - Player.LastX;
+                        double deltaY = playerPosition.FeetY - Player.LastY;
+                        double deltaZ = playerPosition.Z - Player.LastZ;
 
                         double total = Math.Pow(deltaX, 2) + Math.Pow(deltaY, 2) + Math.Pow(deltaZ, 2);
                         double expected = Math.Pow(Player.LastX, 2) + Math.Pow(Player.LastY, 2) + Math.Pow(Player.LastZ, 2);
@@ -302,7 +306,11 @@ namespace nylium.Core {
                         Player.Z = playerPosition.Z;
                         Player.OnGround = playerPosition.OnGround;
 
-                        SP27EntityPosition entityPosition = new(Player.EntityId, (short) deltaX, (short) deltaY, (short) deltaZ, Player.OnGround);
+                        SP27EntityPosition entityPosition = new(Player.EntityId,
+                            (short) (((Player.X * 32) - (Player.LastX * 32)) * 128),
+                            (short) (((Player.Y * 32) - (Player.LastY * 32)) * 128),
+                            (short) (((Player.Z * 32) - (Player.LastZ * 32)) * 128),
+                            Player.OnGround);
                         Server.MulticastAsync(entityPosition, this);
                         break;
                     }
@@ -325,9 +333,9 @@ namespace nylium.Core {
                             break;
                         }
 
-                        double deltaX = Player.LastX - playerPositionAndRotation.X;
-                        double deltaY = Player.LastY - playerPositionAndRotation.FeetY;
-                        double deltaZ = Player.LastZ - playerPositionAndRotation.Z;
+                        double deltaX = playerPositionAndRotation.X - Player.LastX;
+                        double deltaY = playerPositionAndRotation.FeetY - Player.LastY;
+                        double deltaZ = playerPositionAndRotation.Z - Player.LastZ;
 
                         double total = Math.Pow(deltaX, 2) + Math.Pow(deltaY, 2) + Math.Pow(deltaZ, 2);
                         double expected = Math.Pow(Player.LastX, 2) + Math.Pow(Player.LastY, 2) + Math.Pow(Player.LastZ, 2);
@@ -347,11 +355,29 @@ namespace nylium.Core {
                         Player.Z = playerPositionAndRotation.Z;
                         Player.OnGround = playerPositionAndRotation.OnGround;
 
-                        Player.Yaw = playerPositionAndRotation.Yaw;
-                        Player.Pitch = playerPositionAndRotation.Pitch;
+                        double x = -Math.Cos(playerPositionAndRotation.Pitch) * Math.Sin(playerPositionAndRotation.Yaw);
+                        double y = -Math.Sin(playerPositionAndRotation.Pitch);
+                        double z = Math.Cos(playerPositionAndRotation.Pitch) * Math.Cos(playerPositionAndRotation.Yaw);
+
+                        double dx = x - Player.X;
+                        double dy = y - Player.Y;
+                        double dz = z - Player.Z;
+
+                        double r = Math.Sqrt((dx * dx) + (dy * dy) + (dz * dz));
+                        double yaw = (-Math.Atan2(dx, dz) / Math.PI) * 180;
+
+                        if(yaw < 0) yaw = 360 + yaw;
+
+                        double pitch = (-Math.Asin(dy / r) / Math.PI) * 180;
+
+                        Player.Yaw = (float) yaw;
+                        Player.Pitch = (float) pitch;
 
                         SP28EntityPositionAndRotation entityPositionAndRotation = new(Player.EntityId,
-                            (short) deltaX, (short) deltaY, (short) deltaZ, Player.Yaw, Player.Pitch, Player.OnGround);
+                            (short) (((Player.X * 32) - (Player.LastX * 32)) * 128),
+                            (short) (((Player.Y * 32) - (Player.LastY * 32)) * 128),
+                            (short) (((Player.Z * 32) - (Player.LastZ * 32)) * 128),
+                            Player.Yaw, Player.Pitch, Player.OnGround);
                         Server.MulticastAsync(entityPositionAndRotation, this);
                         break;
                     }
@@ -360,8 +386,24 @@ namespace nylium.Core {
 
                         CP14PlayerRotation playerRotation = (CP14PlayerRotation) packet;
 
-                        Player.Yaw = playerRotation.Yaw;
-                        Player.Pitch = playerRotation.Pitch;
+                        double x = -Math.Cos(playerRotation.Pitch) * Math.Sin(playerRotation.Yaw);
+                        double y = -Math.Sin(playerRotation.Pitch);
+                        double z = Math.Cos(playerRotation.Pitch) * Math.Cos(playerRotation.Yaw);
+
+                        double dx = x - Player.X;
+                        double dy = y - Player.Y;
+                        double dz = z - Player.Z;
+
+                        double r = Math.Sqrt((dx * dx) + (dy * dy) + (dz * dz));
+                        double yaw = (-Math.Atan2(dx, dz) / Math.PI) * 180;
+
+                        if(yaw < 0) yaw = 360 + yaw;
+
+                        double pitch = (-Math.Asin(dy / r) / Math.PI) * 180;
+
+                        Player.Yaw = (float) yaw;
+                        Player.Pitch = (float) pitch;
+
                         Player.OnGround = playerRotation.OnGround;
 
                         SP29EntityRotation entityRotation = new(Player.EntityId, Player.Yaw, Player.Pitch, Player.OnGround);
@@ -460,7 +502,7 @@ namespace nylium.Core {
         }
 
         public void Send(NetworkPacket packet) {
-            Console.WriteLine($"Sending packet in state [{ProtocolState}] with id [{packet.Id:X}]");
+            Console.WriteLine($"Sending packet in state [{ProtocolState}] with id [0x{packet.Id:X}]");
             base.Send(packet.ToBytes());
 
             packet.Dispose();

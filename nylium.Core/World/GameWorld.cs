@@ -2,11 +2,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Threading;
+using fNbt;
+using fNbt.Tags;
+using nylium.Core.Block;
+using nylium.Core.Entity;
 using nylium.Core.Entity.Entities;
 using nylium.Core.Packet.Server.Play;
 using nylium.Core.World.Generation;
-using E = nylium.Core.Entity;
 
 namespace nylium.Core.World {
 
@@ -23,13 +27,13 @@ namespace nylium.Core.World {
         public Dictionary<(int, int), Chunk> Chunks { get; }
 
         public List<PlayerEntity> PlayerEntities { get; }
-        public List<E.GameEntity> Entities { get; }
+        public List<GameEntity> Entities { get; }
 
         public IWorldGenerator Generator { get; set; }
 
         private Thread WorldThread { get; }
 
-        public GameWorld(GameServer server, string name, Dictionary<(int, int), Chunk> chunks, List<E.GameEntity> entities, IWorldGenerator generator) {
+        public GameWorld(GameServer server, string name, Dictionary<(int, int), Chunk> chunks, List<GameEntity> entities, IWorldGenerator generator) {
             Server = server;
 
             Name = name;
@@ -100,7 +104,7 @@ namespace nylium.Core.World {
         }
 
         // TODO better way to do this?
-        public int GetNextEntityId(E.GameEntity entity) {
+        public int GetNextEntityId(GameEntity entity) {
             return ++lastEntityId;
         }
 

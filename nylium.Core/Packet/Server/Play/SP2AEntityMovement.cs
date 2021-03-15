@@ -10,7 +10,7 @@ namespace nylium.Core.Packet.Server.Play {
         public SP2AEntityMovement(int entityId) {
             EntityId = entityId;
 
-            WriteInt(entityId);
+            WriteVarInt(entityId);
         }
     }
 }
