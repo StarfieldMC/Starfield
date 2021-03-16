@@ -48,7 +48,7 @@ jobs:
       uses: actions/upload-artifact@v2.2.2
       with:
         name: windows-x64
-        path: nylium.Core/bin/Debug/net5.0/windows-x64/publish/*
+        path: nylium.Core/bin/Debug/net5.0/win-x64/publish/*
     - name: Upload macOS build
       uses: actions/upload-artifact@v2.2.2
       with:
