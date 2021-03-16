@@ -5,50 +5,73 @@ using System.IO;
 using System.IO.Compression;
 using System.Text;
 using Jil;
+using nylium.Core.World;
 using nylium.Utilities;
 
 namespace nylium.Core.Block {
 
     public class GameBlock {
 
-        private static readonly Dictionary<string, int> blocks = new();
+        //                                 id      state id range; protocol id
+        private static readonly Dictionary<string, (int, int,      int)> blocks = new();
 
-        //                                  id   x    y    z
-        private static readonly Dictionary<(int, int, int, int), GameBlock> blockCache = new();
+        //                                             state id
+        private static readonly Dictionary<(GameWorld, int),    GameBlock> blockCache = new();
 
         public static int bitsPerBlock = 0;
 
-        public World.GameWorld Parent { get; }
-        public int Id { get; set; }
+        public GameWorld Parent { get; }
+        public int StateId { get; set; }
 
-        public int X { get; }
-        public int Y { get; }
-        public int Z { get; }
-
-        private GameBlock(World.GameWorld parent, int id, int x, int y, int z) {
+        private GameBlock(GameWorld parent, int stateId) {
             Parent = parent;
-            Id = id;
-
-            X = x;
-            Y = y;
-            Z = z;
+            StateId = stateId;
         }
 
-        public static int GetBlockProtocolId(string sid) {
-            return blocks.ContainsKey(sid.Replace("minecraft:", "")) ? blocks[sid.Replace("minecraft:", "")] : -1;
+        public static (int, int) GetBlockStateIdRange(string namedId) {
+            return blocks.ContainsKey(namedId.Replace("minecraft:", "")) ?
+                (blocks[namedId.Replace("minecraft:", "")].Item1, blocks[namedId.Replace("minecraft:", "")].Item2) : (-1, -1);
         }
 
-        public static GameBlock Create(World.GameWorld parent, string sid, int x, int y, int z) {
-            int id = GetBlockProtocolId(sid);
-
-            (int, int, int, int) t = (id, x, y, z);
-
-            if(blockCache.ContainsKey(t)) {
-                return blockCache[t];
+        public static string GetBlockNamedId(int stateId) {
+            foreach(KeyValuePair<string, (int, int, int)> entry in blocks) {
+                if(entry.Value.Item1 <= stateId && entry.Value.Item2 >= stateId) {
+                    return entry.Key;
+                }
             }
 
-            GameBlock block = new(parent, id, x, y, z);
-            blockCache.Add(t, block);
+            return null;
+        }
+
+        public static int GetBlockProtocolId(string namedId) {
+            return blocks.ContainsKey(namedId.Replace("minecraft:", "")) ?
+                blocks[namedId.Replace("minecraft:", "")].Item3 : -1;
+        }
+
+        public static GameBlock Create(GameWorld parent, string namedId) {
+            int stateId = GetBlockStateIdRange(namedId).Item1;
+
+            (GameWorld, int) key = (parent, stateId);
+
+            if(blockCache.ContainsKey(key)) {
+                return blockCache[key];
+            }
+
+            GameBlock block = new(parent, stateId);
+            blockCache.Add(key, block);
+
+            return block;
+        }
+
+        public static GameBlock Create(GameWorld parent, int stateId) {
+            (GameWorld, int) key = (parent, stateId);
+
+            if(blockCache.ContainsKey(key)) {
+                return blockCache[key];
+            }
+
+            GameBlock block = new(parent, stateId);
+            blockCache.Add(key, block);
 
             return block;
         }
@@ -69,12 +92,14 @@ namespace nylium.Core.Block {
                         foreach(dynamic block in json[0].blocks.block) {
                             string namedId = block.Value.text_id;
                             int id = block.Value.numeric_id;
+                            int minState = block.Value.min_state_id;
+                            int maxState = block.Value.max_state_id;
                             
-                            if(block.Value.max_state_id > maxStateId) {
-                                maxStateId = block.Value.max_state_id;
+                            if(maxState > maxStateId) {
+                                maxStateId = maxState;
                             }
 
-                            blocks.Add(namedId, id);
+                            blocks.Add(namedId, (minState, maxState, id));
                         }
                     }
                 }

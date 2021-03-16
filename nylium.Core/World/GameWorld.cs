@@ -108,12 +108,12 @@ namespace nylium.Core.World {
             return ++lastEntityId;
         }
 
-        public Block.GameBlock GetBlock(int x, int y, int z) {
+        public GameBlock GetBlock(int x, int y, int z) {
             Chunk chunk = GetChunk((int) Math.Floor(x / (double) Chunk.X_SIZE), (int) Math.Floor(z / (double) Chunk.Z_SIZE));
             return chunk.GetBlock(x % Chunk.X_SIZE, y, z % Chunk.Z_SIZE);
         }
 
-        public void SetBlock(Block.GameBlock block, int x, int y, int z) {
+        public void SetBlock(GameBlock block, int x, int y, int z) {
             Chunk chunk = GetChunk((int) Math.Floor(x / (double) Chunk.X_SIZE), (int) Math.Floor(z / (double) Chunk.Z_SIZE));
             chunk.SetBlock(block, x % Chunk.X_SIZE, y, z % Chunk.Z_SIZE);
         }

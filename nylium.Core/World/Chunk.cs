@@ -102,7 +102,7 @@ namespace nylium.Core.World {
                         B.GameBlock block = GetBlock(x, y, z);
 
                         if(block != null) {
-                            blocks[i] = block.Id;
+                            blocks[i] = block.StateId;
                         } else {
                             blocks[i] = 0;
                         }
