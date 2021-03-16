@@ -36,17 +36,14 @@ namespace nylium.Core {
         private ProtocolState ProtocolState { get; set; }
 
         private KeepAlive KeepAlive { get; }
-
-#pragma warning disable 0108
-        private GameServer Server { get; }
-#pragma warning restore 0108
+        public new GameServer Server { get; }
 
         public ClientConfiguration Configuration { get; }
 
         public PlayerEntity Player { get; set; }
         public GameWorld World { get; set; }
 
-        public Chunk[] LoadedChunks { get; set; }
+        public List<Chunk> LoadedChunks { get; set; }
 
         public GameClient(GameServer server) : base(server) {
             GameState = State.Disconnected;
@@ -107,13 +104,14 @@ namespace nylium.Core {
 
                         ProtocolState = ProtocolState.Play;
                         World = Server.World;
-                        Player = new(World, loginStart.Username, playerUuid, Gamemode.Creative, 0, 1, 0, 0, 0, true);
+                        Player = new(World, this, loginStart.Username, playerUuid, Gamemode.Creative, 0, 1, 0, 0, 0, true);
 
                         SP24JoinGame joinGame = new(Player.EntityId, false, Player.Gamemode, Player.Gamemode,
                             new Utilities.Identifier[] { new("world") }, Server.DimensionCodec.RootTag, Server.OverworldDimension.RootTag,
                             new("world"), 0, 99, 8, false, true, false, true);
                         Send(joinGame);
 
+                        LoadedChunks = new();
                         KeepAlive.Start();
 
                         SP17PluginMessage brand = new(new Utilities.Identifier("minecraft", "brand"),
@@ -177,9 +175,7 @@ namespace nylium.Core {
 
                         Chunk[] chunks = World.GetChunksInViewDistance((int) Math.Floor(Player.X / 16), (int) Math.Floor(Player.Z / 16),
                             (sbyte) (Configuration.ViewDistance - 1));
-
                         LoadChunks(chunks);
-                        LoadedChunks = chunks;
 
                         SP3DWorldBorder worldBorder = new(0, 0, 0, 4096, 0, 2048, 16, 2);
                         Send(worldBorder);
@@ -217,187 +213,19 @@ namespace nylium.Core {
                         break;
                     }
                 case CP12PlayerPosition: {
-                        Player.LastX = Player.X;
-                        Player.LastY = Player.Y;
-                        Player.LastZ = Player.Z;
-                        Player.LastOnGround = Player.OnGround;
-
-                        CP12PlayerPosition playerPosition = (CP12PlayerPosition) packet;
-
-                        if(double.IsInfinity(playerPosition.X) || double.IsInfinity(playerPosition.FeetY) || double.IsInfinity(playerPosition.Z)
-                            || playerPosition.X > 3.2 * Math.Pow(10, 7) || playerPosition.Z > 3.2 * Math.Pow(10, 7)) {
-
-                            SP19Disconnect disconnect = new(new {
-                                text = "Invalid move packet received"
-                            });
-                            Send(disconnect);
-                            Disconnect();
-                            break;
-                        }
-
-                        double deltaX = playerPosition.X - Player.LastX;
-                        double deltaY = playerPosition.FeetY - Player.LastY;
-                        double deltaZ = playerPosition.Z - Player.LastZ;
-
-                        double total = Math.Pow(deltaX, 2) + Math.Pow(deltaY, 2) + Math.Pow(deltaZ, 2);
-                        double expected = Math.Pow(Player.LastX, 2) + Math.Pow(Player.LastY, 2) + Math.Pow(Player.LastZ, 2);
-                        
-                        // TODO               300 if elytra
-                        if(total - expected > 100) {
-                            Console.WriteLine($"Client with id [{Id}] moved too fast!");
-
-                            SP56EntityTeleport teleport = new(Player.EntityId, Player.LastX, Player.LastY, Player.LastZ,
-                                Player.Yaw, Player.Pitch, Player.LastOnGround);
-                            Send(teleport);
-                            break;
-                        }
-
-                        Player.X = playerPosition.X;
-                        Player.Y = playerPosition.FeetY;
-                        Player.Z = playerPosition.Z;
-                        Player.OnGround = playerPosition.OnGround;
-
-                        SP27EntityPosition entityPosition = new(Player.EntityId,
-                            (short) (((Player.X * 32) - (Player.LastX * 32)) * 128),
-                            (short) (((Player.Y * 32) - (Player.LastY * 32)) * 128),
-                            (short) (((Player.Z * 32) - (Player.LastZ * 32)) * 128),
-                            Player.OnGround);
-                        Server.MulticastAsync(entityPosition, this);
-
-                        if(Math.Floor(Player.X / 16) != Math.Floor(Player.LastX / 16)
-                            || Math.Floor(Player.Z / 16) != Math.Floor(Player.LastZ / 16)) {
-
-                            // player changed chunks
-                            Chunk[] chunks = World.GetChunksInViewDistance((int) Math.Floor(Player.X / 16), (int) Math.Floor(Player.Z / 16), Configuration.ViewDistance);
-
-                            IEnumerable<Chunk> toUnload = LoadedChunks.Except(chunks);
-                            IEnumerable<Chunk> toLoad = chunks.Except(LoadedChunks);
-
-                            LoadedChunks = chunks;
-
-                            UnloadChunks(toUnload);
-                            LoadChunks(toLoad);
-                        }
+                        Player.HandleMovement(packet);
                         break;
                     }
                 case CP13PlayerPositionAndRotation: {
-                        CP13PlayerPositionAndRotation playerPositionAndRotation = (CP13PlayerPositionAndRotation) packet;
-
-                        Player.LastX = Player.X;
-                        Player.LastY = Player.Y;
-                        Player.LastZ = Player.Z;
-                        Player.LastOnGround = Player.OnGround;
-
-                        if(double.IsInfinity(playerPositionAndRotation.X) || double.IsInfinity(playerPositionAndRotation.FeetY) || double.IsInfinity(playerPositionAndRotation.Z)
-                            || playerPositionAndRotation.X > 3.2 * Math.Pow(10, 7) || playerPositionAndRotation.Z > 3.2 * Math.Pow(10, 7)) {
-
-                            SP19Disconnect disconnect = new(new {
-                                text = "Invalid move packet received"
-                            });
-                            Send(disconnect);
-                            Disconnect();
-                            break;
-                        }
-
-                        double deltaX = playerPositionAndRotation.X - Player.LastX;
-                        double deltaY = playerPositionAndRotation.FeetY - Player.LastY;
-                        double deltaZ = playerPositionAndRotation.Z - Player.LastZ;
-
-                        double total = Math.Pow(deltaX, 2) + Math.Pow(deltaY, 2) + Math.Pow(deltaZ, 2);
-                        double expected = Math.Pow(Player.LastX, 2) + Math.Pow(Player.LastY, 2) + Math.Pow(Player.LastZ, 2);
-
-                        // TODO               300 if elytra
-                        if(total - expected > 100) {
-                            Console.WriteLine($"Client with id [{Id}] moved too fast!");
-
-                            SP56EntityTeleport teleport = new(Player.EntityId, Player.LastX, Player.LastY, Player.LastZ,
-                                Player.Yaw, Player.Pitch, Player.LastOnGround);
-                            Send(teleport);
-                            break;
-                        }
-
-                        Player.X = playerPositionAndRotation.X;
-                        Player.Y = playerPositionAndRotation.FeetY;
-                        Player.Z = playerPositionAndRotation.Z;
-                        Player.OnGround = playerPositionAndRotation.OnGround;
-
-                        double x = -Math.Cos(playerPositionAndRotation.Pitch) * Math.Sin(playerPositionAndRotation.Yaw);
-                        double y = -Math.Sin(playerPositionAndRotation.Pitch);
-                        double z = Math.Cos(playerPositionAndRotation.Pitch) * Math.Cos(playerPositionAndRotation.Yaw);
-
-                        double dx = x - Player.X;
-                        double dy = y - Player.Y;
-                        double dz = z - Player.Z;
-
-                        double r = Math.Sqrt((dx * dx) + (dy * dy) + (dz * dz));
-                        double yaw = (-Math.Atan2(dx, dz) / Math.PI) * 180;
-
-                        if(yaw < 0) yaw = 360 + yaw;
-
-                        double pitch = (-Math.Asin(dy / r) / Math.PI) * 180;
-
-                        Player.Yaw = (float) yaw;
-                        Player.Pitch = (float) pitch;
-
-                        SP28EntityPositionAndRotation entityPositionAndRotation = new(Player.EntityId,
-                            (short) (((Player.X * 32) - (Player.LastX * 32)) * 128),
-                            (short) (((Player.Y * 32) - (Player.LastY * 32)) * 128),
-                            (short) (((Player.Z * 32) - (Player.LastZ * 32)) * 128),
-                            Player.Yaw, Player.Pitch, Player.OnGround);
-                        Server.MulticastAsync(entityPositionAndRotation, this);
-
-                        if(Math.Floor(Player.X / 16) != Math.Floor(Player.LastX / 16)
-                            || Math.Floor(Player.Z / 16) != Math.Floor(Player.LastZ / 16)) {
-
-                            // player changed chunks
-                            Chunk[] chunks = World.GetChunksInViewDistance((int) Math.Floor(Player.X / 16), (int) Math.Floor(Player.Z / 16), Configuration.ViewDistance);
-
-                            IEnumerable<Chunk> toUnload = LoadedChunks.Except(chunks);
-                            IEnumerable<Chunk> toLoad = chunks.Except(LoadedChunks);
-
-                            LoadedChunks = chunks;
-
-                            UnloadChunks(toUnload);
-                            LoadChunks(toLoad);
-                        }
+                        Player.HandleMovement(packet);
                         break;
                     }
                 case CP14PlayerRotation: {
-                        Player.LastOnGround = Player.OnGround;
-
-                        CP14PlayerRotation playerRotation = (CP14PlayerRotation) packet;
-
-                        double x = -Math.Cos(playerRotation.Pitch) * Math.Sin(playerRotation.Yaw);
-                        double y = -Math.Sin(playerRotation.Pitch);
-                        double z = Math.Cos(playerRotation.Pitch) * Math.Cos(playerRotation.Yaw);
-
-                        double dx = x - Player.X;
-                        double dy = y - Player.Y;
-                        double dz = z - Player.Z;
-
-                        double r = Math.Sqrt((dx * dx) + (dy * dy) + (dz * dz));
-                        double yaw = (-Math.Atan2(dx, dz) / Math.PI) * 180;
-
-                        if(yaw < 0) yaw = 360 + yaw;
-
-                        double pitch = (-Math.Asin(dy / r) / Math.PI) * 180;
-
-                        Player.Yaw = (float) yaw;
-                        Player.Pitch = (float) pitch;
-
-                        Player.OnGround = playerRotation.OnGround;
-
-                        SP29EntityRotation entityRotation = new(Player.EntityId, Player.Yaw, Player.Pitch, Player.OnGround);
-                        Server.MulticastAsync(entityRotation, this);
+                        Player.HandleMovement(packet);
                         break;
                     }
                 case CP15PlayerMovement: {
-                        Player.LastOnGround = Player.OnGround;
-                        CP15PlayerMovement playerMovement = (CP15PlayerMovement) packet;
-                        Player.OnGround = playerMovement.OnGround;
-
-                        SP2AEntityMovement entityMovement = new(Player.EntityId);
-                        Server.MulticastAsync(entityMovement, this);
+                        Player.HandleMovement(packet);
                         break;
                     }
                 default:
@@ -408,7 +236,7 @@ namespace nylium.Core {
         }
 
         // TODO unhardcode everything here
-        private void LoadChunks(IEnumerable<Chunk> chunks) {
+        public void LoadChunks(Chunk[] chunks) {
             int mask = 0b00000000_00000000_00000000_00000001;
 
             byte[] a = new byte[] { 0x01, 0x00, 0x80, 0x40, 0x20, 0x10, 0x08, 0x04 };
@@ -429,7 +257,9 @@ namespace nylium.Core {
             int[] biomes = Enumerable.Repeat(127, 1024).ToArray();
 
             // TODO somehow the entire chunk is underwater?
-            foreach(Chunk chunk in chunks) {
+            for(int i = 0; i < chunks.Length; i++) {
+                Chunk chunk = chunks[i];
+
                 sbyte[] data = null;
 
                 using(MemoryStream stream = RMSManager.Get().GetStream("chunk data convert thing")) {
@@ -460,13 +290,19 @@ namespace nylium.Core {
                 SP20ChunkData chunkData = new(chunk.X, chunk.Z, true, mask, heightmap,
                     biomes, data, Array.Empty<NbtCompound>());
                 Send(chunkData);
+
+                LoadedChunks.Add(chunk);
             }
         }
 
-        private void UnloadChunks(IEnumerable<Chunk> chunks) {
-            foreach(Chunk chunk in chunks) {
+        public void UnloadChunks(Chunk[] chunks) {
+            for(int i = 0; i < chunks.Length; i++) {
+                Chunk chunk = chunks[i];
+
                 SP1CUnloadChunk unloadChunk = new(chunk.X, chunk.Z);
                 SendAsync(unloadChunk);
+
+                LoadedChunks.Remove(chunk);
             }
         }
 
