@@ -1,0 +1,28 @@
+name: .NET Windows
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1.7.2
+      with:
+        dotnet-version: 5.0.x
+    - name: Clean
+      run: dotnet clean nylium.sln
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build for Windows x64
+      run: dotnet publish nylium.Launch -r win-x64 --self-contained false --no-restore
+    - name: Upload Windows x64 build
+      uses: actions/upload-artifact@v2.2.2
+      with:
+        name: win-x64
+        path: nylium.Core/bin/Debug/net5.0/win-x64/publish/*

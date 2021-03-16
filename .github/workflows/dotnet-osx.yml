@@ -1,0 +1,28 @@
+name: .NET OSX
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1.7.2
+      with:
+        dotnet-version: 5.0.x
+    - name: Clean
+      run: dotnet clean nylium.sln
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build for macOS x64
+      run: dotnet publish nylium.Launch -r osx-x64 --self-contained false --no-restore
+    - name: Upload macOS x64 build
+      uses: actions/upload-artifact@v2.2.2
+      with:
+        name: osx-x64
+        path: nylium.Core/bin/Debug/net5.0/osx-x64/publish/*
