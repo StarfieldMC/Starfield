@@ -25,4 +25,4 @@ jobs:
       uses: actions/upload-artifact@v2.2.2
       with:
         name: osx-x64
-        path: nylium.Core/bin/Debug/net5.0/osx-x64/publish/*
+        path: nylium.Launch/bin/Debug/net5.0/osx-x64/publish/*

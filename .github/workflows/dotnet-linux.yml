@@ -29,14 +29,14 @@ jobs:
       uses: actions/upload-artifact@v2.2.2
       with:
         name: linux-x64
-        path: nylium.Core/bin/Debug/net5.0/linux-x64/publish/*
+        path: nylium.Launch/bin/Debug/net5.0/linux-x64/publish/*
     - name: Upload Linux ARM build
       uses: actions/upload-artifact@v2.2.2
       with:
         name: linux-arm
-        path: nylium.Core/bin/Debug/net5.0/linux-arm/publish/*
+        path: nylium.Launch/bin/Debug/net5.0/linux-arm/publish/*
     - name: Upload Linux ARM64 build
       uses: actions/upload-artifact@v2.2.2
       with:
         name: linux-arm64
-        path: nylium.Core/bin/Debug/net5.0/linux-arm64/publish/*
+        path: nylium.Launch/bin/Debug/net5.0/linux-arm64/publish/*
