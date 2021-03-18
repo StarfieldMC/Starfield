@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using DaanV2.UUID;
+using nylium.Core.Block;
 using nylium.Core.Packet;
 using nylium.Core.Packet.Client.Play;
 using nylium.Core.Packet.Server.Play;
@@ -147,6 +148,96 @@ namespace nylium.Core.Entity.Entities {
 
                 SP29EntityRotation entityRotation = new(EntityId, Yaw, Pitch, OnGround);
                 Client.Server.MulticastAsync(entityRotation, Client);
+            }
+        }
+
+        public void HandleAction(NetworkPacket packet) {
+            switch(packet) {
+                case CP1BPlayerDigging:
+                    CP1BPlayerDigging digging = (CP1BPlayerDigging) packet;
+
+                    bool IsLegal(double x1, double y1, double z1, double x2, double y2, double z2) {
+                        return Math.Sqrt(Math.Pow(x2 - x1, 2) + Math.Pow(y2 - y1, 2) + Math.Pow(z2 - z1, 2)) <= 6.0;
+                    }
+
+                    SP07AcknowledgePlayerDigging acknowledgePlayerDigging;
+
+                    if(!IsLegal(X, Y + 1.5, Z, digging.Location.X, digging.Location.Y, digging.Location.Z)) {
+                        acknowledgePlayerDigging = new(digging.Location,
+                            Parent.GetBlock(digging.Location.X, digging.Location.Y, digging.Location.Z).StateId,
+                            (SP07AcknowledgePlayerDigging.ActionType) digging.Status, false);
+                        Client.Send(acknowledgePlayerDigging);
+                        break;
+                    }
+
+                    acknowledgePlayerDigging = new(digging.Location,
+                        Parent.GetBlock(digging.Location.X, digging.Location.Y, digging.Location.Z).StateId,
+                        (SP07AcknowledgePlayerDigging.ActionType) digging.Status, true);
+                    Client.Send(acknowledgePlayerDigging);
+
+                    // TODO block break animation
+
+                    CP1BPlayerDigging.ActionType requiredAction;
+
+                    if(Gamemode == Gamemode.Creative) {
+                        requiredAction = CP1BPlayerDigging.ActionType.StartedDigging;
+                    } else {
+                        requiredAction = CP1BPlayerDigging.ActionType.FinishedDigging;
+                    }
+
+                    if(digging.Status == requiredAction) {
+                        GameBlock air = GameBlock.Create(Parent, "minecraft:air");
+
+                        Parent.SetBlock(air, digging.Location.X, digging.Location.Y, digging.Location.Z);
+
+                        SP0BBlockChange blockChange = new(digging.Location, air.StateId);
+                        Client.Server.MulticastAsync(blockChange, Client, Parent.GetClientsWithChunkLoaded(
+                            (int) Math.Floor((double) digging.Location.X / Chunk.X_SIZE),
+                            (int) Math.Floor((double) digging.Location.Z / Chunk.Z_SIZE)).ToArray());
+                    }
+                    break;
+                case CP2EPlayerBlockPlacement:
+                    CP2EPlayerBlockPlacement playerBlockPlacement = (CP2EPlayerBlockPlacement) packet;
+
+                    Position.Int pos = new(playerBlockPlacement.Location);
+
+                    switch(playerBlockPlacement.Face) {
+                        case GameBlock.Face.Top:
+                            pos.Y++;
+                            break;
+                        case GameBlock.Face.Bottom:
+                            pos.Y--;
+                            break;
+                        case GameBlock.Face.North:
+                            pos.Z--;
+                            break;
+                        case GameBlock.Face.East:
+                            pos.X++;
+                            break;
+                        case GameBlock.Face.South:
+                            pos.Z++;
+                            break;
+                        case GameBlock.Face.West:
+                            pos.X--;
+                            break;
+                    }
+
+                    // TODO check for collisions here
+
+                    if(Parent.GetBlock(pos.X, pos.Y, pos.Z) == null) {
+                        // TODO replace with what the player is actually holding
+                        GameBlock oak_planks = GameBlock.Create(Parent, "minecraft:oak_planks");
+
+                        Parent.SetBlock(oak_planks, pos.X, pos.Y, pos.Z);
+
+                        SP0BBlockChange _blockChange = new(pos, oak_planks.StateId);
+                        Client.Server.MulticastAsync(_blockChange, Client, Parent.GetClientsWithChunkLoaded(
+                            (int) Math.Floor((double) pos.X / Chunk.X_SIZE),
+                            (int) Math.Floor((double) pos.Z / Chunk.Z_SIZE)).ToArray());
+                    }
+                    break;
+                case CP1CEntityAction:
+                    break;
             }
         }
     }

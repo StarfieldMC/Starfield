@@ -1,4 +1,5 @@
-﻿using fNbt;
+﻿using System;
+using fNbt;
 
 namespace nylium.Core.Entity.Inventory {
 

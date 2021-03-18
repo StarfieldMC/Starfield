@@ -15,6 +15,18 @@ namespace nylium.Utilities {
                 Y = y;
                 Z = z;
             }
+
+            public Int(Int pos) {
+                X = pos.X;
+                Y = pos.Y;
+                Z = pos.Z;
+            }
+
+            public override bool Equals(object obj) {
+                if(obj is not Int item) return false;
+
+                return item.X == X && item.Y == Y && item.Z == Z;
+            }
         }
 
         public class Float {
@@ -28,6 +40,18 @@ namespace nylium.Utilities {
                 Y = y;
                 Z = z;
             }
+
+            public Float(Float pos) {
+                X = pos.X;
+                Y = pos.Y;
+                Z = pos.Z;
+            }
+
+            public override bool Equals(object obj) {
+                if(obj is not Float item) return false;
+
+                return item.X == X && item.Y == Y && item.Z == Z;
+            }
         }
 
         public class Double {
@@ -40,6 +64,18 @@ namespace nylium.Utilities {
                 X = x;
                 Y = y;
                 Z = z;
+            }
+
+            public Double(Double pos) {
+                X = pos.X;
+                Y = pos.Y;
+                Z = pos.Z;
+            }
+
+            public override bool Equals(object obj) {
+                if(obj is not Double item) return false;
+
+                return item.X == X && item.Y == Y && item.Z == Z;
             }
         }
     }

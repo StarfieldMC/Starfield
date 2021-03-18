@@ -111,5 +111,15 @@ namespace nylium.Core.Block {
             Console.WriteLine("Initialized blocks in " + Math.Round(stopwatch.Elapsed.TotalMilliseconds, 2) + "ms");
             stopwatch = null;
         }
+
+        public enum Face : sbyte {
+
+            Bottom,
+            Top,
+            North,
+            South,
+            West,
+            East
+        }
     }
 }

@@ -29,8 +29,8 @@ namespace nylium.Core {
 
     public class GameClient : TcpSession {
 
-        private readonly dynamic TIMEOUT_MESSAGE = new { text = "Timed out" };
-        private readonly Random random = new();
+        private static readonly dynamic TIMEOUT_MESSAGE = new { text = "Timed out" };
+        public readonly Random random = new();
 
         public State GameState { get; set; }
         private ProtocolState ProtocolState { get; set; }
@@ -212,6 +212,14 @@ namespace nylium.Core {
                         Server.MulticastAsync(spawnPlayer, this);
                         break;
                     }
+                case CP2CAnimation: {
+                        CP2CAnimation animation = (CP2CAnimation) packet;
+
+                        SP05EntityAnimation entityAnimation = new(Player.EntityId, animation.MainHand ?
+                            SP05EntityAnimation.AnimationType.SwingMainArm : SP05EntityAnimation.AnimationType.SwingOffhand);
+                        Server.MulticastAsync(entityAnimation, this);
+                        break;
+                    }
                 case CP12PlayerPosition: {
                         Player.HandleMovement(packet);
                         break;
@@ -226,6 +234,18 @@ namespace nylium.Core {
                     }
                 case CP15PlayerMovement: {
                         Player.HandleMovement(packet);
+                        break;
+                    }
+                case CP1BPlayerDigging: {
+                        Player.HandleAction(packet);
+                        break;
+                    }
+                case CP2EPlayerBlockPlacement: {
+                        Player.HandleAction(packet);
+                        break;
+                    }
+                case CP1CEntityAction: {
+                        Player.HandleAction(packet);
                         break;
                     }
                 default:

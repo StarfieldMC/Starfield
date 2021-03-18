@@ -6,6 +6,7 @@ using System.IO;
 using System.Threading;
 using fNbt;
 using fNbt.Tags;
+using NetCoreServer;
 using nylium.Core.Block;
 using nylium.Core.Entity;
 using nylium.Core.Entity.Entities;
@@ -110,15 +111,26 @@ namespace nylium.Core.World {
 
         public GameBlock GetBlock(int x, int y, int z) {
             Chunk chunk = GetChunk((int) Math.Floor(x / (double) Chunk.X_SIZE), (int) Math.Floor(z / (double) Chunk.Z_SIZE));
-            return chunk.GetBlock(x % Chunk.X_SIZE, y, z % Chunk.Z_SIZE);
+
+            // of course C# has to be different and have a remainder operator instead of modulo
+            int Mod(int x, int m) {
+                return ((x % m) + m) % m;
+            }
+
+            return chunk.GetBlock(Mod(x, Chunk.X_SIZE), y, Mod(z, Chunk.Z_SIZE));
         }
 
         public void SetBlock(GameBlock block, int x, int y, int z) {
             Chunk chunk = GetChunk((int) Math.Floor(x / (double) Chunk.X_SIZE), (int) Math.Floor(z / (double) Chunk.Z_SIZE));
-            chunk.SetBlock(block, x % Chunk.X_SIZE, y, z % Chunk.Z_SIZE);
+
+            // of course C# has to be different and have a remainder operator instead of modulo
+            int Mod(int x, int m) {
+                return ((x % m) + m) % m;
+            }
+
+            chunk.SetBlock(block, Mod(x, Chunk.X_SIZE), y, Mod(z, Chunk.Z_SIZE));
         }
 
-        // pisspart u need to remember to repopulate the chunks array when u restart server else it will regenerate the chunks tak tak byczq
         public Chunk GetChunk(int chunkX, int chunkZ) {
             return Chunks.ContainsKey((chunkX, chunkZ)) ? Chunks[(chunkX, chunkZ)] : GenerateChunk(chunkX, chunkZ);
         }
@@ -135,6 +147,26 @@ namespace nylium.Core.World {
             }
 
             return chunks;
+        }
+
+        public List<GameClient> GetClientsWithChunkLoaded(int chunkX, int chunkZ) {
+            List<GameClient> clients = new();
+
+            Chunk chunk = GetChunk(chunkX, chunkZ);
+
+            foreach(TcpSession session in Server.GetSessions()) {
+                if(session is GameClient) {
+                    GameClient client = (GameClient) session;
+
+                    if(client.GameState == GameClient.State.Playing) {
+                        if(client.LoadedChunks.Contains(chunk)) {
+                            clients.Add(client);
+                        }
+                    }
+                }
+            }
+
+            return clients;
         }
 
         public Chunk GenerateChunk(int x, int z) {

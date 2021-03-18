@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
@@ -131,6 +132,67 @@ namespace nylium.Core {
 
                 packet.Dispose();
             });
+        }
+
+        public void Multicast(NetworkPacket packet, TcpSession excludeSession = null, params TcpSession[] sessions) {
+            if(!IsStarted)
+                return;
+
+            if(packet == null)
+                return;
+
+            byte[] buffer = packet.ToBytes();
+            int size = buffer.Length;
+
+            foreach(TcpSession session in sessions) {
+                if(session is GameClient client) {
+                    if(client.GameState != GameClient.State.Playing) continue;
+                }
+
+                if(excludeSession != null) {
+                    if(session != excludeSession) {
+                        session.SendAsync(buffer, 0, size);
+                    }
+                } else {
+                    session.SendAsync(buffer, 0, size);
+                }
+            }
+
+            packet.Dispose();
+        }
+
+        public void MulticastAsync(NetworkPacket packet, TcpSession excludeSession = null, params TcpSession[] sessions) {
+            Task.Run(() => {
+                if(!IsStarted)
+                    return;
+
+                if(packet == null)
+                    return;
+
+                byte[] buffer = packet.ToBytes();
+                int size = buffer.Length;
+
+                foreach(TcpSession session in sessions) {
+                    if(session is GameClient client) {
+                        if(client.GameState != GameClient.State.Playing) continue;
+                        if(session != excludeSession) Console.WriteLine("sending thing to user with username " + client.Player.Username);
+                    }
+
+                    if(excludeSession != null) {
+                        if(session != excludeSession) {
+                            session.SendAsync(buffer, 0, size);
+                        }
+                    } else {
+                        session.SendAsync(buffer, 0, size);
+                    }
+                }
+
+                packet.Dispose();
+            });
+        }
+
+        public ICollection<TcpSession> GetSessions() {
+            return Sessions.Values;
         }
     }
 }

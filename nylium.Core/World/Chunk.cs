@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using B = nylium.Core.Block;
+﻿using B = nylium.Core.Block;
 
 namespace nylium.Core.World {
 
@@ -61,8 +60,8 @@ namespace nylium.Core.World {
 
             if(nonAir) {
                 for(int y = startY; y <= endY; y++) {
-                    for(int x = 0; x < X_SIZE; x++) {
-                        for(int z = 0; z < Z_SIZE; z++) {
+                    for(int z = 0; z < Z_SIZE; z++) {
+                        for(int x = 0; x < X_SIZE; x++) {
                             B.GameBlock block = GetBlock(x, y, z);
 
                             if(block != null) {
@@ -73,8 +72,8 @@ namespace nylium.Core.World {
                 }
             } else {
                 for(int y = startY; y <= endY; y++) {
-                    for(int x = 0; x < X_SIZE; x++) {
-                        for(int z = 0; z < Z_SIZE; z++) {
+                    for(int z = 0; z < Z_SIZE; z++) {
+                        for(int x = 0; x < X_SIZE; x++) {
                             B.GameBlock block = GetBlock(x, y, z);
 
                             if(block == null) {
@@ -97,8 +96,8 @@ namespace nylium.Core.World {
             int i = 0;
 
             for(int y = startY; y <= endY; y++) {
-                for(int x = 0; x < X_SIZE; x++) {
-                    for(int z = 0; z < Z_SIZE; z++) {
+                for(int z = 0; z < Z_SIZE; z++) {
+                    for(int x = 0; x < X_SIZE; x++) {
                         B.GameBlock block = GetBlock(x, y, z);
 
                         if(block != null) {
@@ -106,7 +105,7 @@ namespace nylium.Core.World {
                         } else {
                             blocks[i] = 0;
                         }
-                        
+
                         i++;
                     }
                 }

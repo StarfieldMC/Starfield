@@ -1,0 +1,23 @@
+﻿using System;
+using nylium.Utilities;
+
+namespace nylium.Core.Packet.Server.Play {
+
+    [Packet(0x07, ProtocolState.Play, PacketSide.Server)]
+    public class SP07BlockBreakAnimation : NetworkPacket {
+
+        public int EntityId { get; }
+        public Position.Int Location { get; }
+        public sbyte DestroyStage { get; }
+
+        public SP07BlockBreakAnimation(int entityId, Position.Int location, sbyte destroyStage) {
+            EntityId = entityId;
+            Location = location;
+            DestroyStage = destroyStage;
+
+            WriteVarInt(entityId);
+            WritePosition(location);
+            WriteByte(destroyStage);
+        }
+    }
+}
