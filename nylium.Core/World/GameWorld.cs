@@ -10,7 +10,8 @@ using NetCoreServer;
 using nylium.Core.Block;
 using nylium.Core.Entity;
 using nylium.Core.Entity.Entities;
-using nylium.Core.Packet.Server.Play;
+using nylium.Core.Networking;
+using nylium.Core.Networking.Packet.Server.Play;
 using nylium.Core.World.Generation;
 
 namespace nylium.Core.World {
@@ -36,7 +37,6 @@ namespace nylium.Core.World {
 
         public GameWorld(GameServer server, string name, Dictionary<(int, int), Chunk> chunks, List<GameEntity> entities, IWorldGenerator generator) {
             Server = server;
-
             Name = name;
 
             Chunks = chunks;
@@ -51,7 +51,6 @@ namespace nylium.Core.World {
 
         public GameWorld(GameServer server, string name, IWorldGenerator generator) {
             Server = server;
-
             Name = name;
 
             Chunks = new();
@@ -155,9 +154,7 @@ namespace nylium.Core.World {
             Chunk chunk = GetChunk(chunkX, chunkZ);
 
             foreach(TcpSession session in Server.GetSessions()) {
-                if(session is GameClient) {
-                    GameClient client = (GameClient) session;
-
+                if(session is GameClient client) {
                     if(client.GameState == GameClient.State.Playing) {
                         if(client.LoadedChunks.Contains(chunk)) {
                             clients.Add(client);

@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using DaanV2.UUID;
 using nylium.Core.Block;
-using nylium.Core.Packet;
-using nylium.Core.Packet.Client.Play;
-using nylium.Core.Packet.Server.Play;
+using nylium.Core.Networking;
+using nylium.Core.Networking.Packet;
+using nylium.Core.Networking.Packet.Client.Play;
+using nylium.Core.Networking.Packet.Server.Play;
 using nylium.Core.World;
 using nylium.Utilities;
 

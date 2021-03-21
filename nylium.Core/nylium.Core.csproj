@@ -27,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Packet\Server\Handshake\" />
+    <Folder Include="Networking\Packet\Server\Handshake\" />
   </ItemGroup>
 
   <ItemGroup>
