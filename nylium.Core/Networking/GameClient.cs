@@ -284,7 +284,20 @@ namespace nylium.Core.Networking {
 
                 using(MemoryStream stream = RMSManager.Get().GetStream("chunk data convert thing")) {
                     // only 1 section sent (see primary bit mask) therefore no loop
-                    int nonAirBlockCount = chunk.GetBlockCountInSection(0, false);
+                    int j = 0;
+                    int nonAirBlockCount = 0;
+                    ushort[] blockIds = new ushort[Chunk.Section.X_SIZE * Chunk.Section.Y_SIZE * Chunk.Section.Z_SIZE];
+
+                    chunk.GetSection(0).Iterate(block => {
+                        if(block != null) {
+                            nonAirBlockCount++;
+                            blockIds[j] = block.StateId;
+                        } else {
+                            blockIds[j] = 0;
+                        }
+
+                        j++;
+                    });
 
                     Short blockCount = new((short) nonAirBlockCount);
                     UByte bitsPerBlock = new((byte) GameBlock.bitsPerBlock);
@@ -293,7 +306,6 @@ namespace nylium.Core.Networking {
                     VarInt stone = new(1);
                     VarInt air = new(0);
 
-                    int[] blockIds = chunk.GetBlocksInSection(0);
                     long[] compactedLong = SectionUtils.ToCompactedLongArray(blockIds, GameBlock.bitsPerBlock);
 
                     VarInt dataArrayLength = new(compactedLong.Length);

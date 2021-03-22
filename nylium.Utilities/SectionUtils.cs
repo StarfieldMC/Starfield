@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Linq;
 using nylium.Extensions;
 
 namespace nylium.Utilities {
@@ -9,7 +8,7 @@ namespace nylium.Utilities {
 
         // TODO find a better way to do this
         // i probably won't even know what this does in a few days
-        public static long[] ToCompactedLongArray(int[] ids, int bitsPerBlock) {
+        public static long[] ToCompactedLongArray(ushort[] ids, int bitsPerBlock) {
             //                                   64 bits per long
             int blocksPerLong = (int) Math.Floor(64d / bitsPerBlock);
 
@@ -24,7 +23,7 @@ namespace nylium.Utilities {
                     longIndex = 0;
                 }
 
-                BitArray id = new(new int[1] { ids[i] });
+                BitArray id = new(ids[i].WriteLittleEndian());
 
                 bool[] bits = new bool[bitsPerBlock];
                 bool removing = true;
@@ -58,13 +57,12 @@ namespace nylium.Utilities {
                     } else {
                         array[longArrayIndex].ClearBit(longIndex);
                     }
-                    
+
                     longIndex++;
                 }
             }
 
             Array.Reverse(array); // reverse, otherwise the Y coordinate will be flipped
-
             return array;
         }
     }

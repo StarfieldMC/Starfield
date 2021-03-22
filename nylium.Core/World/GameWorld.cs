@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using fNbt;
 using fNbt.Tags;
 using NetCoreServer;
@@ -13,6 +14,8 @@ using nylium.Core.Entity.Entities;
 using nylium.Core.Networking;
 using nylium.Core.Networking.Packet.Server.Play;
 using nylium.Core.World.Generation;
+using nylium.Core.World.Storage;
+using nylium.Core.World.Storage.Formats;
 
 namespace nylium.Core.World {
 
@@ -31,23 +34,10 @@ namespace nylium.Core.World {
         public List<PlayerEntity> PlayerEntities { get; }
         public List<GameEntity> Entities { get; }
 
+        public AbstractWorldFormat Format { get; set; }
         public IWorldGenerator Generator { get; set; }
 
         private Thread WorldThread { get; }
-
-        public GameWorld(GameServer server, string name, Dictionary<(int, int), Chunk> chunks, List<GameEntity> entities, IWorldGenerator generator) {
-            Server = server;
-            Name = name;
-
-            Chunks = chunks;
-            PlayerEntities = new();
-            Entities = entities;
-            Generator = generator;
-
-            WorldThread = new(Update);
-            WorldThread.Name = "World update thread";
-            WorldThread.Start();
-        }
 
         public GameWorld(GameServer server, string name, IWorldGenerator generator) {
             Server = server;
@@ -59,21 +49,32 @@ namespace nylium.Core.World {
 
             Generator = generator;
 
-            int a = (int) Math.Floor(initializationChunks / 2d);
-            int i = 0;
+            if(!Directory.Exists(GetDirectory()) || !File.Exists(Path.Combine(GetDirectory(), "chunks.bin"))) {
+                Directory.CreateDirectory(GetDirectory());
+                Format = new WaterWorldFormat(this);
 
-            Stopwatch totalStopwatch = new();
-            totalStopwatch.Start();
+                // world does not exist - generate
+                int a = (int) Math.Floor(initializationChunks / 2d);
+                int i = 0;
 
-            for(int x = -a; x <= a; x++) {
-                for(int z = -a; z <= a; z++) {
-                    GenerateChunk(x, z);
-                    i++;
+                Stopwatch totalStopwatch = new();
+                totalStopwatch.Start();
+
+                for(int x = -a; x <= a; x++) {
+                    for(int z = -a; z <= a; z++) {
+                        GenerateChunk(x, z);
+                        i++;
+                    }
                 }
-            }
 
-            totalStopwatch.Stop();
-            Console.WriteLine(string.Format("Finished generating world! ({0} chunks) Took {1}ms", i, Math.Round(totalStopwatch.Elapsed.TotalMilliseconds, 2)));
+                totalStopwatch.Stop();
+                Console.WriteLine(string.Format("Finished generating world! ({0} chunks) Took {1}ms", i, Math.Round(totalStopwatch.Elapsed.TotalMilliseconds, 2)));
+
+                Format.Save();
+            } else {
+                Format = new WaterWorldFormat(this);
+                Format.Load();
+            }
 
             WorldThread = new(Update);
             WorldThread.Name = "World update thread";
@@ -101,6 +102,10 @@ namespace nylium.Core.World {
 
             SP4ETimeUpdate timeUpdate = new(Age, Age % 24000);
             Server.MulticastAsync(timeUpdate);
+
+            if(Age % 24000 == 0) {
+                Task.Run(() => Format.Save());
+            }
         }
 
         // TODO better way to do this?
@@ -172,6 +177,10 @@ namespace nylium.Core.World {
             Chunks.Add((x, z), chunk);
 
             return chunk;
+        }
+
+        public string GetDirectory() {
+            return Path.Combine(Nylium.WORLDS_DIRECTORY, Name);
         }
     }
 }

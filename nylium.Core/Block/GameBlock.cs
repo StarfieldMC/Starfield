@@ -12,29 +12,29 @@ namespace nylium.Core.Block {
 
     public class GameBlock {
 
-        //                                 id      state id range; protocol id
-        private static readonly Dictionary<string, (int, int,      int)> blocks = new();
+        //                                 id      state id range      protocol id
+        private static readonly Dictionary<string, (ushort, ushort,      int)> blocks = new();
 
         //                                             state id
-        private static readonly Dictionary<(GameWorld, int),    GameBlock> blockCache = new();
+        private static readonly Dictionary<(GameWorld, ushort),    GameBlock> blockCache = new();
 
         public static int bitsPerBlock = 0;
 
         public GameWorld Parent { get; }
-        public int StateId { get; set; }
+        public ushort StateId { get; set; }
 
-        private GameBlock(GameWorld parent, int stateId) {
+        private GameBlock(GameWorld parent, ushort stateId) {
             Parent = parent;
             StateId = stateId;
         }
 
-        public static (int, int) GetBlockStateIdRange(string namedId) {
+        public static (ushort, ushort) GetBlockStateIdRange(string namedId) {
             return blocks.ContainsKey(namedId.Replace("minecraft:", "")) ?
-                (blocks[namedId.Replace("minecraft:", "")].Item1, blocks[namedId.Replace("minecraft:", "")].Item2) : (-1, -1);
+                (blocks[namedId.Replace("minecraft:", "")].Item1, blocks[namedId.Replace("minecraft:", "")].Item2) : ((ushort) 0, (ushort) 0);
         }
 
-        public static string GetBlockNamedId(int stateId) {
-            foreach(KeyValuePair<string, (int, int, int)> entry in blocks) {
+        public static string GetBlockNamedId(ushort stateId) {
+            foreach(KeyValuePair<string, (ushort, ushort, int)> entry in blocks) {
                 if(entry.Value.Item1 <= stateId && entry.Value.Item2 >= stateId) {
                     return entry.Key;
                 }
@@ -49,9 +49,9 @@ namespace nylium.Core.Block {
         }
 
         public static GameBlock Create(GameWorld parent, string namedId) {
-            int stateId = GetBlockStateIdRange(namedId).Item1;
+            ushort stateId = GetBlockStateIdRange(namedId).Item1;
 
-            (GameWorld, int) key = (parent, stateId);
+            (GameWorld, ushort) key = (parent, stateId);
 
             if(blockCache.ContainsKey(key)) {
                 return blockCache[key];
@@ -63,8 +63,8 @@ namespace nylium.Core.Block {
             return block;
         }
 
-        public static GameBlock Create(GameWorld parent, int stateId) {
-            (GameWorld, int) key = (parent, stateId);
+        public static GameBlock Create(GameWorld parent, ushort stateId) {
+            (GameWorld, ushort) key = (parent, stateId);
 
             if(blockCache.ContainsKey(key)) {
                 return blockCache[key];
@@ -99,7 +99,7 @@ namespace nylium.Core.Block {
                                 maxStateId = maxState;
                             }
 
-                            blocks.Add(namedId, (minState, maxState, id));
+                            blocks.Add(namedId, ((ushort) minState, (ushort) maxState, id));
                         }
                     }
                 }

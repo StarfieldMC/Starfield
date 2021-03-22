@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 
 namespace nylium.Extensions {
 
-    public static class BigEndianExtensions {
+    public static class BinaryExtensions {
 
         unsafe public static float ReadBigEndianF(this byte[] x) {
             if(BitConverter.IsLittleEndian) {
@@ -113,21 +113,21 @@ namespace nylium.Extensions {
             return BinaryPrimitives.ReadInt64BigEndian(x);
         }
 
-        public static byte[] WriteBigEndianU(this ushort x) {
+        public static byte[] WriteBigEndian(this ushort x) {
             byte[] b = new byte[2];
             BinaryPrimitives.WriteUInt16BigEndian(b, x);
 
             return b;
         }
 
-        public static byte[] WriteBigEndianU(this uint x) {
+        public static byte[] WriteBigEndian(this uint x) {
             byte[] b = new byte[4];
             BinaryPrimitives.WriteUInt32BigEndian(b, x);
 
             return b;
         }
 
-        public static byte[] WriteBigEndianU(this ulong x) {
+        public static byte[] WriteBigEndian(this ulong x) {
             byte[] b = new byte[8];
             BinaryPrimitives.WriteUInt64BigEndian(b, x);
 
@@ -151,6 +151,72 @@ namespace nylium.Extensions {
         public static byte[] WriteBigEndian(this long x) {
             byte[] b = new byte[8];
             BinaryPrimitives.WriteInt64BigEndian(b, x);
+
+            return b;
+        }
+
+        public static ushort ReadLittleEndianUS(this byte[] x) {
+            return BinaryPrimitives.ReadUInt16LittleEndian(x);
+        }
+
+        public static uint ReadLittleEndianUI(this byte[] x) {
+            return BinaryPrimitives.ReadUInt16LittleEndian(x);
+        }
+
+        public static ulong ReadLittleEndianUL(this byte[] x) {
+            return BinaryPrimitives.ReadUInt64LittleEndian(x);
+        }
+
+        public static short ReadLittleEndianS(this byte[] x) {
+            return BinaryPrimitives.ReadInt16LittleEndian(x);
+        }
+
+        public static int ReadLittleEndianI(this byte[] x) {
+            return BinaryPrimitives.ReadInt16LittleEndian(x);
+        }
+
+        public static long ReadLittleEndianL(this byte[] x) {
+            return BinaryPrimitives.ReadInt64LittleEndian(x);
+        }
+
+        public static byte[] WriteLittleEndian(this ushort x) {
+            byte[] b = new byte[2];
+            BinaryPrimitives.WriteUInt16LittleEndian(b, x);
+
+            return b;
+        }
+
+        public static byte[] WriteLittleEndian(this uint x) {
+            byte[] b = new byte[4];
+            BinaryPrimitives.WriteUInt32LittleEndian(b, x);
+
+            return b;
+        }
+
+        public static byte[] WriteLittleEndian(this ulong x) {
+            byte[] b = new byte[8];
+            BinaryPrimitives.WriteUInt64LittleEndian(b, x);
+
+            return b;
+        }
+
+        public static byte[] WriteLittleEndian(this short x) {
+            byte[] b = new byte[2];
+            BinaryPrimitives.WriteInt16LittleEndian(b, x);
+
+            return b;
+        }
+
+        public static byte[] WriteLittleEndian(this int x) {
+            byte[] b = new byte[4];
+            BinaryPrimitives.WriteInt32LittleEndian(b, x);
+
+            return b;
+        }
+
+        public static byte[] WriteLittleEndian(this long x) {
+            byte[] b = new byte[8];
+            BinaryPrimitives.WriteInt64LittleEndian(b, x);
 
             return b;
         }

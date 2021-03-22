@@ -19,7 +19,7 @@ namespace nylium.Core.DataTypes {
         }
 
         public override void Write(Stream stream) {
-            byte[] bytes = Value.WriteBigEndianU();
+            byte[] bytes = Value.WriteBigEndian();
             stream.Write(bytes);
         }
     }

@@ -16,5 +16,9 @@ namespace nylium.Core.World.Generation.Generators {
                 }
             }
         }
+
+        public string GetName() {
+            return "flat";
+        }
     }
 }
