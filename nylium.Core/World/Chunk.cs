@@ -49,6 +49,7 @@ namespace nylium.Core.World {
 
         public GameBlock GetBlock(int x, int y, int z) {
             int id = (int) Math.Floor((double) y / Section.Y_SIZE);
+            
             if(Sections[id] == null) return null;
 
             y -= (id * Section.Y_SIZE);
