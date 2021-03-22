@@ -98,6 +98,8 @@ namespace nylium.Core.World.Storage.Formats {
                     }
 
                     chunk.SetSection(section, id);
+                } else {
+                    return null;
                 }
             }
 

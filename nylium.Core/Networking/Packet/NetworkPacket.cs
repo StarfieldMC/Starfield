@@ -28,10 +28,10 @@ namespace nylium.Core.Networking.Packet {
             stopwatch.Start();
 
             Type[] packetTypes = Assembly.GetExecutingAssembly().GetTypes()
-                      .Where(t => string.Equals(t.Namespace, "nylium.Core.Packet.Client.Handshake")
-                        || string.Equals(t.Namespace, "nylium.Core.Packet.Client.Status")
-                        || string.Equals(t.Namespace, "nylium.Core.Packet.Client.Login")
-                        || string.Equals(t.Namespace, "nylium.Core.Packet.Client.Play"))
+                      .Where(t => string.Equals(t.Namespace, "nylium.Core.Networking.Packet.Client.Handshake")
+                        || string.Equals(t.Namespace, "nylium.Core.Networking.Packet.Client.Status")
+                        || string.Equals(t.Namespace, "nylium.Core.Networking.Packet.Client.Login")
+                        || string.Equals(t.Namespace, "nylium.Core.Networking.Packet.Client.Play"))
                       .ToArray();
 
             Type[] ctorParams = new Type[] { typeof(Stream) };

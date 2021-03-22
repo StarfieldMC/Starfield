@@ -136,7 +136,7 @@ namespace nylium.Core.World {
         }
 
         public Chunk GetChunk(int chunkX, int chunkZ) {
-            return Chunks.ContainsKey((chunkX, chunkZ)) ? Chunks[(chunkX, chunkZ)] : GenerateChunk(chunkX, chunkZ);
+            return Chunks.ContainsKey((chunkX, chunkZ)) ? Chunks[(chunkX, chunkZ)] : LoadChunk(chunkX, chunkZ);
         }
 
         public Chunk[] GetChunksInViewDistance(int chunkX, int chunkZ, sbyte viewDistance) {
@@ -171,11 +171,15 @@ namespace nylium.Core.World {
             return clients;
         }
 
-        public Chunk GenerateChunk(int x, int z) {
-            Chunk chunk = new(this, x, z);
-            Generator.GenerateChunk(this, chunk);
-            Chunks.Add((x, z), chunk);
+        public Chunk LoadChunk(int x, int z) {
+            Chunk chunk = Format.Load(x, z);
 
+            if(chunk == null) {
+                chunk = new(this, x, z);
+                Generator.GenerateChunk(this, chunk);
+            }
+
+            Chunks.Add((x, z), chunk);
             return chunk;
         }
 
