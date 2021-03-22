@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using nylium.Core.Block;
 
 namespace nylium.Core.World {
@@ -93,11 +94,21 @@ namespace nylium.Core.World {
                 Blocks[y, x, z] = block;
             }
 
-            public void Iterate(Action<GameBlock> action) {
-                for(int y = 0; y < Y_SIZE; y++) {
-                    for(int x = 0; x < X_SIZE; x++) {
+            public void Iterate(Action<GameBlock> action, bool flipXZ = false) {
+                if(flipXZ) {
+                    for(int y = 0; y < Y_SIZE; y++) {
                         for(int z = 0; z < Z_SIZE; z++) {
-                            action(GetBlock(x, y, z));
+                            for(int x = 0; x < X_SIZE; x++) {
+                                action(GetBlock(x, y, z));
+                            }
+                        }
+                    }
+                } else {
+                    for(int y = 0; y < Y_SIZE; y++) {
+                        for(int x = 0; x < X_SIZE; x++) {
+                            for(int z = 0; z < Z_SIZE; z++) {
+                                action(GetBlock(x, y, z));
+                            }
                         }
                     }
                 }

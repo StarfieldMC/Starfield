@@ -75,7 +75,9 @@ namespace nylium.Core.World.Storage.Formats {
         public override Chunk Load(int chunkX, int chunkZ) {
             Chunk chunk = new(World, chunkX, chunkZ);
 
-            for(int id = 0; id < 16; id++) {
+            int errorCount = 0;
+
+            for(int id = 0; id < Chunk.SECTION_COUNT; id++) {
                 (int, int, int) key = (chunkX, chunkZ, id);
 
                 if(ChunkLookup.ContainsKey(key)) {
@@ -91,7 +93,12 @@ namespace nylium.Core.World.Storage.Formats {
                     for(int y = 0; y < Chunk.Section.Y_SIZE; y++) {
                         for(int x = 0; x < Chunk.Section.X_SIZE; x++) {
                             for(int z = 0; z < Chunk.Section.Z_SIZE; z++) {
-                                section.SetBlock(GameBlock.Create(World, BitConverter.ToUInt16(data, i * sizeof(ushort))), x, y, z);
+                                ushort blockId = BitConverter.ToUInt16(data, i * sizeof(ushort));
+                                
+                                if(blockId != 0) {
+                                    section.SetBlock(GameBlock.Create(World, BitConverter.ToUInt16(data, i * sizeof(ushort))), x, y, z);
+                                }
+
                                 i++;
                             }
                         }
@@ -99,11 +106,11 @@ namespace nylium.Core.World.Storage.Formats {
 
                     chunk.SetSection(section, id);
                 } else {
-                    return null;
+                    errorCount++;
                 }
             }
 
-            return chunk;
+            return errorCount >= Chunk.SECTION_COUNT ? null : chunk;
         }
 
         public override void Save(Chunk chunk) {
@@ -116,7 +123,7 @@ namespace nylium.Core.World.Storage.Formats {
                 Chunk.Section section = chunk.GetSection(id);
 
                 if(section == null) {
-                    section = new(id, chunk);
+                    continue;
                 }
 
                 section.Iterate(block => {

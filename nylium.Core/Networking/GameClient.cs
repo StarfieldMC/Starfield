@@ -297,7 +297,7 @@ namespace nylium.Core.Networking {
                         }
 
                         j++;
-                    });
+                    }, true);
 
                     Short blockCount = new((short) nonAirBlockCount);
                     UByte bitsPerBlock = new((byte) GameBlock.bitsPerBlock);
