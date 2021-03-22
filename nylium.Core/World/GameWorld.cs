@@ -62,7 +62,7 @@ namespace nylium.Core.World {
 
                 for(int x = -a; x <= a; x++) {
                     for(int z = -a; z <= a; z++) {
-                        GenerateChunk(x, z);
+                        LoadChunk(x, z);
                         i++;
                     }
                 }
