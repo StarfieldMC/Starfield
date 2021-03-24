@@ -4,40 +4,45 @@ using nylium.Utilities;
 
 namespace nylium.Core.DataTypes {
 
-    public class Slot : DataType<InventorySlot> {
+    public class Slot : DataType<EntityInventory.Slot> {
 
         public Slot() : base(null) { }
-        public Slot(InventorySlot value) : base(value) { }
+        public Slot(EntityInventory.Slot value) : base(value) { }
         public Slot(Stream stream) : base(null) { Read(stream); }
 
         public override int Read(Stream stream) {
             Boolean boolean = new();
             int bytesRead = boolean.Read(stream);
 
-            if(boolean.Value) {
-                VarInt itemId = new();
-                bytesRead += itemId.Read(stream);
+            VarInt itemId = new();
+            bytesRead += itemId.Read(stream);
 
-                Byte count = new();
-                bytesRead += count.Read(stream);
+            Byte @byte = new();
+            bytesRead += @byte.Read(stream);
 
-                NBT nbt = null;
+            NBT nbt = null;
 
-                if(!NBTUtils.IsTagEnd(stream)) {
-                    nbt = new NBT();
-                    bytesRead += nbt.Read(stream);
-                }
-
-                Value = new InventorySlot(itemId.Value, count.Value, nbt?.Value);
-            } else {
-                Value = null;
+            if(!NBTUtils.IsTagEnd(stream)) {
+                nbt = new NBT();
+                bytesRead += nbt.Read(stream);
             }
 
+            Value = new EntityInventory.Slot(boolean.Value, itemId.Value, @byte.Value, nbt?.Value);
             return bytesRead;
         }
 
         public override void Write(Stream stream) {
-            throw new System.NotImplementedException();
+            Boolean boolean = new(Value.Present);
+            boolean.Write(stream);
+
+            VarInt varInt = new(Value.Item.Id);
+            varInt.Write(stream);
+
+            Byte @byte = new(Value.Count);
+            @byte.Write(stream);
+
+            NBT nbt = new(Value.NBT);
+            nbt.Write(stream);
         }
     }
 }

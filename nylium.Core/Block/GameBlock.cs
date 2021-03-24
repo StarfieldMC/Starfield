@@ -13,7 +13,7 @@ namespace nylium.Core.Block {
 
     public class GameBlock {
 
-        //                                 id      state id range      protocol id
+        //                                 id      state id range     protocol id
         private static readonly Dictionary<string, (ushort, ushort,      int)> blocks = new();
 
         //                                             state id

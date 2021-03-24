@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Text;
 using Jil;
+using nylium.Core.Entity.Inventory;
 using nylium.Utilities;
 using Serilog;
 
@@ -14,12 +16,19 @@ namespace nylium.Core.Item {
 
         private static readonly Dictionary<string, int> items = new();
 
-        public Entity.GameEntity Parent { get; }
+        public EntityInventory.Slot Parent { get; }
         public int Id { get; }
 
-        public GameItem(Entity.GameEntity parent, int id) {
+        public GameItem(EntityInventory.Slot parent, int id) {
             Parent = parent;
             Id = id;
+        }
+
+        // TODO better way to do this?
+        public static string GetItemNamedId(int id) {
+            return items
+                .FirstOrDefault(x => x.Value == id)
+                .Key;
         }
 
         public static int GetItemProtocolId(string sid) {
@@ -49,7 +58,6 @@ namespace nylium.Core.Item {
 
             stopwatch.Stop();
             Log.Debug("Initialized items in " + Math.Round(stopwatch.Elapsed.TotalMilliseconds, 2) + "ms");
-            stopwatch = null;
         }
     }
 }

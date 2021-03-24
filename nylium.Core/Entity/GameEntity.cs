@@ -5,6 +5,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Text;
 using Jil;
+using nylium.Core.Entity.Inventory;
 using nylium.Utilities;
 using Serilog;
 
@@ -33,7 +34,9 @@ namespace nylium.Core.Entity {
         public bool OnGround { get; set; }
         public bool LastOnGround { get; set; }
 
-        public GameEntity(World.GameWorld parent, string id, double x, double y, double z, float yaw, float pitch, bool onGround) {
+        public EntityInventory Inventory { get; }
+
+        public GameEntity(World.GameWorld parent, string id, double x, double y, double z, float yaw, float pitch, bool onGround, int slotCount) {
             Parent = parent;
             Id = id;
             EntityId = parent.GetNextEntityId(this);
@@ -46,6 +49,13 @@ namespace nylium.Core.Entity {
             Pitch = pitch;
 
             OnGround = LastOnGround = onGround;
+
+            Inventory = new(this, slotCount);
+            InitializeInventory();
+        }
+
+        protected virtual void InitializeInventory() {
+            Array.Fill(Inventory.Slots, EntityInventory.Slot.Empty);
         }
 
         public static int GetEntityProtocolId(string sid) {

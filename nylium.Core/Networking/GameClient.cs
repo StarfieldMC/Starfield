@@ -147,7 +147,7 @@ namespace nylium.Core.Networking {
                         CP05ClientSettings clientSettings = (CP05ClientSettings) packet;
                         Configuration.ViewDistance = clientSettings.ViewDistance;
 
-                        SP3FHeldItemChange heldItemChange = new(0);
+                        SP3FHeldItemChange heldItemChange = new((sbyte) (Player.Inventory.HeldSlot - 36)); // mojang moment
                         Send(heldItemChange);
 
                         SP5ADeclareRecipes declareRecipes = new(null); // TODO generate recipes from recipes.json
@@ -237,15 +237,23 @@ namespace nylium.Core.Networking {
                         break;
                     }
                 case CP1BPlayerDigging: {
-                        Player.HandleAction(packet);
+                        Player.HandleWorldAction(packet);
                         break;
                     }
                 case CP2EPlayerBlockPlacement: {
-                        Player.HandleAction(packet);
+                        Player.HandleWorldAction(packet);
                         break;
                     }
                 case CP1CEntityAction: {
-                        Player.HandleAction(packet);
+                        Player.HandleWorldAction(packet);
+                        break;
+                    }
+                case CP25HeldItemChange: {
+                        Player.HandleInventoryAction(packet);
+                        break;
+                    }
+                case CP28CreativeInventoryAction: {
+                        Player.HandleInventoryAction(packet);
                         break;
                     }
                 default:
@@ -267,10 +275,10 @@ namespace nylium.Core.Networking {
 
             NbtCompound heightmap = new("") {
                 new NbtLongArray("MOTION_BLOCKING", new long[] {
-                                            al, al, al, al, al, al, al, al, al, al, al, al, al, al, al, al, al, al, al, al,
-                                            al, al, al, al, al, al, al, al, al, al, al, al, al, al, al,
-                                            bl
-                                        })
+                    al, al, al, al, al, al, al, al, al, al, al, al, al, al, al, al, al, al, al, al,
+                    al, al, al, al, al, al, al, al, al, al, al, al, al, al, al,
+                    bl
+                })
             };
 
             int[] biomes = Enumerable.Repeat(127, 1024).ToArray();

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using nylium.Core.DataTypes;
+using nylium.Core.Entity.Inventory;
 using nylium.Utilities;
 using Serilog;
 
@@ -209,6 +210,10 @@ namespace nylium.Core.Networking.Packet {
             return new Angle(Data).Value;
         }
 
+        protected EntityInventory.Slot ReadSlot() {
+            return new Slot(Data).Value;
+        }
+
         protected void WriteVarInt(int value) {
             new VarInt(value).Write(Data);
         }
@@ -275,6 +280,10 @@ namespace nylium.Core.Networking.Packet {
 
         protected void WriteAngle(float value) {
             new Angle(value).Write(Data);
+        }
+
+        protected void WriteSlot(EntityInventory.Slot value) {
+            new Slot(value).Write(Data);
         }
 
         public byte[] ToBytes() {

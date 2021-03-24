@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using DaanV2.UUID;
 using nylium.Core.Block;
+using nylium.Core.Entity.Inventory;
+using nylium.Core.Item;
 using nylium.Core.Networking;
 using nylium.Core.Networking.Packet;
 using nylium.Core.Networking.Packet.Client.Play;
 using nylium.Core.Networking.Packet.Server.Play;
 using nylium.Core.World;
 using nylium.Utilities;
+using Serilog;
 
 namespace nylium.Core.Entity.Entities {
 
@@ -22,12 +25,18 @@ namespace nylium.Core.Entity.Entities {
         public Gamemode Gamemode { get; }
 
         public PlayerEntity(GameWorld parent, GameClient client, string username, UUID uuid, Gamemode gamemode,
-            double x, double y, double z, float yaw, float pitch, bool onGround) : base(parent, "minecraft:player", x, y, z, yaw, pitch, onGround) {
+            double x, double y, double z, float yaw, float pitch, bool onGround) : base(parent, "minecraft:player", x, y, z, yaw, pitch, onGround, 45) {
 
             Client = client;
             Username = username;
             Uuid = uuid;
             Gamemode = gamemode;
+        }
+
+        protected override void InitializeInventory() {
+            // TODO load inventory from player data here
+            base.InitializeInventory();
+            Inventory.HeldSlot = 36; // 1st hotbar slot
         }
 
         public void HandleMovement(NetworkPacket packet) {
@@ -152,7 +161,7 @@ namespace nylium.Core.Entity.Entities {
             }
         }
 
-        public void HandleAction(NetworkPacket packet) {
+        public void HandleWorldAction(NetworkPacket packet) {
             switch(packet) {
                 case CP1BPlayerDigging:
                     CP1BPlayerDigging digging = (CP1BPlayerDigging) packet;
@@ -226,18 +235,44 @@ namespace nylium.Core.Entity.Entities {
                     // TODO check for collisions here
 
                     if(Parent.GetBlock(pos.X, pos.Y, pos.Z) == null) {
-                        // TODO replace with what the player is actually holding
-                        GameBlock oak_planks = GameBlock.Create(Parent, "minecraft:oak_planks");
+                        if(Inventory.HeldItem != null) {
+                            // TODO this will not work properly with blocks that have multiple states
+                            GameBlock block = GameBlock.Create(Parent, GameItem.GetItemNamedId(Inventory.HeldItem.Id));
 
-                        Parent.SetBlock(oak_planks, pos.X, pos.Y, pos.Z);
+                            if(block == null || block.StateId == 0) {
+                                break;
+                            }
 
-                        SP0BBlockChange _blockChange = new(pos, oak_planks.StateId);
-                        Client.Server.MulticastAsync(_blockChange, Client, Parent.GetClientsWithChunkLoaded(
-                            (int) Math.Floor((double) pos.X / Chunk.X_SIZE),
-                            (int) Math.Floor((double) pos.Z / Chunk.Z_SIZE)).ToArray());
+                            Parent.SetBlock(block, pos.X, pos.Y, pos.Z);
+
+                            SP0BBlockChange _blockChange = new(pos, block.StateId);
+                            Client.Server.MulticastAsync(_blockChange, Client, Parent.GetClientsWithChunkLoaded(
+                                (int) Math.Floor((double) pos.X / Chunk.X_SIZE),
+                                (int) Math.Floor((double) pos.Z / Chunk.Z_SIZE)).ToArray());
+                        }
                     }
                     break;
                 case CP1CEntityAction:
+                    break;
+            }
+        }
+
+        public void HandleInventoryAction(NetworkPacket packet) {
+            switch(packet) {
+                case CP25HeldItemChange:
+                    CP25HeldItemChange heldItemChange = (CP25HeldItemChange) packet;
+                    Inventory.HeldSlot = heldItemChange.Slot + 36; // mojang moment
+                    break;
+                case CP28CreativeInventoryAction:
+                    CP28CreativeInventoryAction creativeInventoryAction = (CP28CreativeInventoryAction) packet;
+
+                    if(creativeInventoryAction.Slot == -1) {
+                        // TODO spawn item entity here
+                    } else {
+                        Inventory.Slots[creativeInventoryAction.Slot]
+                            = creativeInventoryAction.ClickedItem.IsEmpty() ?
+                              EntityInventory.Slot.Empty : creativeInventoryAction.ClickedItem;
+                    }
                     break;
             }
         }
