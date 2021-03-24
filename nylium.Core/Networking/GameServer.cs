@@ -13,6 +13,7 @@ using nylium.Core.Tags;
 using nylium.Core.World;
 using nylium.Core.World.Generation.Generators;
 using nylium.Core.World.Storage.Formats;
+using Serilog;
 
 namespace nylium.Core.Networking {
 
@@ -76,7 +77,7 @@ namespace nylium.Core.Networking {
         }
 
         protected override void OnError(SocketError error) {
-            Console.WriteLine($"Error in server occured: {error}");
+            Log.Error($"Error in server occured: {error}");
         }
 
         public void Multicast(NetworkPacket packet, TcpSession excludeSession = null) {
@@ -176,7 +177,6 @@ namespace nylium.Core.Networking {
                 foreach(TcpSession session in sessions) {
                     if(session is GameClient client) {
                         if(client.GameState != GameClient.State.Playing) continue;
-                        if(session != excludeSession) Console.WriteLine("sending thing to user with username " + client.Player.Username);
                     }
 
                     if(excludeSession != null) {

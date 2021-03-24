@@ -7,6 +7,7 @@ using System.Text;
 using Jil;
 using nylium.Core.World;
 using nylium.Utilities;
+using Serilog;
 
 namespace nylium.Core.Block {
 
@@ -108,8 +109,7 @@ namespace nylium.Core.Block {
             bitsPerBlock = (int) Math.Ceiling(Math.Log2(maxStateId));
 
             stopwatch.Stop();
-            Console.WriteLine("Initialized blocks in " + Math.Round(stopwatch.Elapsed.TotalMilliseconds, 2) + "ms");
-            stopwatch = null;
+            Log.Debug("Initialized blocks in " + Math.Round(stopwatch.Elapsed.TotalMilliseconds, 2) + "ms");
         }
 
         public enum Face : sbyte {

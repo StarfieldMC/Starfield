@@ -16,6 +16,7 @@ using nylium.Core.Networking.Packet.Server.Play;
 using nylium.Core.World.Generation;
 using nylium.Core.World.Storage;
 using nylium.Core.World.Storage.Formats;
+using Serilog;
 
 namespace nylium.Core.World {
 
@@ -68,7 +69,7 @@ namespace nylium.Core.World {
                 }
 
                 totalStopwatch.Stop();
-                Console.WriteLine(string.Format("Finished generating world! ({0} chunks) Took {1}ms", i, Math.Round(totalStopwatch.Elapsed.TotalMilliseconds, 2)));
+                Log.Information(string.Format("Finished generating world! ({0} chunks) Took {1}ms", i, Math.Round(totalStopwatch.Elapsed.TotalMilliseconds, 2)));
 
                 Format.Save();
             } else {

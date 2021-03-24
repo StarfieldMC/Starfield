@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using nylium.Core.DataTypes;
 using nylium.Utilities;
+using Serilog;
 
 // TODO compressed packets
 namespace nylium.Core.Networking.Packet {
@@ -42,7 +43,7 @@ namespace nylium.Core.Networking.Packet {
                 ConstructorInfo constructor = t.GetConstructor(ctorParams);
 
                 if(constructor == null) {
-                    Console.WriteLine(string.Format("Type [{0}] is probably not a packet, ignoring", t.FullName));
+                    Log.Debug(string.Format("Type [{0}] is probably not a packet, ignoring", t.FullName));
                     continue;
                 }
 
@@ -68,8 +69,7 @@ namespace nylium.Core.Networking.Packet {
             }
 
             stopwatch.Stop();
-            Console.WriteLine("Initialized packets in " + Math.Round(stopwatch.Elapsed.TotalMilliseconds, 2) + "ms");
-            stopwatch = null;
+            Log.Debug("Initialized packets in " + Math.Round(stopwatch.Elapsed.TotalMilliseconds, 2) + "ms");
         }
 
         public NetworkPacket() {

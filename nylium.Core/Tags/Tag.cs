@@ -6,6 +6,7 @@ using System.IO.Compression;
 using System.Text;
 using Jil;
 using nylium.Utilities;
+using Serilog;
 
 namespace nylium.Core.Tags {
 
@@ -99,8 +100,7 @@ namespace nylium.Core.Tags {
             }
 
             stopwatch.Stop();
-            Console.WriteLine("Initialized tags in " + Math.Round(stopwatch.Elapsed.TotalMilliseconds, 2) + "ms");
-            stopwatch = null;
+            Log.Debug("Initialized tags in " + Math.Round(stopwatch.Elapsed.TotalMilliseconds, 2) + "ms");
         }
     }
 }

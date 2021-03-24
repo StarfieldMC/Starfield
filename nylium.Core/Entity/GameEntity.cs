@@ -6,6 +6,7 @@ using System.IO.Compression;
 using System.Text;
 using Jil;
 using nylium.Utilities;
+using Serilog;
 
 namespace nylium.Core.Entity {
 
@@ -76,7 +77,7 @@ namespace nylium.Core.Entity {
             }
 
             stopwatch.Stop();
-            Console.WriteLine("Initialized entities in " + Math.Round(stopwatch.Elapsed.TotalMilliseconds, 2) + "ms");
+            Log.Debug("Initialized entities in " + Math.Round(stopwatch.Elapsed.TotalMilliseconds, 2) + "ms");
         }
     }
 }

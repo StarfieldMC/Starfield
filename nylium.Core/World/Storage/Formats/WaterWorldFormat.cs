@@ -8,6 +8,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using nylium.Core.Block;
 using nylium.Extensions;
 using nylium.Utilities;
+using Serilog;
 
 namespace nylium.Core.World.Storage.Formats {
 
@@ -51,7 +52,7 @@ namespace nylium.Core.World.Storage.Formats {
             }
 
             sw.Stop();
-            Console.WriteLine("Loaded world in " + Math.Round(sw.Elapsed.TotalMilliseconds, 2) + "ms");
+            Log.Information("Loaded world in " + Math.Round(sw.Elapsed.TotalMilliseconds, 2) + "ms");
         }
 
         public override void Save() {
@@ -69,7 +70,7 @@ namespace nylium.Core.World.Storage.Formats {
             LookupStream.Position = 0;
 
             sw.Stop();
-            Console.WriteLine("Saved world in " + Math.Round(sw.Elapsed.TotalMilliseconds, 2) + "ms");
+            Log.Information("Saved world in " + Math.Round(sw.Elapsed.TotalMilliseconds, 2) + "ms");
         }
 
         public override Chunk Load(int chunkX, int chunkZ) {

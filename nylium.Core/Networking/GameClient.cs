@@ -11,7 +11,6 @@ using NetCoreServer;
 using nylium.Core.Block;
 using nylium.Core.Configuration;
 using nylium.Core.DataTypes;
-using nylium.Core.Entity;
 using nylium.Core.Entity.Entities;
 using nylium.Core.Networking.Packet;
 using nylium.Core.Networking.Packet.Client.Handshake;
@@ -24,6 +23,7 @@ using nylium.Core.Networking.Packet.Server.Status;
 using nylium.Core.Tags;
 using nylium.Core.World;
 using nylium.Utilities;
+using Serilog;
 
 namespace nylium.Core.Networking {
 
@@ -270,8 +270,7 @@ namespace nylium.Core.Networking {
                                             al, al, al, al, al, al, al, al, al, al, al, al, al, al, al, al, al, al, al, al,
                                             al, al, al, al, al, al, al, al, al, al, al, al, al, al, al,
                                             bl
-                                        }),
-                new NbtLongArray("WORLD_SURFACE")
+                                        })
             };
 
             int[] biomes = Enumerable.Repeat(127, 1024).ToArray();
@@ -301,10 +300,6 @@ namespace nylium.Core.Networking {
 
                     Short blockCount = new((short) nonAirBlockCount);
                     UByte bitsPerBlock = new((byte) GameBlock.bitsPerBlock);
-
-                    VarInt paletteLength = new(3);
-                    VarInt stone = new(1);
-                    VarInt air = new(0);
 
                     long[] compactedLong = SectionUtils.ToCompactedLongArray(blockIds, GameBlock.bitsPerBlock);
 
@@ -339,7 +334,7 @@ namespace nylium.Core.Networking {
         }
 
         protected override void OnConnected() {
-            Console.WriteLine($"Client with id [{Id}] connected");
+            Log.Debug($"Client with id [{Id}] connected");
             GameState = State.Connecting;
 
             base.OnConnected();
@@ -358,34 +353,34 @@ namespace nylium.Core.Networking {
 
                 int id = varInt.Value;
 
-                Console.WriteLine($"Received unknown packet in state [{ProtocolState}] with id [0x{id:X}]");
+                Log.Debug($"Received unknown packet in state [{ProtocolState}] with id [0x{id:X}]");
                 return;
             }
 
-            Console.WriteLine($"Received packet in state [{ProtocolState}] with id [0x{packet.Id:X}]");
+            Log.Debug($"Received packet in state [{ProtocolState}] with id [0x{packet.Id:X}]");
 
             switch(ProtocolState) {
                 case ProtocolState.Handshaking:
                     if(!HandleHandshakePacket(packet)) {
-                        Console.WriteLine($"Warning: Packet in state [{ProtocolState}] with id [0x{packet.Id:X}] might not have been handled correctly");
+                        Log.Debug($"Warning: Packet in state [{ProtocolState}] with id [0x{packet.Id:X}] might not have been handled correctly");
                     }
                     break;
 
                 case ProtocolState.Status:
                     if(!HandleStatusPacket(packet)) {
-                        Console.WriteLine($"Warning: Packet in state [{ProtocolState}] with id [0x{packet.Id:X}] might not have been handled correctly");
+                        Log.Debug($"Warning: Packet in state [{ProtocolState}] with id [0x{packet.Id:X}] might not have been handled correctly");
                     }
                     break;
 
                 case ProtocolState.Login:
                     if(!HandleLoginPacket(packet)) {
-                        Console.WriteLine($"Warning: Packet in state [{ProtocolState}] with id [0x{packet.Id:X}] might not have been handled correctly");
+                        Log.Debug($"Warning: Packet in state [{ProtocolState}] with id [0x{packet.Id:X}] might not have been handled correctly");
                     }
                     break;
 
                 case ProtocolState.Play:
                     if(!HandlePlayPacket(packet)) {
-                        Console.WriteLine($"Warning: Packet in state [{ProtocolState}] with id [0x{packet.Id:X}] might not have been handled correctly");
+                        Log.Debug($"Warning: Packet in state [{ProtocolState}] with id [0x{packet.Id:X}] might not have been handled correctly");
                     }
                     break;
             }
@@ -395,7 +390,7 @@ namespace nylium.Core.Networking {
         }
 
         protected override void OnDisconnected() {
-            Console.WriteLine($"Client with id [{Id}] disconnected");
+            Log.Debug($"Client with id [{Id}] disconnected");
 
             if(ProtocolState == ProtocolState.Play && Player != null) {
                 World.PlayerEntities.Remove(Player);
@@ -410,18 +405,18 @@ namespace nylium.Core.Networking {
         }
 
         protected override void OnError(SocketError error) {
-            Console.WriteLine($"Error in client occured: {error}");
+            Log.Debug($"Error in client occured: {error}");
         }
 
         public void Send(NetworkPacket packet) {
-            Console.WriteLine($"Sending packet in state [{ProtocolState}] with id [0x{packet.Id:X}]");
+            Log.Debug($"Sending packet in state [{ProtocolState}] with id [0x{packet.Id:X}]");
             base.Send(packet.ToBytes());
 
             packet.Dispose();
         }
 
         public void SendAsync(NetworkPacket packet) {
-            Console.WriteLine($"Sending packet in state [{ProtocolState}] with id [0x{packet.Id:X}]");
+            Log.Debug($"Sending packet in state [{ProtocolState}] with id [0x{packet.Id:X}]");
             base.SendAsync(packet.ToBytes());
 
             packet.Dispose();

@@ -6,6 +6,7 @@ using System.IO.Compression;
 using System.Text;
 using Jil;
 using nylium.Utilities;
+using Serilog;
 
 namespace nylium.Core.Item {
 
@@ -47,7 +48,7 @@ namespace nylium.Core.Item {
             }
 
             stopwatch.Stop();
-            Console.WriteLine("Initialized items in " + Math.Round(stopwatch.Elapsed.TotalMilliseconds, 2) + "ms");
+            Log.Debug("Initialized items in " + Math.Round(stopwatch.Elapsed.TotalMilliseconds, 2) + "ms");
             stopwatch = null;
         }
     }

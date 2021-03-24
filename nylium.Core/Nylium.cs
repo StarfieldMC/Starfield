@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Net;
-using System.Text;
 using nylium.Core.Networking;
-using nylium.Utilities;
+using Serilog;
 
 namespace nylium.Core {
 
@@ -17,6 +15,15 @@ namespace nylium.Core {
         public static void Run(string[] args) {
             if(!Directory.Exists(WORLDS_DIRECTORY)) Directory.CreateDirectory(WORLDS_DIRECTORY);
 
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.Console()
+#if DEBUG
+                .MinimumLevel.Debug()
+#else
+                .MinimumLevel.Information()
+#endif
+                .CreateLogger();
+
             AppDomain.CurrentDomain.UnhandledException += ShutdownHook;
             AppDomain.CurrentDomain.ProcessExit += ShutdownHook;
 
@@ -25,6 +32,8 @@ namespace nylium.Core {
         }
 
         private static void ShutdownHook(object s, EventArgs e) {
+            Log.CloseAndFlush();
+
             if(Server != null) {
                 if(Server.World != null) {
                     if(Server.World.Format != null) {
