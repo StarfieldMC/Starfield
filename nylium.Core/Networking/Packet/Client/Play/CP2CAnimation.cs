@@ -3,7 +3,7 @@
 namespace nylium.Core.Networking.Packet.Client.Play {
 
     [Packet(0x2C, ProtocolState.Play, PacketSide.Client)]
-    public class CP2CAnimation : NetworkPacket {
+    public class CP2CAnimation : MinecraftPacket {
 
         public bool MainHand { get; }
 

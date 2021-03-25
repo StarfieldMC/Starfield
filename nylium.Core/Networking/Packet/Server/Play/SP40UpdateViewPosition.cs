@@ -1,10 +1,9 @@
 ﻿using System;
-using nylium.Core.DataTypes;
 
 namespace nylium.Core.Networking.Packet.Server.Play {
 
     [Packet(0x40, ProtocolState.Play, PacketSide.Server)]
-    public class SP40UpdateViewPosition : NetworkPacket {
+    public class SP40UpdateViewPosition : MinecraftPacket {
 
         public int ChunkX { get; }
         public int ChunkZ { get; }

@@ -6,7 +6,7 @@ using nylium.Utilities;
 namespace nylium.Core.Networking.Packet.Server.Play {
 
     [Packet(0x0B, ProtocolState.Play, PacketSide.Server)]
-    public class SP0BBlockChange : NetworkPacket {
+    public class SP0BBlockChange : MinecraftPacket {
 
         public Position.Int Location { get; }
         public int BlockId { get; }

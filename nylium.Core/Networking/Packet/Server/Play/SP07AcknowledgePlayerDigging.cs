@@ -4,7 +4,7 @@ using nylium.Utilities;
 namespace nylium.Core.Networking.Packet.Server.Play {
 
     [Packet(0x07, ProtocolState.Play, PacketSide.Server)]
-    public class SP07AcknowledgePlayerDigging : NetworkPacket {
+    public class SP07AcknowledgePlayerDigging : MinecraftPacket {
 
         public Position.Int Location { get; }
         public int Block { get; }

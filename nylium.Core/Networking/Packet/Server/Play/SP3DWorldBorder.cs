@@ -1,9 +1,7 @@
-﻿using nylium.Core.DataTypes;
-
-namespace nylium.Core.Networking.Packet.Server.Play {
+﻿namespace nylium.Core.Networking.Packet.Server.Play {
 
     [Packet(0x3D, ProtocolState.Play, PacketSide.Server)]
-    public class SP3DWorldBorder : NetworkPacket {
+    public class SP3DWorldBorder : MinecraftPacket {
 
         public int Action { get; }
 

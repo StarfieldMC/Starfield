@@ -3,7 +3,7 @@
 namespace nylium.Core.Networking.Packet.Server.Play {
 
     [Packet(0x27, ProtocolState.Play, PacketSide.Server)]
-    public class SP27EntityPosition : NetworkPacket {
+    public class SP27EntityPosition : MinecraftPacket {
 
         public int EntityId { get; }
         public short DeltaX { get; }

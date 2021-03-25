@@ -1,9 +1,7 @@
-﻿using nylium.Core.DataTypes;
-
-namespace nylium.Core.Networking.Packet.Server.Play {
+﻿namespace nylium.Core.Networking.Packet.Server.Play {
 
     [Packet(0x19, ProtocolState.Play, PacketSide.Server)]
-    public class SP19Disconnect : NetworkPacket {
+    public class SP19Disconnect : MinecraftPacket {
 
         public dynamic Reason { get; }
 

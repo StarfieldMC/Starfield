@@ -1,11 +1,10 @@
 ﻿using System.IO;
 using nylium.Extensions;
-using nylium.Core.DataTypes;
 
 namespace nylium.Core.Networking.Packet.Client.Play {
 
     [Packet(0x05, ProtocolState.Play, PacketSide.Client)]
-    public class CP05ClientSettings : NetworkPacket {
+    public class CP05ClientSettings : MinecraftPacket {
 
         public string Locale { get; }
         public sbyte ViewDistance { get; }

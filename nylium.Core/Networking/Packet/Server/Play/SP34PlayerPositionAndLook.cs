@@ -1,9 +1,7 @@
-﻿using nylium.Core.DataTypes;
-
-namespace nylium.Core.Networking.Packet.Server.Play {
+﻿namespace nylium.Core.Networking.Packet.Server.Play {
 
     [Packet(0x34, ProtocolState.Play, PacketSide.Server)]
-    public class SP34PlayerPositionAndLook : NetworkPacket {
+    public class SP34PlayerPositionAndLook : MinecraftPacket {
 
         public double X { get; }
         public double Y { get; }

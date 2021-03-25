@@ -4,7 +4,7 @@ using System.IO;
 namespace nylium.Core.Networking.Packet.Client.Play {
 
     [Packet(0x12, ProtocolState.Play, PacketSide.Client)]
-    public class CP12PlayerPosition : NetworkPacket {
+    public class CP12PlayerPosition : MinecraftPacket {
         
         public double X { get; }
         public double FeetY { get; }

@@ -4,7 +4,7 @@ using DaanV2.UUID;
 namespace nylium.Core.Networking.Packet.Server.Play {
 
     [Packet(0x04, ProtocolState.Play, PacketSide.Server)]
-    public class SP04SpawnPlayer : NetworkPacket {
+    public class SP04SpawnPlayer : MinecraftPacket {
 
         public int EntityId { get; }
         public UUID PlayerUuid { get; }

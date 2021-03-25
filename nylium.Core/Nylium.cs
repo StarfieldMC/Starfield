@@ -10,7 +10,7 @@ namespace nylium.Core {
 
         public const string WORLDS_DIRECTORY = "worlds";
 
-        public static GameServer Server { get; set; }
+        public static MinecraftServer Server { get; set; }
 
         public static void Run(string[] args) {
             if(!Directory.Exists(WORLDS_DIRECTORY)) Directory.CreateDirectory(WORLDS_DIRECTORY);

@@ -1,9 +1,7 @@
-﻿using nylium.Core.DataTypes;
-
-namespace nylium.Core.Networking.Packet.Server.Play {
+﻿namespace nylium.Core.Networking.Packet.Server.Play {
 
     [Packet(0x4E, ProtocolState.Play, PacketSide.Server)]
-    public class SP4ETimeUpdate : NetworkPacket {
+    public class SP4ETimeUpdate : MinecraftPacket {
 
         public long WorldAge { get; }
         public long TimeOfDay { get; }

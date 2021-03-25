@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using DaanV2.UUID;
-using nylium.Core.Block;
+using nylium.Core.Blocks;
 using nylium.Core.Entity.Inventory;
-using nylium.Core.Item;
+using nylium.Core.Items;
+using nylium.Core.Level;
 using nylium.Core.Networking;
 using nylium.Core.Networking.Packet;
 using nylium.Core.Networking.Packet.Client.Play;
 using nylium.Core.Networking.Packet.Server.Play;
-using nylium.Core.World;
 using nylium.Utilities;
 using Serilog;
 
@@ -17,14 +17,14 @@ namespace nylium.Core.Entity.Entities {
 
     public class PlayerEntity : GameEntity {
 
-        public GameClient Client { get; }
+        public MinecraftClient Client { get; }
 
         public string Username { get; }
         public UUID Uuid { get; }
 
         public Gamemode Gamemode { get; }
 
-        public PlayerEntity(GameWorld parent, GameClient client, string username, UUID uuid, Gamemode gamemode,
+        public PlayerEntity(World parent, MinecraftClient client, string username, UUID uuid, Gamemode gamemode,
             double x, double y, double z, float yaw, float pitch, bool onGround) : base(parent, "minecraft:player", x, y, z, yaw, pitch, onGround, 45) {
 
             Client = client;
@@ -39,7 +39,7 @@ namespace nylium.Core.Entity.Entities {
             Inventory.HeldSlot = 36; // 1st hotbar slot
         }
 
-        public void HandleMovement(NetworkPacket packet) {
+        public void HandleMovement(MinecraftPacket packet) {
             LastX = X;
             LastY = Y;
             LastZ = Z;
@@ -161,7 +161,7 @@ namespace nylium.Core.Entity.Entities {
             }
         }
 
-        public void HandleWorldAction(NetworkPacket packet) {
+        public void HandleWorldAction(MinecraftPacket packet) {
             switch(packet) {
                 case CP1BPlayerDigging:
                     CP1BPlayerDigging digging = (CP1BPlayerDigging) packet;
@@ -196,7 +196,7 @@ namespace nylium.Core.Entity.Entities {
                     }
 
                     if(digging.Status == requiredAction) {
-                        GameBlock air = GameBlock.Create(Parent, "minecraft:air");
+                        Blocks.Block air = Blocks.Block.Create(Parent, "minecraft:air");
 
                         Parent.SetBlock(air, digging.Location.X, digging.Location.Y, digging.Location.Z);
 
@@ -212,22 +212,22 @@ namespace nylium.Core.Entity.Entities {
                     Position.Int pos = new(playerBlockPlacement.Location);
 
                     switch(playerBlockPlacement.Face) {
-                        case GameBlock.Face.Top:
+                        case Blocks.Block.Face.Top:
                             pos.Y++;
                             break;
-                        case GameBlock.Face.Bottom:
+                        case Blocks.Block.Face.Bottom:
                             pos.Y--;
                             break;
-                        case GameBlock.Face.North:
+                        case Blocks.Block.Face.North:
                             pos.Z--;
                             break;
-                        case GameBlock.Face.East:
+                        case Blocks.Block.Face.East:
                             pos.X++;
                             break;
-                        case GameBlock.Face.South:
+                        case Blocks.Block.Face.South:
                             pos.Z++;
                             break;
-                        case GameBlock.Face.West:
+                        case Blocks.Block.Face.West:
                             pos.X--;
                             break;
                     }
@@ -237,7 +237,7 @@ namespace nylium.Core.Entity.Entities {
                     if(Parent.GetBlock(pos.X, pos.Y, pos.Z) == null) {
                         if(Inventory.HeldItem != null) {
                             // TODO this will not work properly with blocks that have multiple states
-                            GameBlock block = GameBlock.Create(Parent, GameItem.GetItemNamedId(Inventory.HeldItem.Id));
+                            Blocks.Block block = Blocks.Block.Create(Parent, Item.GetItemNamedId(Inventory.HeldItem.Id));
 
                             if(block == null || block.StateId == 0) {
                                 break;
@@ -257,7 +257,7 @@ namespace nylium.Core.Entity.Entities {
             }
         }
 
-        public void HandleInventoryAction(NetworkPacket packet) {
+        public void HandleInventoryAction(MinecraftPacket packet) {
             switch(packet) {
                 case CP25HeldItemChange:
                     CP25HeldItemChange heldItemChange = (CP25HeldItemChange) packet;
@@ -271,7 +271,7 @@ namespace nylium.Core.Entity.Entities {
                     } else {
                         Inventory.Slots[creativeInventoryAction.Slot]
                             = creativeInventoryAction.ClickedItem.IsEmpty() ?
-                              EntityInventory.Slot.Empty : creativeInventoryAction.ClickedItem;
+                              Entity.Inventory.Inventory.Slot.Empty : creativeInventoryAction.ClickedItem;
                     }
                     break;
             }

@@ -3,7 +3,7 @@
 namespace nylium.Core.Networking.Packet.Server.Play {
 
     [Packet(0x3F, ProtocolState.Play, PacketSide.Server)]
-    public class SP3FHeldItemChange : NetworkPacket {
+    public class SP3FHeldItemChange : MinecraftPacket {
 
         public sbyte Slot { get; }
 

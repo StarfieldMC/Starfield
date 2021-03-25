@@ -3,7 +3,7 @@
 namespace nylium.Core.Networking.Packet.Client.Play {
 
     [Packet(0x25, ProtocolState.Play, PacketSide.Client)]
-    public class CP25HeldItemChange : NetworkPacket {
+    public class CP25HeldItemChange : MinecraftPacket {
 
         public short Slot { get; }
 

@@ -1,10 +1,10 @@
-﻿using nylium.Core.Tags;
-using nylium.Core.DataTypes;
+﻿using nylium.Core.Networking.DataTypes;
+using nylium.Core.Tags;
 
 namespace nylium.Core.Networking.Packet.Server.Play {
 
     [Packet(0x5B, ProtocolState.Play, PacketSide.Server)]
-    public class SP5BTags : NetworkPacket {
+    public class SP5BTags : MinecraftPacket {
 
         public Tag[] BlockTags { get; }
         public Tag[] ItemTags { get; }

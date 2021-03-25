@@ -1,9 +1,7 @@
-﻿using nylium.Core.DataTypes;
-
-namespace nylium.Core.Networking.Packet.Server.Play {
+﻿namespace nylium.Core.Networking.Packet.Server.Play {
 
     [Packet(0x1A, ProtocolState.Play, PacketSide.Server)]
-    public class SP1AEntityStatus : NetworkPacket {
+    public class SP1AEntityStatus : MinecraftPacket {
 
         public int EntityId { get; }
         public EntityStatus Status { get; }

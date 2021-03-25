@@ -1,23 +1,20 @@
 ﻿using fNbt.Tags;
-using nylium.Core.DataTypes;
 using nylium.Utilities;
-using U = nylium.Utilities;
-using DT = nylium.Core.DataTypes;
 using fNbt;
 
 namespace nylium.Core.Networking.Packet.Server.Play {
 
     [Packet(0x24, ProtocolState.Play, PacketSide.Server)]
-    public class SP24JoinGame : NetworkPacket {
+    public class SP24JoinGame : MinecraftPacket {
         
         public int EntityId { get; }
         public bool IsHardcore { get; }
         public Gamemode Gamemode { get; }
         public Gamemode PreviousGamemode { get; }
-        public U.Identifier[] WorldNames { get; }
+        public Identifier[] WorldNames { get; }
         public NbtCompound DimensionCodec { get; }
         public NbtCompound Dimension { get; }
-        public U.Identifier WorldName { get; }
+        public Identifier WorldName { get; }
         public long HashedSeed { get; }
         public int MaxPlayers { get; }
         public int ViewDistance { get; }
@@ -26,8 +23,8 @@ namespace nylium.Core.Networking.Packet.Server.Play {
         public bool IsDebug { get; }
         public bool IsFlat { get; }
 
-        public SP24JoinGame(int entityId, bool isHardcore, Gamemode gamemode, Gamemode previousGamemode, U.Identifier[] worldNames,
-            NbtCompound dimensionCodec, NbtCompound dimension, U.Identifier worldName, long hashedSeed, int maxPlayers, int viewDistance,
+        public SP24JoinGame(int entityId, bool isHardcore, Gamemode gamemode, Gamemode previousGamemode, Identifier[] worldNames,
+            NbtCompound dimensionCodec, NbtCompound dimension, Identifier worldName, long hashedSeed, int maxPlayers, int viewDistance,
             bool reducedDebugInfo, bool enableRespawnScreen, bool isDebug, bool isFlat) {
 
             EntityId = entityId;
@@ -52,18 +49,12 @@ namespace nylium.Core.Networking.Packet.Server.Play {
             WriteByte((sbyte) previousGamemode);
             WriteVarInt(worldNames.Length);
 
-            Array<U.Identifier, DT.Identifier> array = new(worldNames);
-            array.Write(Data);
+            WriteArray<Identifier, DataTypes.Identifier>(worldNames);
 
-            NBT nbt = new(new NbtFile(dimensionCodec));
-            nbt.Write(Data);
+            WriteNBT(new NbtFile(dimensionCodec));
+            WriteNBT(new NbtFile(dimension));
 
-            nbt.Value = new NbtFile(dimension);
-            nbt.Write(Data);
-
-            DT.Identifier identifier = new(worldName);
-            identifier.Write(Data);
-
+            WriteIdentifier(worldName);
             WriteLong(hashedSeed);
             WriteVarInt(maxPlayers);
             WriteVarInt(viewDistance);

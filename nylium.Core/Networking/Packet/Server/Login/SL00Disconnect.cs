@@ -1,9 +1,7 @@
-﻿using nylium.Core.DataTypes;
-
-namespace nylium.Core.Networking.Packet.Server.Login {
+﻿namespace nylium.Core.Networking.Packet.Server.Login {
 
     [Packet(0, ProtocolState.Login, PacketSide.Server)]
-    public class SL00Disconnect : NetworkPacket {
+    public class SL00Disconnect : MinecraftPacket {
 
         public dynamic Reason { get; }
 

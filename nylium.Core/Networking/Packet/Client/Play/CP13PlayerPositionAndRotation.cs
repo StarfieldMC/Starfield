@@ -3,7 +3,7 @@
 namespace nylium.Core.Networking.Packet.Client.Play {
 
     [Packet(0x13, ProtocolState.Play, PacketSide.Client)]
-    public class CP13PlayerPositionAndRotation : NetworkPacket {
+    public class CP13PlayerPositionAndRotation : MinecraftPacket {
 
         public double X { get; }
         public double FeetY { get; }

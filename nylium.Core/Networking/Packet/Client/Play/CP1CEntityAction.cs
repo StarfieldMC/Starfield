@@ -3,7 +3,7 @@
 namespace nylium.Core.Networking.Packet.Client.Play {
 
     [Packet(0x1C, ProtocolState.Play, PacketSide.Client)]
-    public class CP1CEntityAction : NetworkPacket {
+    public class CP1CEntityAction : MinecraftPacket {
 
         public int EntityId { get; }
         public ActionType Action { get; }

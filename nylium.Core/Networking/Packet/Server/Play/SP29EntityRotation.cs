@@ -3,7 +3,7 @@
 namespace nylium.Core.Networking.Packet.Server.Play {
 
     [Packet(0x29, ProtocolState.Play, PacketSide.Server)]
-    public class SP29EntityRotation : NetworkPacket {
+    public class SP29EntityRotation : MinecraftPacket {
 
         public int EntityId { get; }
         public float Yaw { get; }

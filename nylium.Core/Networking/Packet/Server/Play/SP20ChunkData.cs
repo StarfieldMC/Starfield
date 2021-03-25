@@ -1,11 +1,11 @@
 ﻿using fNbt;
 using fNbt.Tags;
-using nylium.Core.DataTypes;
+using nylium.Core.Networking.DataTypes;
 
 namespace nylium.Core.Networking.Packet.Server.Play {
 
     [Packet(0x20, ProtocolState.Play, PacketSide.Server)]
-    public class SP20ChunkData : NetworkPacket {
+    public class SP20ChunkData : MinecraftPacket {
 
         public int ChunkX { get; }
         public int ChunkZ { get; }
@@ -37,12 +37,10 @@ namespace nylium.Core.Networking.Packet.Server.Play {
             WriteBoolean(fullChunk);
             WriteVarInt(primaryBitMask);
 
-            base.Data.Write(new NbtFile(heightmaps).SaveToBuffer(NbtCompression.None));
+            WriteNBT(new NbtFile(heightmaps));
 
             WriteVarInt(biomes.Length);
-
-            Array<int, VarInt> array = new(biomes);
-            array.Write(base.Data);
+            WriteArray<int, VarInt>(biomes);
 
             WriteVarInt(data.Length);
             WriteByteArray(data);
@@ -50,7 +48,7 @@ namespace nylium.Core.Networking.Packet.Server.Play {
             WriteVarInt(blockEntities.Length);
 
             for(int i = 0; i < blockEntities.Length; i++) {
-                base.Data.Write(new NbtFile(blockEntities[i]).SaveToBuffer(NbtCompression.None));
+                WriteNBT(new NbtFile(blockEntities[i]));
             }
         }
     }

@@ -1,10 +1,9 @@
 ﻿using System;
-using nylium.Core.DataTypes;
 
 namespace nylium.Core.Networking.Packet.Server.Play {
 
     [Packet(0x56, ProtocolState.Play, PacketSide.Server)]
-    public class SP56EntityTeleport : NetworkPacket {
+    public class SP56EntityTeleport : MinecraftPacket {
 
         public int EntityId { get; }
         public double X { get; }
@@ -19,19 +18,16 @@ namespace nylium.Core.Networking.Packet.Server.Play {
             X = x;
             Y = y;
             Z = z;
+            Yaw = yaw;
+            Pitch = pitch;
             OnGround = onGround;
 
             WriteVarInt(entityId);
             WriteDouble(x);
             WriteDouble(y);
             WriteDouble(z);
-
-            Angle angle = new(yaw);
-            angle.Write(Data);
-
-            angle.Value = pitch;
-            angle.Write(Data);
-
+            WriteAngle(yaw);
+            WriteAngle(pitch);
             WriteBoolean(onGround);
         }
     }

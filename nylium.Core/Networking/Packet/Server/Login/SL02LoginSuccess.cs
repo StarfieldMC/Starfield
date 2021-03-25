@@ -1,9 +1,7 @@
-﻿using nylium.Core.DataTypes;
-
-namespace nylium.Core.Networking.Packet.Server.Login {
+﻿namespace nylium.Core.Networking.Packet.Server.Login {
 
     [Packet(2, ProtocolState.Login, PacketSide.Server)]
-    public class SL02LoginSuccess : NetworkPacket {
+    public class SL02LoginSuccess : MinecraftPacket {
 
         public DaanV2.UUID.UUID UUID { get; }
         public string Username { get; }

@@ -5,7 +5,7 @@ using nylium.Utilities;
 namespace nylium.Core.Networking.Packet.Server.Play {
 
     [Packet(0x32, ProtocolState.Play, PacketSide.Server)]
-    public class SP32PlayerInfo : NetworkPacket {
+    public class SP32PlayerInfo : MinecraftPacket {
 
         public int Action { get; }
         public UUID Uuid { get; }

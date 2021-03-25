@@ -1,9 +1,7 @@
-﻿using nylium.Core.DataTypes;
-
-namespace nylium.Core.Networking.Packet.Server.Status {
+﻿namespace nylium.Core.Networking.Packet.Server.Status {
 
     [Packet(0, ProtocolState.Status, PacketSide.Server)]
-    public class SS00Response : NetworkPacket {
+    public class SS00Response : MinecraftPacket {
 
         public string JsonResponse { get; }
 

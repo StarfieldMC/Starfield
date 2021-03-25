@@ -4,10 +4,10 @@ using nylium.Core.Entity.Inventory;
 namespace nylium.Core.Networking.Packet.Client.Play {
 
     [Packet(0x28, ProtocolState.Play, PacketSide.Client)]
-    public class CP28CreativeInventoryAction : NetworkPacket {
+    public class CP28CreativeInventoryAction : MinecraftPacket {
 
         public short Slot { get; }
-        public EntityInventory.Slot ClickedItem { get; }
+        public Inventory.Slot ClickedItem { get; }
 
         public CP28CreativeInventoryAction(Stream stream) : base(stream) {
             Slot = ReadShort();

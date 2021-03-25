@@ -1,10 +1,9 @@
 ﻿using System;
-using nylium.Core.DataTypes;
 
 namespace nylium.Core.Networking.Packet.Server.Play {
 
     [Packet(0x28, ProtocolState.Play, PacketSide.Server)]
-    public class SP28EntityPositionAndRotation : NetworkPacket {
+    public class SP28EntityPositionAndRotation : MinecraftPacket {
 
         public int EntityId { get; }
         public short DeltaX { get; }
@@ -19,19 +18,16 @@ namespace nylium.Core.Networking.Packet.Server.Play {
             DeltaX = deltaX;
             DeltaY = deltaY;
             DeltaZ = deltaZ;
+            Yaw = yaw;
+            Pitch = pitch;
             OnGround = onGround;
 
             WriteVarInt(entityId);
             WriteShort(deltaX);
             WriteShort(deltaY);
             WriteShort(deltaZ);
-
-            Angle angle = new(yaw);
-            angle.Write(Data);
-
-            angle.Value = pitch;
-            angle.Write(Data);
-
+            WriteAngle(yaw);
+            WriteAngle(pitch);
             WriteBoolean(onGround);
         }
     }

@@ -6,6 +6,7 @@ using System.IO.Compression;
 using System.Text;
 using Jil;
 using nylium.Core.Entity.Inventory;
+using nylium.Core.Level;
 using nylium.Utilities;
 using Serilog;
 
@@ -15,7 +16,7 @@ namespace nylium.Core.Entity {
 
         private static readonly Dictionary<string, int> entities = new();
 
-        public World.GameWorld Parent { get; }
+        public World Parent { get; }
 
         public string Id { get; }
         public int EntityId { get; }
@@ -34,9 +35,9 @@ namespace nylium.Core.Entity {
         public bool OnGround { get; set; }
         public bool LastOnGround { get; set; }
 
-        public EntityInventory Inventory { get; }
+        public Inventory.Inventory Inventory { get; }
 
-        public GameEntity(World.GameWorld parent, string id, double x, double y, double z, float yaw, float pitch, bool onGround, int slotCount) {
+        public GameEntity(World parent, string id, double x, double y, double z, float yaw, float pitch, bool onGround, int slotCount) {
             Parent = parent;
             Id = id;
             EntityId = parent.GetNextEntityId(this);
@@ -55,7 +56,7 @@ namespace nylium.Core.Entity {
         }
 
         protected virtual void InitializeInventory() {
-            Array.Fill(Inventory.Slots, EntityInventory.Slot.Empty);
+            Array.Fill(Inventory.Slots, Inventory.Slot.Empty);
         }
 
         public static int GetEntityProtocolId(string sid) {

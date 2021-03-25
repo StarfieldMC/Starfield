@@ -3,7 +3,7 @@
 namespace nylium.Core.Networking.Packet.Server.Play {
 
     [Packet(0x05, ProtocolState.Play, PacketSide.Server)]
-    public class SP05EntityAnimation : NetworkPacket {
+    public class SP05EntityAnimation : MinecraftPacket {
 
         public int EntityId { get; }
         public AnimationType Animation { get; }

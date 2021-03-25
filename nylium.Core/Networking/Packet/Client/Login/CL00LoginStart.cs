@@ -1,10 +1,9 @@
 ﻿using System.IO;
-using nylium.Core.DataTypes;
 
 namespace nylium.Core.Networking.Packet.Client.Login {
 
     [Packet(0, ProtocolState.Login, PacketSide.Client)]
-    public class CL00LoginStart : NetworkPacket {
+    public class CL00LoginStart : MinecraftPacket {
 
         public string Username { get; }
 
