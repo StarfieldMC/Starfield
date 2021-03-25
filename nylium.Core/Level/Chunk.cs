@@ -9,14 +9,14 @@ namespace nylium.Core.Level {
         public const int Y_SIZE = 256;
         public const int SECTION_COUNT = Y_SIZE / Section.Y_SIZE;
 
-        public GameWorld Parent { get; }
+        public World Parent { get; }
 
         public int X { get; }
         public int Z { get; }
 
         private Section[] Sections { get; }
 
-        public Chunk(GameWorld parent, int x, int z) {
+        public Chunk(World parent, int x, int z) {
             Parent = parent;
 
             X = x;
@@ -25,7 +25,7 @@ namespace nylium.Core.Level {
             Sections = new Section[SECTION_COUNT];
         }
 
-        public Chunk(GameWorld parent, int x, int z, Section[] sections) {
+        public Chunk(World parent, int x, int z, Section[] sections) {
             Parent = parent;
 
             X = x;
