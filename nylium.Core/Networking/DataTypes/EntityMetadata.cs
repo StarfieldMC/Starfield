@@ -17,8 +17,7 @@ namespace nylium.Core.Networking.DataTypes {
             while(read[0] != 0xff) {
                 byte index = read[0];
 
-                VarInt varInt = new();
-                bytesRead += varInt.Read(stream);
+                VarInt varInt = new(stream);
 
                 Entry.DataType type = (Entry.DataType) varInt.Value;
                 dynamic value = null;

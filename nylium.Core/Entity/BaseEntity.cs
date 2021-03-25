@@ -5,14 +5,14 @@ using System.IO;
 using System.IO.Compression;
 using System.Text;
 using Jil;
-using nylium.Core.Entity.Inventory;
+using nylium.Core.Entity.Inventories;
 using nylium.Core.Level;
 using nylium.Utilities;
 using Serilog;
 
 namespace nylium.Core.Entity {
 
-    public class GameEntity {
+    public class BaseEntity {
 
         private static readonly Dictionary<string, int> entities = new();
 
@@ -35,9 +35,9 @@ namespace nylium.Core.Entity {
         public bool OnGround { get; set; }
         public bool LastOnGround { get; set; }
 
-        public Inventory.Inventory Inventory { get; }
+        public Inventory Inventory { get; }
 
-        public GameEntity(World parent, string id, double x, double y, double z, float yaw, float pitch, bool onGround, int slotCount) {
+        public BaseEntity(World parent, string id, double x, double y, double z, float yaw, float pitch, bool onGround, int slotCount) {
             Parent = parent;
             Id = id;
             EntityId = parent.GetNextEntityId(this);

@@ -2,11 +2,11 @@
 using nylium.Core.Items;
 using Serilog;
 
-namespace nylium.Core.Entity.Inventory {
+namespace nylium.Core.Entity.Inventories {
 
     public class Inventory {
 
-        public GameEntity Parent { get; }
+        public BaseEntity Parent { get; }
 
         public Slot[] Slots { get; set; }
         public int HeldSlot { get; set; }
@@ -17,12 +17,12 @@ namespace nylium.Core.Entity.Inventory {
             }
         }
 
-        public Inventory(GameEntity parent, int slotCount) {
+        public Inventory(BaseEntity parent, int slotCount) {
             Parent = parent;
             Slots = new Slot[slotCount];
         }
 
-        public Inventory(GameEntity parent, Slot[] slots, int heldSlot) {
+        public Inventory(BaseEntity parent, Slot[] slots, int heldSlot) {
             Parent = parent;
             Slots = slots;
             HeldSlot = heldSlot;

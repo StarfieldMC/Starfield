@@ -29,7 +29,7 @@ namespace nylium.Core.Level {
         public Dictionary<(int, int), Chunk> Chunks { get; }
 
         public List<PlayerEntity> PlayerEntities { get; }
-        public List<GameEntity> Entities { get; }
+        public List<BaseEntity> Entities { get; }
 
         public AbstractWorldFormat Format { get; set; }
         public IWorldGenerator Generator { get; set; }
@@ -106,7 +106,7 @@ namespace nylium.Core.Level {
         }
 
         // TODO better way to do this?
-        public int GetNextEntityId(GameEntity entity) {
+        public int GetNextEntityId(BaseEntity entity) {
             return ++lastEntityId;
         }
 

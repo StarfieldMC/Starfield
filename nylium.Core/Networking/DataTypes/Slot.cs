@@ -1,5 +1,5 @@
 ﻿using System.IO;
-using nylium.Core.Entity.Inventory;
+using nylium.Core.Entity.Inventories;
 using nylium.Utilities;
 
 namespace nylium.Core.Networking.DataTypes {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DaanV2.UUID;
 using nylium.Core.Blocks;
-using nylium.Core.Entity.Inventory;
+using nylium.Core.Entity.Inventories;
 using nylium.Core.Items;
 using nylium.Core.Level;
 using nylium.Core.Networking;
@@ -15,7 +15,7 @@ using Serilog;
 
 namespace nylium.Core.Entity.Entities {
 
-    public class PlayerEntity : GameEntity {
+    public class PlayerEntity : BaseEntity {
 
         public MinecraftClient Client { get; }
 
@@ -271,7 +271,7 @@ namespace nylium.Core.Entity.Entities {
                     } else {
                         Inventory.Slots[creativeInventoryAction.Slot]
                             = creativeInventoryAction.ClickedItem.IsEmpty() ?
-                              Entity.Inventory.Inventory.Slot.Empty : creativeInventoryAction.ClickedItem;
+                              Entity.Inventories.Inventory.Slot.Empty : creativeInventoryAction.ClickedItem;
                     }
                     break;
             }

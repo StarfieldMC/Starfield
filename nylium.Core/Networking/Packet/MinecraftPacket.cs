@@ -6,7 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using fNbt;
-using nylium.Core.Entity.Inventory;
+using nylium.Core.Entity.Inventories;
 using nylium.Core.Networking.DataTypes;
 using nylium.Utilities;
 using Serilog;
@@ -124,17 +124,12 @@ namespace nylium.Core.Networking.Packet {
         }
 
         private void Read(Stream stream) {
-            VarInt varInt = new();
-            varInt.Read(stream);
+            Length = new VarInt(stream).Value;
 
-            Length = varInt.Value;
+            long _pos = stream.Position;
+            Id = new VarInt(stream).Value;
 
-            int bytesRead = varInt.Read(stream);
-
-            Id = varInt.Value;
-
-            byte[] data = new byte[Length - bytesRead];
-
+            byte[] data = new byte[Length - (stream.Position - _pos)];
             stream.Read(data, 0, data.Length);
 
             Data.Write(data);

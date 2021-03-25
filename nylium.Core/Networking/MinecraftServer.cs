@@ -64,7 +64,7 @@ namespace nylium.Core.Networking {
 
             MinecraftPacket.Initialize();
             Block.Initialize();
-            GameEntity.Initialize();
+            BaseEntity.Initialize();
             Item.Initialize();
             Tag.Initialize();
 

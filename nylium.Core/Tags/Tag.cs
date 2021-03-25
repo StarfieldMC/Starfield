@@ -85,7 +85,7 @@ namespace nylium.Core.Tags {
                                     ids = new int[tag.Value.values.Length];
 
                                     for(int i = 0; i < tag.Value.values.Length; i++) {
-                                        int id = Entity.GameEntity.GetEntityProtocolId((string) tag.Value.values[i]);
+                                        int id = Entity.BaseEntity.GetEntityProtocolId((string) tag.Value.values[i]);
 
                                         if(id != -1) {
                                             ids[i] = id;

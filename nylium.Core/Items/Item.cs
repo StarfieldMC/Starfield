@@ -6,7 +6,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using Jil;
-using nylium.Core.Entity.Inventory;
+using nylium.Core.Entity.Inventories;
 using nylium.Utilities;
 using Serilog;
 

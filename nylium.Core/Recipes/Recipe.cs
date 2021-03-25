@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Dynamic;
-using nylium.Core.Entity.Inventory;
+using nylium.Core.Entity.Inventories;
 using nylium.Utilities;
 
 namespace nylium.Core.Recipes {
