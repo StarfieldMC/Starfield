@@ -29,8 +29,8 @@ namespace nylium.Utilities.Caching {
         }
 
         public void Iterate(Action<T> action) {
-            foreach(object obj in Cache) {
-                action((T) obj);
+            foreach(dynamic obj in Cache) {
+                action((T) obj.Value);
             }
         }
     }

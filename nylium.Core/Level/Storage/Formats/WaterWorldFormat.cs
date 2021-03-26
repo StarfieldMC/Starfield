@@ -10,6 +10,7 @@ using fNbt;
 using Jil;
 using nylium.Core.Entity.Entities;
 using nylium.Core.Entity.Inventories;
+using nylium.Core.Networking.DataTypes;
 using nylium.Extensions;
 using nylium.Utilities;
 using Serilog;
@@ -22,7 +23,7 @@ namespace nylium.Core.Level.Storage.Formats {
         private readonly string playersDir;
 
         //                  X    Z    section; pos   size
-        private Dictionary<(int, int, int), (long, long)> ChunkLookup { get; set; }
+        private Dictionary<(int, int, int),   (long, long)> ChunkLookup { get; set; }
 
         private FileStream LookupStream { get; set; }
         private BinaryReader ChunkReader { get; set; }
@@ -52,8 +53,21 @@ namespace nylium.Core.Level.Storage.Formats {
             Stopwatch sw = new();
             sw.Start();
 
-            ChunkLookup = (Dictionary<(int, int, int), (long, long)>) Formatter.Deserialize(LookupStream);
-            LookupStream.Position = 0;
+            int bytesRead;
+            byte[] buffer = new byte[32];
+
+            while((bytesRead = LookupStream.Read(buffer, 0, buffer.Length)) > 0) {
+                LookupStream.Position -= bytesRead;
+
+                // varints and varlongs because why not
+                int x = new VarInt(LookupStream).Value;
+                int z = new VarInt(LookupStream).Value;
+                int section = new VarInt(LookupStream).Value;
+                long pos = new VarLong(LookupStream).Value;
+                long size = new VarLong(LookupStream).Value;
+
+                ChunkLookup.Add((x, z, section), (pos, size));
+            }
 
             List<(int, int)> loaded = new();
 
@@ -77,10 +91,7 @@ namespace nylium.Core.Level.Storage.Formats {
 
             World.Chunks.Iterate(chunk => Save(chunk));
             ChunkWriter.Flush();
-
-            Formatter.Serialize(LookupStream, ChunkLookup);
             LookupStream.Flush();
-            LookupStream.Position = 0;
 
             sw.Stop();
             Log.Information("Saved world in " + Math.Round(sw.Elapsed.TotalMilliseconds, 2) + "ms");
@@ -162,6 +173,12 @@ namespace nylium.Core.Level.Storage.Formats {
                     } else {
                         ChunkLookup.Add((chunk.X, chunk.Z, id), (pos, buffer.Length));
                         ChunkWriter.Write(buffer);
+
+                        new VarInt(chunk.X).Write(LookupStream);
+                        new VarInt(chunk.Z).Write(LookupStream);
+                        new VarInt(id).Write(LookupStream);
+                        new VarLong(pos).Write(LookupStream);
+                        new VarLong(buffer.Length).Write(LookupStream);
                     }
                 }
             }
@@ -244,7 +261,7 @@ namespace nylium.Core.Level.Storage.Formats {
 
                 dynamic slotJson = new ExpandoObject();
                 slotJson.present = slot.Present;
-                
+
                 if(slot.Present) {
                     slotJson.item = slot.Item.Id;
                     slotJson.count = slot.Count;
@@ -273,6 +290,7 @@ namespace nylium.Core.Level.Storage.Formats {
         }
 
         public override void Dispose() {
+            LookupStream.Flush();
             LookupStream.Close();
             ChunkReader.Close();
             ChunkWriter.Flush();
