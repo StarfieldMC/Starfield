@@ -10,6 +10,7 @@ namespace nylium.Core.Networking.Packet.Server.Play {
         public SP5ADeclareRecipes(Recipe[] recipes) {
             Recipes = recipes;
 
+            WriteVarInt(recipes.Length);
             WriteArray<Recipe, DataTypes.Recipe>(recipes);
         }
     }

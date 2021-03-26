@@ -52,10 +52,6 @@ namespace nylium.Core.Entity {
             OnGround = LastOnGround = onGround;
 
             Inventory = new(this, slotCount);
-            InitializeInventory();
-        }
-
-        protected virtual void InitializeInventory() {
             Array.Fill(Inventory.Slots, Inventory.Slot.Empty);
         }
 

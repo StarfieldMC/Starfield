@@ -8,7 +8,6 @@ using System.Text;
 using DaanV2.UUID;
 using fNbt.Tags;
 using NetCoreServer;
-using nylium.Core.Blocks;
 using nylium.Core.Configuration;
 using nylium.Core.Entity.Entities;
 using nylium.Core.Level;
@@ -147,10 +146,13 @@ namespace nylium.Core.Networking {
                         CP05ClientSettings clientSettings = (CP05ClientSettings) packet;
                         Configuration.ViewDistance = clientSettings.ViewDistance;
 
+                        SP13WindowItems windowItems = new(0, Player.Inventory.Slots);
+                        Send(windowItems);
+
                         SP3FHeldItemChange heldItemChange = new((sbyte) (Player.Inventory.HeldSlot - 36)); // mojang moment
                         Send(heldItemChange);
 
-                        SP5ADeclareRecipes declareRecipes = new(null); // TODO generate recipes from recipes.json
+                        SP5ADeclareRecipes declareRecipes = new(Array.Empty<Recipes.Recipe>()); // TODO generate recipes from recipes.json
                         Send(declareRecipes);
 
                         SP5BTags tags = new(Tag.blockTags.ToArray(),
@@ -170,20 +172,18 @@ namespace nylium.Core.Networking {
                             Player.Yaw, Player.Pitch, 0, random.Next(int.MaxValue));
                         Send(playerPositionAndLook);
 
-                        SP40UpdateViewPosition updateViewPosition = new(0, 0);
+                        SP40UpdateViewPosition updateViewPosition = new((int) Math.Floor(Player.X / Chunk.X_SIZE), (int) Math.Floor(Player.Z / Chunk.Z_SIZE));
                         Send(updateViewPosition);
 
-                        Chunk[] chunks = World.GetChunksInViewDistance((int) Math.Floor(Player.X / 16), (int) Math.Floor(Player.Z / 16),
+                        Chunk[] chunks = World.GetChunksInViewDistance((int) Math.Floor(Player.X / Chunk.X_SIZE), (int) Math.Floor(Player.Z / Chunk.Z_SIZE),
                             (sbyte) (Configuration.ViewDistance - 1));
                         LoadChunks(chunks);
 
                         SP3DWorldBorder worldBorder = new(0, 0, 0, 4096, 0, 2048, 16, 2);
                         Send(worldBorder);
 
-                        SP42SpawnPosition spawnPosition = new(new(0, 16, 0));
+                        SP42SpawnPosition spawnPosition = new(new(0, 1, 0));
                         Send(spawnPosition);
-
-                        GameState = State.Playing;
 
                         for(int i = 0; i < World.PlayerEntities.Count; i++) {
                             PlayerEntity player = World.PlayerEntities[i];
@@ -210,6 +210,8 @@ namespace nylium.Core.Networking {
                         SP04SpawnPlayer spawnPlayer = new(Player.EntityId, Player.Uuid, Player.X, Player.Y, Player.Z,
                             Player.Yaw, Player.Pitch);
                         Server.MulticastAsync(spawnPlayer, this);
+
+                        GameState = State.Playing;
                         break;
                     }
                 case CP2CAnimation: {
@@ -341,13 +343,6 @@ namespace nylium.Core.Networking {
             }
         }
 
-        protected override void OnConnected() {
-            Log.Debug($"Client with id [{Id}] connected");
-            GameState = State.Connecting;
-
-            base.OnConnected();
-        }
-
         protected override void OnReceived(byte[] buffer, long offset, long size) {
             if(ProtocolState == ProtocolState.Unknown) ProtocolState = ProtocolState.Handshaking;
 
@@ -397,11 +392,21 @@ namespace nylium.Core.Networking {
             packet.Dispose();
         }
 
+        protected override void OnConnected() {
+            Log.Debug($"Client with id [{Id}] connected");
+            GameState = State.Connecting;
+
+            base.OnConnected();
+        }
+
         protected override void OnDisconnected() {
             Log.Debug($"Client with id [{Id}] disconnected");
 
             if(ProtocolState == ProtocolState.Play && Player != null) {
+                World.Format.Save(Player);
                 World.PlayerEntities.Remove(Player);
+
+                // TODO remove player from player list and world client-side here
             }
 
             ProtocolState = ProtocolState.Unknown;
@@ -417,15 +422,19 @@ namespace nylium.Core.Networking {
         }
 
         public void Send(MinecraftPacket packet) {
-            Log.Debug($"Sending packet in state [{ProtocolState}] with id [0x{packet.Id:X}]");
-            base.Send(packet.ToBytes());
+            if(ProtocolState != ProtocolState.Unknown) {
+                Log.Debug($"Sending packet in state [{ProtocolState}] with id [0x{packet.Id:X}]");
+                base.Send(packet.ToBytes());
+            }
 
             packet.Dispose();
         }
 
         public void SendAsync(MinecraftPacket packet) {
-            Log.Debug($"Sending packet in state [{ProtocolState}] with id [0x{packet.Id:X}]");
-            base.SendAsync(packet.ToBytes());
+            if(ProtocolState != ProtocolState.Unknown) {
+                Log.Debug($"Sending packet in state [{ProtocolState}] with id [0x{packet.Id:X}]");
+                base.SendAsync(packet.ToBytes());
+            }
 
             packet.Dispose();
         }

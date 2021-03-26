@@ -46,9 +46,8 @@ namespace nylium.Core.Level {
 
             Generator = generator;
 
-            if(!Directory.Exists(GetDirectory()) || !File.Exists(Path.Combine(GetDirectory(), "chunks.bin"))) {
+            if(!Directory.Exists(GetDirectory())) {
                 Directory.CreateDirectory(GetDirectory());
-                Format = new WaterWorldFormat(this);
 
                 // world does not exist - generate
                 int a = (int) Math.Floor(initializationChunks / 2d);
@@ -59,7 +58,10 @@ namespace nylium.Core.Level {
 
                 for(int x = -a; x <= a; x++) {
                     for(int z = -a; z <= a; z++) {
-                        LoadChunk(x, z);
+                        Chunk chunk = new(this, x, z);
+                        Generator.GenerateChunk(this, chunk);
+                        Chunks.Add((x, z), chunk);
+
                         i++;
                     }
                 }
@@ -67,6 +69,7 @@ namespace nylium.Core.Level {
                 totalStopwatch.Stop();
                 Log.Information(string.Format("Finished generating world! ({0} chunks) Took {1}ms", i, Math.Round(totalStopwatch.Elapsed.TotalMilliseconds, 2)));
 
+                Format = new WaterWorldFormat(this);
                 Format.Save();
             } else {
                 Format = new WaterWorldFormat(this);
@@ -169,9 +172,9 @@ namespace nylium.Core.Level {
         }
 
         public Chunk LoadChunk(int x, int z) {
-            Chunk chunk = Format.Load(x, z);
+            Chunk chunk = new(this, x, z);
 
-            if(chunk == null) {
+            if(!Format.Load(chunk)) {
                 chunk = new(this, x, z);
                 Generator.GenerateChunk(this, chunk);
             }

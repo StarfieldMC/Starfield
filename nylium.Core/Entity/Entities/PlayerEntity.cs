@@ -22,7 +22,7 @@ namespace nylium.Core.Entity.Entities {
         public string Username { get; }
         public UUID Uuid { get; }
 
-        public Gamemode Gamemode { get; }
+        public Gamemode Gamemode { get; set; }
 
         public PlayerEntity(World parent, MinecraftClient client, string username, UUID uuid, Gamemode gamemode,
             double x, double y, double z, float yaw, float pitch, bool onGround) : base(parent, "minecraft:player", x, y, z, yaw, pitch, onGround, 45) {
@@ -31,12 +31,8 @@ namespace nylium.Core.Entity.Entities {
             Username = username;
             Uuid = uuid;
             Gamemode = gamemode;
-        }
 
-        protected override void InitializeInventory() {
-            // TODO load inventory from player data here
-            base.InitializeInventory();
-            Inventory.HeldSlot = 36; // 1st hotbar slot
+            Parent.Format.Load(this);
         }
 
         public void HandleMovement(MinecraftPacket packet) {

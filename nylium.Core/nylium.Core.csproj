@@ -34,7 +34,7 @@
     <PackageReference Include="CoreFNBT" Version="1.0.9" />
     <PackageReference Include="DaanV2.UUID.Net" Version="1.1.0" />
     <PackageReference Include="DeepCloner" Version="0.10.2" />
-    <PackageReference Include="Jil" Version="2.17.0" />
+    <PackageReference Include="Jil" Version="3.0.0-alpha2" />
     <PackageReference Include="NetCoreServer" Version="5.0.15" />
     <PackageReference Include="Serilog" Version="2.10.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="4.0.0-dev-00831" />

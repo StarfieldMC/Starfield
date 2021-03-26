@@ -13,7 +13,7 @@ namespace nylium.Core {
         public static MinecraftServer Server { get; set; }
 
         public static void Run(string[] args) {
-            if(!Directory.Exists(WORLDS_DIRECTORY)) Directory.CreateDirectory(WORLDS_DIRECTORY);
+            Directory.CreateDirectory(WORLDS_DIRECTORY);
 
             Log.Logger = new LoggerConfiguration()
                 .WriteTo.Console()

@@ -1,4 +1,5 @@
 ﻿using System;
+using nylium.Core.Entity.Entities;
 
 namespace nylium.Core.Level.Storage {
 
@@ -10,11 +11,15 @@ namespace nylium.Core.Level.Storage {
             World = world;
         }
 
-        public abstract void Load();
-        public abstract void Save();
+        public abstract bool Load();
+        public abstract bool Save();
 
-        public abstract Chunk Load(int chunkX, int chunkZ);
-        public abstract void Save(Chunk chunk);
+        public abstract bool Load(Chunk chunk);
+        public abstract bool Save(Chunk chunk);
+
+        public abstract bool Load(PlayerEntity player);
+        public abstract bool Save(PlayerEntity player);
+
         public abstract void Dispose();
     }
 }
