@@ -62,7 +62,7 @@ namespace nylium.Core.Level.Storage.Formats {
                     Chunk chunk = new(World, entry.Key.Item1, entry.Key.Item2);
                     Load(chunk);
 
-                    World.Chunks.Add((chunk.X, chunk.Z), chunk);
+                    World.Chunks.Set(chunk.X.ToString() + chunk.Z.ToString(), chunk);
                 }
             }
 
@@ -75,10 +75,7 @@ namespace nylium.Core.Level.Storage.Formats {
             Stopwatch sw = new();
             sw.Start();
 
-            foreach(KeyValuePair<(int, int), Chunk> entry in World.Chunks) {
-                Save(entry.Value);
-            }
-
+            World.Chunks.Iterate(chunk => Save(chunk));
             ChunkWriter.Flush();
 
             Formatter.Serialize(LookupStream, ChunkLookup);

@@ -12,6 +12,7 @@ using nylium.Core.Level.Storage;
 using nylium.Core.Level.Storage.Formats;
 using nylium.Core.Networking;
 using nylium.Core.Networking.Packet.Server.Play;
+using nylium.Utilities.Caching;
 using Serilog;
 
 namespace nylium.Core.Level {
@@ -26,7 +27,8 @@ namespace nylium.Core.Level {
         public string Name { get; }
         public long Age { get; set; }
 
-        public Dictionary<(int, int), Chunk> Chunks { get; }
+        //public Dictionary<(int, int), Chunk> Chunks { get; }
+        public TimedCache<Chunk> Chunks { get; }
 
         public List<PlayerEntity> PlayerEntities { get; }
         public List<BaseEntity> Entities { get; }
@@ -40,7 +42,7 @@ namespace nylium.Core.Level {
             Server = server;
             Name = name;
 
-            Chunks = new();
+            Chunks = new("Chunk cache", TimeSpan.FromMinutes(5));
             PlayerEntities = new();
             Entities = new();
 
@@ -48,6 +50,8 @@ namespace nylium.Core.Level {
 
             if(!Directory.Exists(GetDirectory())) {
                 Directory.CreateDirectory(GetDirectory());
+
+                Format = new WaterWorldFormat(this);
 
                 // world does not exist - generate
                 int a = (int) Math.Floor(initializationChunks / 2d);
@@ -58,10 +62,7 @@ namespace nylium.Core.Level {
 
                 for(int x = -a; x <= a; x++) {
                     for(int z = -a; z <= a; z++) {
-                        Chunk chunk = new(this, x, z);
-                        Generator.GenerateChunk(this, chunk);
-                        Chunks.Add((x, z), chunk);
-
+                        LoadChunk(x, z);
                         i++;
                     }
                 }
@@ -69,7 +70,6 @@ namespace nylium.Core.Level {
                 totalStopwatch.Stop();
                 Log.Information(string.Format("Finished generating world! ({0} chunks) Took {1}ms", i, Math.Round(totalStopwatch.Elapsed.TotalMilliseconds, 2)));
 
-                Format = new WaterWorldFormat(this);
                 Format.Save();
             } else {
                 Format = new WaterWorldFormat(this);
@@ -136,7 +136,9 @@ namespace nylium.Core.Level {
         }
 
         public Chunk GetChunk(int chunkX, int chunkZ) {
-            return Chunks.ContainsKey((chunkX, chunkZ)) ? Chunks[(chunkX, chunkZ)] : LoadChunk(chunkX, chunkZ);
+            string key = chunkX.ToString() + chunkZ.ToString();
+
+            return Chunks.Contains(key) ? Chunks.Get(key) : LoadChunk(chunkX, chunkZ);
         }
 
         public Chunk[] GetChunksInViewDistance(int chunkX, int chunkZ, sbyte viewDistance) {
@@ -179,7 +181,7 @@ namespace nylium.Core.Level {
                 Generator.GenerateChunk(this, chunk);
             }
 
-            Chunks.Add((x, z), chunk);
+            Chunks.Set(x.ToString() + z.ToString(), chunk);
             return chunk;
         }
 
