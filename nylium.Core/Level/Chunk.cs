@@ -1,4 +1,9 @@
 ﻿using System;
+using System.Collections;
+using fNbt;
+using fNbt.Tags;
+using nylium.Core.Blocks;
+using nylium.Extensions;
 
 namespace nylium.Core.Level {
 
@@ -14,7 +19,9 @@ namespace nylium.Core.Level {
         public int X { get; }
         public int Z { get; }
 
-        private Section[] Sections { get; }
+        //       present  y     stateid
+        private (bool,    byte, ushort)[,] Heightmap { get; }
+        public Section[] Sections { get; }
 
         public Chunk(World parent, int x, int z) {
             Parent = parent;
@@ -22,27 +29,8 @@ namespace nylium.Core.Level {
             X = x;
             Z = z;
 
+            Heightmap = new (bool, byte, ushort)[X_SIZE, Z_SIZE];
             Sections = new Section[SECTION_COUNT];
-        }
-
-        public Chunk(World parent, int x, int z, Section[] sections) {
-            Parent = parent;
-
-            X = x;
-            Z = z;
-
-            if(sections.Length > SECTION_COUNT) throw new ArgumentException($"There can't be more sections than {SECTION_COUNT}!");
-            else if(sections.Length < SECTION_COUNT) Array.Resize(ref sections, SECTION_COUNT);
-
-            Sections = sections;
-        }
-
-        public Section GetSection(int id) {
-            return Sections[id];
-        }
-
-        public void SetSection(Section section, int id) {
-            Sections[id] = section;
         }
 
         public Blocks.Block GetBlock(int x, int y, int z) {
@@ -62,6 +50,43 @@ namespace nylium.Core.Level {
             Sections[id].SetBlock(block, x, y, z);
         }
 
+        public NbtCompound CreateHeightmap() {
+            long[] data = new long[37];
+
+            // TODO fuck this shit
+            //int dataIndex = data.Length - 1;
+
+            //byte entryIndex = (sizeof(long) * 8) - 2;
+            //byte entryLength = 9;
+
+            //for(int z = 0; z < Z_SIZE; z++) {
+            //    for(int x = 0; x < X_SIZE; x++) {
+            //        if(entryIndex <= 0) {
+            //            dataIndex--;
+            //            entryIndex = (sizeof(long) * 8) - 2;
+            //        }
+
+            //        (bool, byte, ushort) block = Heightmap[x, z];
+            //        data[dataIndex].ClearBit(entryIndex);
+            //        entryIndex--;
+
+            //        for(int i = 0; i < entryLength - 1; i++) {
+            //            if(block.Item2.IsBitSet((byte) i)) {
+            //                data[dataIndex].SetBit(entryIndex);
+            //            } else {
+            //                data[dataIndex].ClearBit(entryIndex);
+            //            }
+
+            //            entryIndex--;
+            //        }
+            //    }
+            //}
+
+            return new("") {
+                new NbtLongArray("MOTION_BLOCKING", data)
+            };
+        }
+
         public class Section {
 
             public const int X_SIZE = 16;
@@ -70,29 +95,45 @@ namespace nylium.Core.Level {
 
             public int Id { get; }
             public Chunk Parent { get; }
-            private Blocks.Block[,,] Blocks { get; }
+            private Block[,,] Blocks { get; }
 
             public Section(int id, Chunk parent) {
                 Id = id;
                 Parent = parent;
-                Blocks = new Blocks.Block[Y_SIZE, X_SIZE, Z_SIZE];
+                Blocks = new Block[Y_SIZE, X_SIZE, Z_SIZE];
             }
 
-            public Section(int id, Chunk parent, Blocks.Block[,,] blocks) {
+            public Section(int id, Chunk parent, Block[,,] blocks) {
                 Id = id;
                 Parent = parent;
                 Blocks = blocks;
             }
 
-            public Blocks.Block GetBlock(int x, int y, int z) {
+            public Block GetBlock(int x, int y, int z) {
                 return Blocks[y, x, z];
             }
 
-            public void SetBlock(Blocks.Block block, int x, int y, int z) {
+            public void SetBlock(Block block, int x, int y, int z) {
+                byte chunkY = (byte) ((Id * Y_SIZE) + y);
+
+                if(Parent.Heightmap[x, z].Item2 < chunkY || Parent.Heightmap[x, z] == default) {
+                    Parent.Heightmap[x, z] = (true, chunkY, block.StateId);
+                }
+
                 Blocks[y, x, z] = block;
             }
 
-            public void Iterate(Action<Blocks.Block> action, bool flipXZ = false) {
+            public bool IsEmpty() {
+                int emptyCount = 0;
+
+                Iterate(block => {
+                    if(block == null) emptyCount++;
+                });
+
+                return emptyCount >= X_SIZE * Y_SIZE * Z_SIZE;
+            }
+
+            public void Iterate(Action<Block> action, bool flipXZ = false) {
                 if(flipXZ) {
                     for(int y = 0; y < Y_SIZE; y++) {
                         for(int z = 0; z < Z_SIZE; z++) {
@@ -110,6 +151,66 @@ namespace nylium.Core.Level {
                         }
                     }
                 }
+            }
+
+            // TODO find a better way to do this
+            // i probably won't even know what this does in a few days
+            public long[] ToCompactedLongArray(int bitsPerBlock) {
+                //                                   64 bits per long
+                int blocksPerLong = (int) Math.Floor(64d / bitsPerBlock);
+
+                //                       section size
+                long[] array = new long[(16 * 16 * 16) / blocksPerLong];
+                int longArrayIndex = array.Length - 1;
+                byte longIndex = 0;
+
+                Iterate(block => {
+                    if(longIndex >= (bitsPerBlock * blocksPerLong)) {
+                        longArrayIndex--;
+                        longIndex = 0;
+                    }
+
+                    BitArray id = new((block == null ? (ushort) 0 : block.StateId).WriteLittleEndian());
+
+                    bool[] bits = new bool[bitsPerBlock];
+                    bool removing = true;
+
+                    int k = 0;
+
+                    // please don't ask me what this does because i don't even know
+                    for(int j = id.Count - 1; j >= 0; j--) {
+                        bool bit = id.Get(j);
+
+                        if(removing) {
+                            if(j - 1 < 0) break;
+
+                            if(id.Get(j - 1)) {
+                                removing = false;
+                            }
+                        } else {
+                            if(k > 14 - 1) break;
+
+                            bits[j] = bit;
+                            k++;
+                        }
+                    }
+
+                    Array.Reverse(bits);
+                    id = new BitArray(bits);
+
+                    for(int j = id.Count - 1; j >= 0; j--) {
+                        if(id.Get(j)) {
+                            array[longArrayIndex].SetBit(longIndex);
+                        } else {
+                            array[longArrayIndex].ClearBit(longIndex);
+                        }
+
+                        longIndex++;
+                    }
+                }, true);
+
+                Array.Reverse(array); // reverse, otherwise the Y coordinate will be flipped
+                return array;
             }
         }
     }

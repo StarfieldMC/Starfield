@@ -128,7 +128,7 @@ namespace nylium.Core.Level.Storage.Formats {
                         }
                     }
 
-                    chunk.SetSection(section, id);
+                    chunk.Sections[id] = section;
                 } else {
                     err++;
                 }
@@ -144,7 +144,7 @@ namespace nylium.Core.Level.Storage.Formats {
                 byte[] buffer = new byte[Chunk.Section.X_SIZE * Chunk.Section.Y_SIZE * Chunk.Section.Z_SIZE * sizeof(ushort)];
                 int i = 0;
 
-                Chunk.Section section = chunk.GetSection(id);
+                Chunk.Section section = chunk.Sections[id];
 
                 if(section == null) {
                     continue;

@@ -8,6 +8,7 @@ using System.Text;
 using DaanV2.UUID;
 using fNbt.Tags;
 using NetCoreServer;
+using nylium.Core.Blocks;
 using nylium.Core.Configuration;
 using nylium.Core.Entity.Entities;
 using nylium.Core.Level;
@@ -21,6 +22,7 @@ using nylium.Core.Networking.Packet.Server.Login;
 using nylium.Core.Networking.Packet.Server.Play;
 using nylium.Core.Networking.Packet.Server.Status;
 using nylium.Core.Tags;
+using nylium.Extensions;
 using nylium.Utilities;
 using Serilog;
 
@@ -267,69 +269,58 @@ namespace nylium.Core.Networking {
 
         // TODO unhardcode everything here
         public void LoadChunks(Chunk[] chunks) {
-            int mask = 0b00000000_00000000_00000000_00000001;
-
-            byte[] a = new byte[] { 0x01, 0x00, 0x80, 0x40, 0x20, 0x10, 0x08, 0x04 };
-            byte[] b = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x20, 0x10, 0x08, 0x04 };
-
-            long al = BinaryPrimitives.ReadInt64LittleEndian(a);
-            long bl = BinaryPrimitives.ReadInt64LittleEndian(b);
-
-            NbtCompound heightmap = new("") {
-                new NbtLongArray("MOTION_BLOCKING", new long[] {
-                    al, al, al, al, al, al, al, al, al, al, al, al, al, al, al, al, al, al, al, al,
-                    al, al, al, al, al, al, al, al, al, al, al, al, al, al, al,
-                    bl
-                })
-            };
-
+            int mask = 0;
             int[] biomes = Enumerable.Repeat(127, 1024).ToArray();
+
+            MemoryStream convertStream = RMSManager.Get().GetStream("nylium.Core.Networking.MinecraftClient.LoadChunks()");
 
             // TODO somehow the entire chunk is underwater?
             for(int i = 0; i < chunks.Length; i++) {
                 Chunk chunk = chunks[i];
+                NbtCompound heightmap = chunk.CreateHeightmap();
 
-                sbyte[] data = null;
+                for(int j = 0; j < chunk.Sections.Length; j++) {
+                    Chunk.Section section = chunk.Sections[j];
 
-                using(MemoryStream stream = RMSManager.Get().GetStream("chunk data convert thing")) {
-                    // only 1 section sent (see primary bit mask) therefore no loop
-                    int j = 0;
-                    int nonAirBlockCount = 0;
-                    ushort[] blockIds = new ushort[Chunk.Section.X_SIZE * Chunk.Section.Y_SIZE * Chunk.Section.Z_SIZE];
+                    if(section == null) {
+                        mask.ClearBit((byte) j);
+                        continue;
+                    }
 
-                    chunk.GetSection(0).Iterate(block => {
-                        if(block != null) {
-                            nonAirBlockCount++;
-                            blockIds[j] = block.StateId;
-                        } else {
-                            blockIds[j] = 0;
-                        }
+                    if(!section.IsEmpty()) {
+                        mask.SetBit((byte) j);
 
-                        j++;
-                    }, true);
+                        int nonAirBlockCount = 0;
 
-                    Short blockCount = new((short) nonAirBlockCount);
-                    UByte bitsPerBlock = new((byte) Blocks.Block.bitsPerBlock);
+                        section.Iterate(block => {
+                            if(block != null) nonAirBlockCount++;
+                        });
 
-                    long[] compactedLong = SectionUtils.ToCompactedLongArray(blockIds, Blocks.Block.bitsPerBlock);
+                        Short blockCount = new((short) nonAirBlockCount);
+                        UByte bitsPerBlock = new((byte) Block.bitsPerBlock);
 
-                    VarInt dataArrayLength = new(compactedLong.Length);
-                    Array<long, Long> dataArray = new(compactedLong);
+                        long[] compactedLong = section.ToCompactedLongArray(Block.bitsPerBlock);
 
-                    blockCount.Write(stream);
-                    bitsPerBlock.Write(stream);
-                    dataArrayLength.Write(stream);
-                    dataArray.Write(stream);
+                        VarInt dataArrayLength = new(compactedLong.Length);
+                        Array<long, Long> dataArray = new(compactedLong);
 
-                    data = (sbyte[]) (Array) stream.ToArray();
+                        blockCount.Write(convertStream);
+                        bitsPerBlock.Write(convertStream);
+                        dataArrayLength.Write(convertStream);
+                        dataArray.Write(convertStream);
+                    } else {
+                        mask.ClearBit((byte) j);
+                    }
                 }
 
                 SP20ChunkData chunkData = new(chunk.X, chunk.Z, true, mask, heightmap,
-                    biomes, data, Array.Empty<NbtCompound>());
+                    biomes, (sbyte[]) (Array) convertStream.ToArray(), Array.Empty<NbtCompound>());
                 Send(chunkData);
 
                 LoadedChunks.Add(chunk);
             }
+
+            convertStream.Dispose();
         }
 
         public void UnloadChunks(Chunk[] chunks) {
