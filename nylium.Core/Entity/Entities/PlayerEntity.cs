@@ -120,7 +120,13 @@ namespace nylium.Core.Entity.Entities {
                 if(Math.Floor(X / 16) != Math.Floor(LastX / 16)
                     || Math.Floor(Z / 16) != Math.Floor(LastZ / 16)) {
 
-                    Chunk[] chunks = Parent.GetChunksInViewDistance((int) Math.Floor(X / 16), (int) Math.Floor(Z / 16), Client.Configuration.ViewDistance);
+                    int chunkX = (int) Math.Floor(X / 16);
+                    int chunkZ = (int) Math.Floor(Z / 16);
+
+                    SP40UpdateViewPosition updateViewPosition = new(chunkX, chunkZ);
+                    Client.Send(updateViewPosition);
+
+                    Chunk[] chunks = Parent.GetChunksInViewDistance(chunkX, chunkZ, Client.Configuration.ViewDistance);
 
                     IEnumerable<Chunk> toUnload = Client.LoadedChunks.Except(chunks);
                     IEnumerable<Chunk> toLoad = chunks.Except(Client.LoadedChunks);

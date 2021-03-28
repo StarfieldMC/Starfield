@@ -109,7 +109,7 @@ namespace nylium.Core.Networking {
 
                         SP24JoinGame joinGame = new(Player.EntityId, false, Player.Gamemode, Player.Gamemode,
                             new Utilities.Identifier[] { new("world") }, Server.DimensionCodec.RootTag, Server.OverworldDimension.RootTag,
-                            new("world"), 0, 99, 8, false, true, false, true);
+                            new("world"), 0, 99, Server.Configuration.ViewDistance, false, true, false, true);
                         Send(joinGame);
 
                         LoadedChunks = new();
@@ -146,7 +146,8 @@ namespace nylium.Core.Networking {
                     }
                 case CP05ClientSettings: {
                         CP05ClientSettings clientSettings = (CP05ClientSettings) packet;
-                        Configuration.ViewDistance = clientSettings.ViewDistance;
+                        Configuration.ViewDistance = (clientSettings.ViewDistance > Server.Configuration.ViewDistance)
+                            ? Server.Configuration.ViewDistance : clientSettings.ViewDistance;
 
                         SP13WindowItems windowItems = new(0, Player.Inventory.Slots);
                         Send(windowItems);
@@ -267,17 +268,16 @@ namespace nylium.Core.Networking {
             return true;
         }
 
-        // TODO unhardcode everything here
         public void LoadChunks(Chunk[] chunks) {
-            int mask = 0;
-            int[] biomes = Enumerable.Repeat(127, 1024).ToArray();
-
             MemoryStream convertStream = RMSManager.Get().GetStream("nylium.Core.Networking.MinecraftClient.LoadChunks()");
 
             // TODO somehow the entire chunk is underwater?
             for(int i = 0; i < chunks.Length; i++) {
                 Chunk chunk = chunks[i];
                 NbtCompound heightmap = chunk.CreateHeightmap();
+
+                int[] biomes = Enumerable.Repeat(127, 1024).ToArray();
+                int mask = 0;
 
                 for(int j = 0; j < chunk.Sections.Length; j++) {
                     Chunk.Section section = chunk.Sections[j];
@@ -318,6 +318,9 @@ namespace nylium.Core.Networking {
                 Send(chunkData);
 
                 LoadedChunks.Add(chunk);
+
+                convertStream.Position = 0;
+                convertStream.SetLength(0);
             }
 
             convertStream.Dispose();

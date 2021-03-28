@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using fNbt;
 using NetCoreServer;
 using nylium.Core.Blocks;
+using nylium.Core.Configuration;
 using nylium.Core.Entity;
 using nylium.Core.Items;
 using nylium.Core.Level;
@@ -45,6 +46,8 @@ namespace nylium.Core.Networking {
         public NbtFile NetherDimension { get; set; }
         public NbtFile TheEndDimension { get; set; }
 
+        public ServerConfiguration Configuration { get; }
+
         public World World { get; set; }
 
         public MinecraftServer(IPAddress address, int port) : base(address, port) {
@@ -67,6 +70,10 @@ namespace nylium.Core.Networking {
             BaseEntity.Initialize();
             Item.Initialize();
             Tag.Initialize();
+
+            Configuration = new() {
+                ViewDistance = 12
+            };
 
             World = new(this, "world", new FlatWorldGenerator());
         }
