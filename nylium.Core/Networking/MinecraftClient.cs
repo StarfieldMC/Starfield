@@ -402,7 +402,12 @@ namespace nylium.Core.Networking {
                 World.Format.Save(Player);
                 World.PlayerEntities.Remove(Player);
 
-                // TODO remove player from player list and world client-side here
+                SP32PlayerInfo playerInfo = new(Player.Uuid);
+                Server.MulticastAsync(playerInfo, this);
+
+                // TODO is there a packet to destroy only one entity?
+                SP36DestroyEntities destroyEntities = new(new int[] { Player.EntityId });
+                Server.MulticastAsync(destroyEntities, this);
             }
 
             ProtocolState = ProtocolState.Unknown;
