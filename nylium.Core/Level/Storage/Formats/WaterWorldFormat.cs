@@ -69,17 +69,6 @@ namespace nylium.Core.Level.Storage.Formats {
                 ChunkLookup.Add((x, z, section), (pos, size));
             }
 
-            List<(int, int)> loaded = new();
-
-            foreach(KeyValuePair<(int, int, int), (long, long)> entry in ChunkLookup) {
-                if(!loaded.Contains((entry.Key.Item1, entry.Key.Item2))) {
-                    Chunk chunk = new(World, entry.Key.Item1, entry.Key.Item2);
-                    Load(chunk);
-
-                    World.Chunks.Set(chunk.X.ToString() + chunk.Z.ToString(), chunk);
-                }
-            }
-
             sw.Stop();
             Log.Information("Loaded world in " + Math.Round(sw.Elapsed.TotalMilliseconds, 2) + "ms");
             return true;
