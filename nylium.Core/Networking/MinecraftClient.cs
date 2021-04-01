@@ -175,10 +175,10 @@ namespace nylium.Core.Networking {
                             Player.Yaw, Player.Pitch, 0, random.Next(int.MaxValue));
                         Send(playerPositionAndLook);
 
-                        SP40UpdateViewPosition updateViewPosition = new((int) Math.Floor(Player.X / Chunk.X_SIZE), (int) Math.Floor(Player.Z / Chunk.Z_SIZE));
+                        SP40UpdateViewPosition updateViewPosition = new(Player.ChunkX, Player.ChunkZ);
                         Send(updateViewPosition);
 
-                        Chunk[] chunks = World.GetChunksInViewDistance((int) Math.Floor(Player.X / Chunk.X_SIZE), (int) Math.Floor(Player.Z / Chunk.Z_SIZE),
+                        Chunk[] chunks = World.GetChunksInViewDistance(Player.ChunkX, Player.ChunkZ,
                             (sbyte) (Configuration.ViewDistance - 1));
                         LoadChunks(chunks);
 
@@ -197,9 +197,11 @@ namespace nylium.Core.Networking {
                             _playerInfo = new(player.Uuid, 100); // TODO actual ping
                             Send(_playerInfo);
 
-                            SP04SpawnPlayer _spawnPlayer = new(player.EntityId, player.Uuid, player.X, player.Y, player.Z,
-                                player.Yaw, player.Pitch);
-                            Send(_spawnPlayer);
+                            if(LoadedChunks.Contains(World.GetChunk(player.ChunkX, player.ChunkZ))) {
+                                SP04SpawnPlayer _spawnPlayer = new(player.EntityId, player.Uuid, player.X, player.Y, player.Z,
+                                    player.Yaw, player.Pitch);
+                                Send(_spawnPlayer);
+                            }
                         }
 
                         World.PlayerEntities.Add(Player);
@@ -315,7 +317,7 @@ namespace nylium.Core.Networking {
 
                 SP20ChunkData chunkData = new(chunk.X, chunk.Z, true, mask, heightmap,
                     biomes, (sbyte[]) (Array) convertStream.ToArray(), Array.Empty<NbtCompound>());
-                Send(chunkData);
+                SendAsync(chunkData);
 
                 LoadedChunks.Add(chunk);
 

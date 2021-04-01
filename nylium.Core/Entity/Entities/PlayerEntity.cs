@@ -24,6 +24,18 @@ namespace nylium.Core.Entity.Entities {
 
         public Gamemode Gamemode { get; set; }
 
+        public int ChunkX {
+            get {
+                return (int) Math.Floor(X / Chunk.X_SIZE);
+            }
+        }
+
+        public int ChunkZ {
+            get {
+                return (int) Math.Floor(Z / Chunk.Z_SIZE);
+            }
+        }
+
         public PlayerEntity(World parent, MinecraftClient client, string username, UUID uuid, Gamemode gamemode,
             double x, double y, double z, float yaw, float pitch, bool onGround) : base(parent, "minecraft:player", x, y, z, yaw, pitch, onGround, 45) {
 
@@ -117,16 +129,13 @@ namespace nylium.Core.Entity.Entities {
                 Client.Server.MulticastAsync(entityPosition, Client);
 
                 // player changed chunk
-                if(Math.Floor(X / 16) != Math.Floor(LastX / 16)
-                    || Math.Floor(Z / 16) != Math.Floor(LastZ / 16)) {
+                if(ChunkX != Math.Floor(LastX / Chunk.X_SIZE)
+                    || ChunkZ != Math.Floor(LastZ / Chunk.Z_SIZE)) {
 
-                    int chunkX = (int) Math.Floor(X / 16);
-                    int chunkZ = (int) Math.Floor(Z / 16);
-
-                    SP40UpdateViewPosition updateViewPosition = new(chunkX, chunkZ);
+                    SP40UpdateViewPosition updateViewPosition = new(ChunkX, ChunkZ);
                     Client.Send(updateViewPosition);
 
-                    Chunk[] chunks = Parent.GetChunksInViewDistance(chunkX, chunkZ, Client.Configuration.ViewDistance);
+                    Chunk[] chunks = Parent.GetChunksInViewDistance(ChunkX, ChunkZ, Client.Configuration.ViewDistance);
 
                     IEnumerable<Chunk> toUnload = Client.LoadedChunks.Except(chunks);
                     IEnumerable<Chunk> toLoad = chunks.Except(Client.LoadedChunks);
