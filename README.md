@@ -8,3 +8,12 @@
   <a href="../../releases"><img src="https://img.shields.io/github/downloads/dskprt/nylium/total?style=for-the-badge"></a>
   <br><br>
 </p>
+
+# Goals/Features
+- [x] Cross-platform
+- [x] Low memory usage
+- [x] Relatively small size (<5 MB)
+- [ ] Close-to-vanilla experience
+- [ ] Plugin API
+- [ ] High customizability
+- [ ] High scalability design (run multiple servers with one executable)
