@@ -72,7 +72,8 @@ namespace nylium.Core.Networking {
             Tag.Initialize();
 
             Configuration = new() {
-                ViewDistance = 12
+                ViewDistance = 12,
+                CompressionThreshold = 1
             };
 
             World = new(this, "world", new FlatWorldGenerator());
@@ -93,20 +94,28 @@ namespace nylium.Core.Networking {
             if(packet == null)
                 return;
 
-            byte[] buffer = packet.ToBytes();
-            int size = buffer.Length;
+            byte[] buffer = packet.ToArray();
+            byte[] compressedBuffer = packet.ToArray(true);
 
             foreach(TcpSession session in Sessions.Values) {
                 if(session is MinecraftClient client) {
                     if(client.GameState != MinecraftClient.State.Playing) continue;
-                }
 
-                if(excludeSession != null) {
-                    if(session != excludeSession) {
-                        session.Send(buffer, 0, size);
+                    if(excludeSession != null) {
+                        if(session != excludeSession) {
+                            if(client.CompressionEnabled) {
+                                session.Send(compressedBuffer, 0, compressedBuffer.Length);
+                            } else {
+                                session.Send(buffer, 0, buffer.Length);
+                            }
+                        }
+                    } else {
+                        if(client.CompressionEnabled) {
+                            session.Send(compressedBuffer, 0, compressedBuffer.Length);
+                        } else {
+                            session.Send(buffer, 0, buffer.Length);
+                        }
                     }
-                } else {
-                    session.Send(buffer, 0, size);
                 }
             }
 
@@ -121,20 +130,28 @@ namespace nylium.Core.Networking {
                 if(packet == null)
                     return;
 
-                byte[] buffer = packet.ToBytes();
-                int size = buffer.Length;
+                byte[] buffer = packet.ToArray();
+                byte[] compressedBuffer = packet.ToArray(true);
 
                 foreach(TcpSession session in Sessions.Values) {
                     if(session is MinecraftClient client) {
                         if(client.GameState != MinecraftClient.State.Playing) continue;
-                    }
 
-                    if(excludeSession != null) {
-                        if(session != excludeSession) {
-                            session.SendAsync(buffer, 0, size);
+                        if(excludeSession != null) {
+                            if(session != excludeSession) {
+                                if(client.CompressionEnabled) {
+                                    session.SendAsync(compressedBuffer, 0, compressedBuffer.Length);
+                                } else {
+                                    session.SendAsync(buffer, 0, buffer.Length);
+                                }
+                            }
+                        } else {
+                            if(client.CompressionEnabled) {
+                                session.SendAsync(compressedBuffer, 0, compressedBuffer.Length);
+                            } else {
+                                session.SendAsync(buffer, 0, buffer.Length);
+                            }
                         }
-                    } else {
-                        session.SendAsync(buffer, 0, size);
                     }
                 }
 
@@ -149,20 +166,28 @@ namespace nylium.Core.Networking {
             if(packet == null)
                 return;
 
-            byte[] buffer = packet.ToBytes();
-            int size = buffer.Length;
+            byte[] buffer = packet.ToArray();
+            byte[] compressedBuffer = packet.ToArray(true);
 
             foreach(TcpSession session in sessions) {
                 if(session is MinecraftClient client) {
                     if(client.GameState != MinecraftClient.State.Playing) continue;
-                }
 
-                if(excludeSession != null) {
-                    if(session != excludeSession) {
-                        session.SendAsync(buffer, 0, size);
+                    if(excludeSession != null) {
+                        if(session != excludeSession) {
+                            if(client.CompressionEnabled) {
+                                session.Send(compressedBuffer, 0, compressedBuffer.Length);
+                            } else {
+                                session.Send(buffer, 0, buffer.Length);
+                            }
+                        }
+                    } else {
+                        if(client.CompressionEnabled) {
+                            session.Send(compressedBuffer, 0, compressedBuffer.Length);
+                        } else {
+                            session.Send(buffer, 0, buffer.Length);
+                        }
                     }
-                } else {
-                    session.SendAsync(buffer, 0, size);
                 }
             }
 
@@ -177,20 +202,28 @@ namespace nylium.Core.Networking {
                 if(packet == null)
                     return;
 
-                byte[] buffer = packet.ToBytes();
-                int size = buffer.Length;
+                byte[] buffer = packet.ToArray();
+                byte[] compressedBuffer = packet.ToArray(true);
 
                 foreach(TcpSession session in sessions) {
                     if(session is MinecraftClient client) {
                         if(client.GameState != MinecraftClient.State.Playing) continue;
-                    }
 
-                    if(excludeSession != null) {
-                        if(session != excludeSession) {
-                            session.SendAsync(buffer, 0, size);
+                        if(excludeSession != null) {
+                            if(session != excludeSession) {
+                                if(client.CompressionEnabled) {
+                                    session.SendAsync(compressedBuffer, 0, compressedBuffer.Length);
+                                } else {
+                                    session.SendAsync(buffer, 0, buffer.Length);
+                                }
+                            }
+                        } else {
+                            if(client.CompressionEnabled) {
+                                session.SendAsync(compressedBuffer, 0, compressedBuffer.Length);
+                            } else {
+                                session.SendAsync(buffer, 0, buffer.Length);
+                            }
                         }
-                    } else {
-                        session.SendAsync(buffer, 0, size);
                     }
                 }
 

@@ -46,6 +46,8 @@ namespace nylium.Core.Networking {
 
         public List<Chunk> LoadedChunks { get; set; }
 
+        public bool CompressionEnabled { get; set; }
+
         public MinecraftClient(MinecraftServer server) : base(server) {
             GameState = State.Disconnected;
             ProtocolState = ProtocolState.Unknown;
@@ -100,6 +102,10 @@ namespace nylium.Core.Networking {
 
                         DaanV2.UUID.UUID playerUuid = UUIDFactory.CreateUUID(3, 1, "OfflinePlayer:" + loginStart.Username);
 
+                        SL03SetCompression setCompression = new(Server.Configuration.CompressionThreshold);
+                        Send(setCompression);
+                        CompressionEnabled = setCompression.Threshold > 0;
+
                         SL02LoginSuccess loginSuccess = new(playerUuid, loginStart.Username);
                         Send(loginSuccess);
 
@@ -113,7 +119,7 @@ namespace nylium.Core.Networking {
                         Send(joinGame);
 
                         LoadedChunks = new();
-                        KeepAlive.Start();
+                        //KeepAlive.Start();
 
                         SP17PluginMessage brand = new(new Utilities.Identifier("minecraft", "brand"),
                             (sbyte[]) (Array) Encoding.UTF8.GetBytes("nylium"));
@@ -343,7 +349,7 @@ namespace nylium.Core.Networking {
             if(ProtocolState == ProtocolState.Unknown) ProtocolState = ProtocolState.Handshaking;
 
             MemoryStream mem = RMSManager.Get().GetStream(buffer);
-            MinecraftPacket packet = MinecraftPacket.CreateClientPacket(mem, ProtocolState);
+            MinecraftPacket packet = MinecraftPacket.CreateClientPacket(CompressionEnabled, mem, ProtocolState);
 
             if(packet == null) {
                 VarInt varInt = new();
@@ -425,7 +431,7 @@ namespace nylium.Core.Networking {
         public void Send(MinecraftPacket packet) {
             if(ProtocolState != ProtocolState.Unknown) {
                 Log.Debug($"Sending packet in state [{ProtocolState}] with id [0x{packet.Id:X}]");
-                base.Send(packet.ToBytes());
+                base.Send(packet.ToArray(CompressionEnabled));
             }
 
             packet.Dispose();
@@ -434,7 +440,7 @@ namespace nylium.Core.Networking {
         public void SendAsync(MinecraftPacket packet) {
             if(ProtocolState != ProtocolState.Unknown) {
                 Log.Debug($"Sending packet in state [{ProtocolState}] with id [0x{packet.Id:X}]");
-                base.SendAsync(packet.ToBytes());
+                base.SendAsync(packet.ToArray(CompressionEnabled));
             }
 
             packet.Dispose();

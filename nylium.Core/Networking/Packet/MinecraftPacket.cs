@@ -27,6 +27,8 @@ namespace nylium.Core.Networking.Packet {
         public int Id { get; set; }
         public MemoryStream Data { get; set; }
 
+        public bool CompressionEnabled { get; set; }
+
         public static void Initialize() {
             Stopwatch stopwatch = new();
             stopwatch.Start();
@@ -84,16 +86,60 @@ namespace nylium.Core.Networking.Packet {
 
         public MinecraftPacket(Stream stream) {
             Data = RMSManager.Get().GetStream(GetType().FullName);
+            CompressionEnabled = stream.ReadByte() == 1;
+
             Read(stream);
         }
 
-        public static MinecraftPacket CreateClientPacket(Stream stream, ProtocolState state) {
-            VarInt varInt = new();
-            varInt.Read(stream);
-            varInt.Read(stream);
+        public static MinecraftPacket CreateClientPacket(bool compressed, Stream stream, ProtocolState state) {
+            int id = -1;
 
-            int id = varInt.Value;
-            stream.Seek(0, SeekOrigin.Begin);
+            if(!compressed) {
+                VarInt varInt = new();
+                varInt.Read(stream);
+                varInt.Read(stream);
+
+                id = varInt.Value;
+
+                stream.Position = 0;
+            } else {
+                int packetLength = new VarInt(stream).Value;
+
+                long _pos = stream.Position;
+                int length = new VarInt(stream).Value;
+
+                if(length == 0) { // packet is uncompressed
+                    id = new VarInt(stream).Value;
+
+                    byte[] data = new byte[packetLength - 1];
+                    stream.Read(data, 0, data.Length);
+
+                    stream.Position = 0;
+                    stream.SetLength(0);
+                    stream.Write(data);
+                    stream.Position = 0;
+                } else {
+                    byte[] compressedData = new byte[packetLength - _pos];
+                    stream.Read(compressedData, 0, compressedData.Length);
+
+                    CompressionUtils.ZLibDecompress(compressedData, out byte[] data);
+
+                    using(MemoryStream output = RMSManager.Get().GetStream(data)) {
+                        _pos = output.Position;
+                        id = new VarInt(output).Value;
+                    }
+
+                    stream.Position = 0;
+                    stream.SetLength(0);
+                    stream.Write(data);
+                    stream.Position = 0;
+                }
+            }
+
+            MemoryStream mem = RMSManager.Get().GetStream();
+            mem.WriteByte(compressed ? (byte) 1 : (byte) 0);
+            stream.CopyTo(mem);
+            mem.Position = 0;
 
             Func<Stream, MinecraftPacket> ctor;
 
@@ -102,38 +148,51 @@ namespace nylium.Core.Networking.Packet {
                     ctor = clientPacketConstructors[0][id];
 
                     if(ctor == null) return null;
-                    return ctor(stream);
+                    return ctor(mem);
                 case ProtocolState.Status:
                     ctor = clientPacketConstructors[1][id];
 
                     if(ctor == null) return null;
-                    return ctor(stream);
+                    return ctor(mem);
                 case ProtocolState.Login:
                     ctor = clientPacketConstructors[2][id];
 
                     if(ctor == null) return null;
-                    return ctor(stream);
+                    return ctor(mem);
                 case ProtocolState.Play:
                     ctor = clientPacketConstructors[3][id];
 
                     if(ctor == null) return null;
-                    return ctor(stream);
+                    return ctor(mem);
             }
 
             return null;
         }
 
         private void Read(Stream stream) {
-            Length = new VarInt(stream).Value;
+            if(!CompressionEnabled) {
+                Length = new VarInt(stream).Value;
 
-            long _pos = stream.Position;
-            Id = new VarInt(stream).Value;
+                long _pos = stream.Position;
+                Id = new VarInt(stream).Value;
 
-            byte[] data = new byte[Length - (stream.Position - _pos)];
-            stream.Read(data, 0, data.Length);
+                byte[] data = new byte[Length - (stream.Position - _pos)];
+                stream.Read(data, 0, data.Length);
 
-            Data.Write(data);
-            Data.Seek(0, SeekOrigin.Begin);
+                Data.Write(data);
+                Data.Seek(0, SeekOrigin.Begin);
+            } else {
+                Length = (int) stream.Length;
+
+                long _pos = stream.Position;
+                Id = new VarInt(stream).Value;
+
+                byte[] data = new byte[Length - (stream.Position - _pos)];
+                stream.Read(data, 0, data.Length);
+
+                Data.Write(data);
+                Data.Seek(0, SeekOrigin.Begin);
+            }
         }
 
         protected int ReadVarInt() {
@@ -319,34 +378,64 @@ namespace nylium.Core.Networking.Packet {
             new EntityMetadata(value).Write(Data);
         }
 
-        public byte[] ToBytes() {
-            byte[] bytes;
+        public byte[] ToArray(bool compress) {
+            CompressionEnabled = compress;
+            return ToArray();
+        }
 
-            using(MemoryStream temp = new()) {
-                VarInt varInt = new(Id);
+        public byte[] ToArray() {
+            using(MemoryStream temp = RMSManager.Get().GetStream()) {
+                if(!CompressionEnabled) {
+                    VarInt varInt = new(Id);
 
-                if(Length <= 0) {
+                    if(Length <= 0) {
+                        varInt.Write(temp);
+
+                        temp.Write(Data.ToArray());
+
+                        Length = (int) temp.Length;
+
+                        temp.Seek(0, SeekOrigin.Begin);
+                        temp.SetLength(0);
+                    }
+
+                    varInt.Value = Length;
+                    varInt.Write(temp);
+
+                    varInt.Value = Id;
                     varInt.Write(temp);
 
                     temp.Write(Data.ToArray());
+                } else {
+                    byte[] output;
+                    int dataLength;
 
-                    Length = (int) temp.Length;
+                    //if(Id == 0x20) Debugger.Break();
 
-                    temp.Seek(0, SeekOrigin.Begin);
+                    using(MemoryStream input = RMSManager.Get().GetStream()) {
+                        new VarInt(Id).Write(input);
+                        Data.WriteTo(input);
+
+                        dataLength = (int) input.Position;
+                        CompressionUtils.ZLibCompress(input.ToArray(), out output);
+                    }
+
+                    new VarInt(output.Length).Write(temp);
+                    int dataLengthLength = (int) temp.Position;
+
+                    temp.Position = 0;
                     temp.SetLength(0);
+
+                    new VarInt(output.Length + dataLengthLength).Write(temp);
+                    new VarInt(dataLength).Write(temp);
+                    temp.Write(output);
                 }
 
-                varInt.Value = Length;
-                varInt.Write(temp);
-
-                varInt.Value = Id;
-                varInt.Write(temp);
-
-                temp.Write(Data.ToArray());
-                bytes = temp.ToArray();
+                if(Id == 0x20) {
+                    return temp.ToArray();
+                }
+                return temp.ToArray();
             }
-
-            return bytes;
         }
 
         public void Dispose() {
