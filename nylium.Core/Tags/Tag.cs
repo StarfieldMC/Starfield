@@ -53,7 +53,7 @@ namespace nylium.Core.Tags {
                                         }
                                     }
 
-                                    blockTags.Add(new Tag(new Identifier("minecraft", name), ids));
+                                    blockTags.Add(new Tag(new Identifier(name), ids));
                                     break;
                                 case "items":
                                     ids = new int[tag.Value.values.Length];
@@ -66,20 +66,30 @@ namespace nylium.Core.Tags {
                                         }
                                     }
 
-                                    itemTags.Add(new Tag(new Identifier("minecraft", name), ids));
+                                    itemTags.Add(new Tag(new Identifier(name), ids));
                                     break;
                                 case "fluids":
                                     ids = new int[tag.Value.values.Length];
 
                                     for(int i = 0; i < tag.Value.values.Length; i++) {
-                                        int id = Blocks.Block.GetBlockProtocolId((string) tag.Value.values[i]);
+                                        int id = 0;
+                                        string namedId = tag.Value.values[i];
 
-                                        if(id != -1) {
-                                            ids[i] = id;
+                                        // dumped from the vanilla server
+                                        if(namedId == "minecraft:flowing_water") {
+                                            id = 1;
+                                        } else if(namedId == "minecraft:flowing_lava") {
+                                            id = 3;
+                                        } else if(namedId == "minecraft:water") {
+                                            id = 2;
+                                        } else if(namedId == "minecraft:lava") {
+                                            id = 4;
                                         }
+
+                                        ids[i] = id;
                                     }
 
-                                    fluidTags.Add(new Tag(new Identifier("minecraft", name), ids));
+                                    fluidTags.Add(new Tag(new Identifier(name), ids));
                                     break;
                                 case "entity_types":
                                     ids = new int[tag.Value.values.Length];
@@ -92,7 +102,7 @@ namespace nylium.Core.Tags {
                                         }
                                     }
 
-                                    entityTags.Add(new Tag(new Identifier("minecraft", name), ids));
+                                    entityTags.Add(new Tag(new Identifier(name), ids));
                                     break;
                             }
                         }
