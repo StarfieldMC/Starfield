@@ -248,11 +248,13 @@ namespace nylium.Core.Entity.Entities {
                     if(Parent.GetBlock(pos.X, pos.Y, pos.Z) == null) {
                         if(Inventory.HeldItem != null) {
                             // TODO this will not work properly with blocks that have multiple states
-                            Blocks.Block block = Blocks.Block.Create(Parent, Item.GetItemNamedId(Inventory.HeldItem.Id));
+                            Block block = Block.Create(Parent, Item.GetItemNamedId(Inventory.HeldItem.Id));
 
                             if(block == null || block.StateId == 0) {
                                 break;
                             }
+
+                            if(pos.Y < 0 || pos.Y >= Chunk.Y_SIZE) return;
 
                             Parent.SetBlock(block, pos.X, pos.Y, pos.Z);
 

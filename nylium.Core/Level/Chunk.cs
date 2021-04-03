@@ -33,7 +33,9 @@ namespace nylium.Core.Level {
             Sections = new Section[SECTION_COUNT];
         }
 
-        public Blocks.Block GetBlock(int x, int y, int z) {
+        public Block GetBlock(int x, int y, int z) {
+            if(y < 0 || y >= Y_SIZE) return null;
+
             int id = (int) Math.Floor((double) y / Section.Y_SIZE);
             if(Sections[id] == null) return null;
 
@@ -41,9 +43,10 @@ namespace nylium.Core.Level {
             return Sections[id].GetBlock(x, y, z);
         }
 
-        public void SetBlock(Blocks.Block block, int x, int y, int z) {
-            int id = (int) Math.Floor((double) y / Section.Y_SIZE);
+        public void SetBlock(Block block, int x, int y, int z) {
+            if(y < 0 || y >= Y_SIZE) return;
 
+            int id = (int) Math.Floor((double) y / Section.Y_SIZE);
             if(Sections[id] == null) Sections[id] = new(id, this);
 
             y -= (id * Section.Y_SIZE);
@@ -110,10 +113,16 @@ namespace nylium.Core.Level {
             }
 
             public Block GetBlock(int x, int y, int z) {
+                if(x < 0 || y < 0 || z < 0) return null;
+                if(x >= X_SIZE || y >= Y_SIZE || z >= Z_SIZE) return null;
+
                 return Blocks[y, x, z];
             }
 
             public void SetBlock(Block block, int x, int y, int z) {
+                if(x < 0 || y < 0 || z < 0) return;
+                if(x >= X_SIZE || y >= Y_SIZE || z >= Z_SIZE) return;
+
                 byte chunkY = (byte) ((Id * Y_SIZE) + y);
 
                 if(Parent.Heightmap[x, z].Item2 < chunkY || Parent.Heightmap[x, z] == default) {
