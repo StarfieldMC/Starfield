@@ -116,6 +116,7 @@ namespace nylium.Core.Networking.Packet {
 
                     stream.Position = 0;
                     stream.SetLength(0);
+                    new VarInt(id).Write(stream);
                     stream.Write(data);
                     stream.Position = 0;
                 } else {
@@ -410,17 +411,21 @@ namespace nylium.Core.Networking.Packet {
                     byte[] output;
                     int dataLength;
 
-                    //if(Id == 0x20) Debugger.Break();
-
                     using(MemoryStream input = RMSManager.Get().GetStream()) {
                         new VarInt(Id).Write(input);
                         Data.WriteTo(input);
 
                         dataLength = (int) input.Position;
-                        CompressionUtils.ZLibCompress(input.ToArray(), out output);
+
+                        if(dataLength >= Nylium.Server.Configuration.CompressionThreshold) {
+                            CompressionUtils.ZLibCompress(input.ToArray(), out output);
+                        } else {
+                            dataLength = 0;
+                            output = input.ToArray();
+                        }
                     }
 
-                    new VarInt(output.Length).Write(temp);
+                    new VarInt(dataLength).Write(temp);
                     int dataLengthLength = (int) temp.Position;
 
                     temp.Position = 0;
@@ -431,9 +436,6 @@ namespace nylium.Core.Networking.Packet {
                     temp.Write(output);
                 }
 
-                if(Id == 0x20) {
-                    return temp.ToArray();
-                }
                 return temp.ToArray();
             }
         }

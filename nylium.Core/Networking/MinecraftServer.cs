@@ -73,7 +73,7 @@ namespace nylium.Core.Networking {
 
             Configuration = new() {
                 ViewDistance = 12,
-                CompressionThreshold = 1
+                CompressionThreshold = 128
             };
 
             World = new(this, "world", new FlatWorldGenerator());

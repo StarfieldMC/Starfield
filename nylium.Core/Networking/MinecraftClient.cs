@@ -119,7 +119,7 @@ namespace nylium.Core.Networking {
                         Send(joinGame);
 
                         LoadedChunks = new();
-                        //KeepAlive.Start();
+                        KeepAlive.Start();
 
                         SP17PluginMessage brand = new(new Utilities.Identifier("minecraft", "brand"),
                             (sbyte[]) (Array) Encoding.UTF8.GetBytes("nylium"));
