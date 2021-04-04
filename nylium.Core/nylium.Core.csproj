@@ -31,6 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="BouncyCastle" Version="1.8.9" />
     <PackageReference Include="CoreFNBT" Version="1.0.9" />
     <PackageReference Include="DaanV2.UUID.Net" Version="1.1.0" />
     <PackageReference Include="DeepCloner" Version="0.10.2" />

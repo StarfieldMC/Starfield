@@ -1,18 +1,18 @@
 ﻿using System;
-using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
+using System.Security.Cryptography;
 using System.Text;
 using DaanV2.UUID;
 using fNbt.Tags;
+using Jil;
 using NetCoreServer;
 using nylium.Core.Blocks;
 using nylium.Core.Configuration;
 using nylium.Core.Entity.Entities;
 using nylium.Core.Level;
-using nylium.Core.Networking.DataTypes;
 using nylium.Core.Networking.Packet;
 using nylium.Core.Networking.Packet.Client.Handshake;
 using nylium.Core.Networking.Packet.Client.Login;
@@ -24,7 +24,13 @@ using nylium.Core.Networking.Packet.Server.Status;
 using nylium.Core.Tags;
 using nylium.Extensions;
 using nylium.Utilities;
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Crypto.Engines;
+using Org.BouncyCastle.Crypto.Modes;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.X509;
 using Serilog;
+using Http = System.Net.Http;
 
 namespace nylium.Core.Networking {
 
@@ -32,6 +38,9 @@ namespace nylium.Core.Networking {
 
         private static readonly dynamic TIMEOUT_MESSAGE = new { text = "Timed out" };
         public readonly Random random = new();
+
+        private string username;
+        private byte[] verifyToken = new byte[16];
 
         public State GameState { get; set; }
         private ProtocolState ProtocolState { get; set; }
@@ -47,6 +56,12 @@ namespace nylium.Core.Networking {
         public List<Chunk> LoadedChunks { get; set; }
 
         public bool CompressionEnabled { get; set; }
+        public bool EncryptionEnabled { get; set; }
+
+        #region encryption
+        public BufferedBlockCipher Decryptor { get; set; }
+        public BufferedBlockCipher Encryptor { get; set; }
+        #endregion
 
         public MinecraftClient(MinecraftServer server) : base(server) {
             GameState = State.Disconnected;
@@ -99,32 +114,113 @@ namespace nylium.Core.Networking {
             switch(packet) {
                 case CL00LoginStart: {
                         CL00LoginStart loginStart = (CL00LoginStart) packet;
+                        username = loginStart.Username;
 
-                        DaanV2.UUID.UUID playerUuid = UUIDFactory.CreateUUID(3, 1, "OfflinePlayer:" + loginStart.Username);
+                        if(Server.Configuration.OnlineMode) {
+                            RNGCryptoServiceProvider rng = new();
+                            rng.GetBytes(verifyToken);
 
-                        SL03SetCompression setCompression = new(Server.Configuration.CompressionThreshold);
-                        Send(setCompression);
-                        CompressionEnabled = setCompression.Threshold > 0;
+                            SL01EncryptionRequest encryptionRequest = new("",
+                                (sbyte[]) (Array) SubjectPublicKeyInfoFactory.CreateSubjectPublicKeyInfo(Server.KeyPair.Public).ToAsn1Object().GetDerEncoded(),
+                                (sbyte[]) (Array) verifyToken);
+                            Send(encryptionRequest);
+                        } else {
+                            UUID playerUuid = UUIDFactory.CreateUUID(3, 1, "OfflinePlayer:" + username);
 
-                        SL02LoginSuccess loginSuccess = new(playerUuid, loginStart.Username);
+                            if(Server.Configuration.CompressionThreshold > 0) {
+                                SL03SetCompression setCompression = new(Server.Configuration.CompressionThreshold);
+                                Send(setCompression);
+
+                                CompressionEnabled = true;
+                            }
+
+                            SL02LoginSuccess loginSuccess = new(playerUuid, username);
+                            Send(loginSuccess);
+
+                            ProtocolState = ProtocolState.Play;
+                            World = Server.World;
+                            Player = new(World, this, username, playerUuid, Gamemode.Creative, 0, 1, 0, 0, 0, true);
+
+                            SP24JoinGame joinGame = new(Player.EntityId, false, Player.Gamemode, Player.Gamemode,
+                                new Identifier[] { new(World.Name) }, Server.DimensionCodec.RootTag, Server.OverworldDimension.RootTag,
+                                new(World.Name), 0, 99, Server.Configuration.ViewDistance, false, true, false, true);
+                            Send(joinGame);
+
+                            LoadedChunks = new();
+                            KeepAlive.Start();
+                        }
+                        break;
+                    }
+                case CL01EncryptionResponse: {
+                        CL01EncryptionResponse encryptionResponse = (CL01EncryptionResponse) packet;
+
+                        byte[] decryptedSharedSecret = Server.Decryptor.ProcessBlock((byte[]) (Array) encryptionResponse.SharedSecret,
+                            0, encryptionResponse.SharedSecret.Length);
+                        byte[] decryptedVerifyToken = Server.Decryptor.ProcessBlock((byte[]) (Array) encryptionResponse.VerifyToken,
+                            0, encryptionResponse.VerifyToken.Length);
+
+                        if(!decryptedVerifyToken.SequenceEqual(verifyToken)) {
+                            SL00Disconnect disconnect = new(new {
+                                text = "Invalid verify token."
+                            });
+
+                            Send(disconnect);
+                            Disconnect();
+                            break;
+                        }
+
+                        Decryptor = new(new CfbBlockCipher(new AesEngine(), 8));
+                        Decryptor.Init(false, new ParametersWithIV(new KeyParameter(decryptedSharedSecret), decryptedSharedSecret));
+
+                        Encryptor = new(new CfbBlockCipher(new AesEngine(), 8));
+                        Encryptor.Init(true, new ParametersWithIV(new KeyParameter(decryptedSharedSecret), decryptedSharedSecret));
+
+                        string hash = HashUtils.MinecraftShaDigest(Encoding.ASCII.GetBytes("")
+                            .Concat(decryptedSharedSecret)
+                            .Concat(SubjectPublicKeyInfoFactory.CreateSubjectPublicKeyInfo(Server.KeyPair.Public).ToAsn1Object().GetDerEncoded())
+                            .ToArray());
+
+                        Http.HttpResponseMessage response = Server.Http.Send(new(Http.HttpMethod.Get,
+                            $"https://sessionserver.mojang.com/session/minecraft/hasJoined?username={username}&serverId={hash}"));
+
+                        if(!response.IsSuccessStatusCode) {
+                            SL00Disconnect disconnect = new(new {
+                                text = "Request to the Mojang session server was not successful."
+                            });
+
+                            Send(disconnect);
+                            Disconnect();
+                            break;
+                        }
+
+                        dynamic json = JSON.DeserializeDynamic(response.Content.ReadAsStringAsync().Result);
+
+                        UUID playerUuid = new((string) json.id);
+                        username = json.name;
+
+                        EncryptionEnabled = true;
+
+                        if(Server.Configuration.CompressionThreshold > 0) {
+                            SL03SetCompression setCompression = new(Server.Configuration.CompressionThreshold);
+                            Send(setCompression);
+
+                            CompressionEnabled = true;
+                        }
+
+                        SL02LoginSuccess loginSuccess = new(playerUuid, username);
                         Send(loginSuccess);
 
                         ProtocolState = ProtocolState.Play;
                         World = Server.World;
-                        Player = new(World, this, loginStart.Username, playerUuid, Gamemode.Creative, 0, 1, 0, 0, 0, true);
+                        Player = new(World, this, username, playerUuid, Gamemode.Creative, 0, 1, 0, 0, 0, true);
 
                         SP24JoinGame joinGame = new(Player.EntityId, false, Player.Gamemode, Player.Gamemode,
-                            new Utilities.Identifier[] { new("world") }, Server.DimensionCodec.RootTag, Server.OverworldDimension.RootTag,
-                            new("world"), 0, 99, Server.Configuration.ViewDistance, false, true, false, true);
+                            new Identifier[] { new(World.Name) }, Server.DimensionCodec.RootTag, Server.OverworldDimension.RootTag,
+                            new(World.Name), 0, 99, Server.Configuration.ViewDistance, false, true, false, true);
                         Send(joinGame);
 
                         LoadedChunks = new();
                         KeepAlive.Start();
-
-                        SP17PluginMessage brand = new(new Utilities.Identifier("minecraft", "brand"),
-                            (sbyte[]) (Array) Encoding.UTF8.GetBytes("nylium"));
-                        // TODO this causes out of bounds on the client
-                        //Send(brand);
                         break;
                     }
                 default:
@@ -304,13 +400,13 @@ namespace nylium.Core.Networking {
                             if(block != null) nonAirBlockCount++;
                         });
 
-                        Short blockCount = new((short) nonAirBlockCount);
-                        UByte bitsPerBlock = new((byte) Block.bitsPerBlock);
+                        DataTypes.Short blockCount = new((short) nonAirBlockCount);
+                        DataTypes.UByte bitsPerBlock = new((byte) Block.bitsPerBlock);
 
                         long[] compactedLong = section.ToCompactedLongArray(Block.bitsPerBlock);
 
-                        VarInt dataArrayLength = new(compactedLong.Length);
-                        Array<long, Long> dataArray = new(compactedLong);
+                        DataTypes.VarInt dataArrayLength = new(compactedLong.Length);
+                        DataTypes.Array<long, DataTypes.Long> dataArray = new(compactedLong);
 
                         blockCount.Write(convertStream);
                         bitsPerBlock.Write(convertStream);
@@ -349,16 +445,26 @@ namespace nylium.Core.Networking {
             if(ProtocolState == ProtocolState.Unknown) ProtocolState = ProtocolState.Handshaking;
 
             MemoryStream mem = RMSManager.Get().GetStream(buffer);
-            MinecraftPacket packet = MinecraftPacket.CreateClientPacket(CompressionEnabled, mem, ProtocolState);
+            mem.SetLength(size);
+
+            MinecraftPacket packet = MinecraftPacket.CreateClientPacket(this, mem, ProtocolState);
 
             if(packet == null) {
-                VarInt varInt = new();
-                varInt.Read(mem);
-                varInt.Read(mem);
+                //if(EncryptionEnabled) {
+                //    byte[] decrypted = Decryptor.ProcessBytes(buffer, 0, (int) size);
 
-                int id = varInt.Value;
+                //    mem.Position = 0;
+                //    mem.SetLength(0);
+                //    mem.Write(decrypted);
+                //}
 
-                Log.Debug($"Received unknown packet in state [{ProtocolState}] with id [0x{id:X}]");
+                //DataTypes.VarInt varInt = new();
+                //varInt.Read(mem);
+                //varInt.Read(mem);
+
+                //int id = varInt.Value;
+
+                Log.Debug($"Received unknown packet in state [{ProtocolState}]");
                 return;
             }
 
@@ -431,7 +537,7 @@ namespace nylium.Core.Networking {
         public void Send(MinecraftPacket packet) {
             if(ProtocolState != ProtocolState.Unknown) {
                 Log.Debug($"Sending packet in state [{ProtocolState}] with id [0x{packet.Id:X}]");
-                base.Send(packet.ToArray(CompressionEnabled));
+                base.Send(packet.ToArray(CompressionEnabled, EncryptionEnabled, Encryptor));
             }
 
             packet.Dispose();
@@ -440,7 +546,7 @@ namespace nylium.Core.Networking {
         public void SendAsync(MinecraftPacket packet) {
             if(ProtocolState != ProtocolState.Unknown) {
                 Log.Debug($"Sending packet in state [{ProtocolState}] with id [0x{packet.Id:X}]");
-                base.SendAsync(packet.ToArray(CompressionEnabled));
+                base.Send(packet.ToArray(CompressionEnabled, EncryptionEnabled, Encryptor));
             }
 
             packet.Dispose();

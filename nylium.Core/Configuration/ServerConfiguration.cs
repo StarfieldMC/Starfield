@@ -6,5 +6,6 @@ namespace nylium.Core.Configuration {
 
         public sbyte ViewDistance { get; set; }
         public int CompressionThreshold { get; set; }
+        public bool OnlineMode { get; set; }
     }
 }

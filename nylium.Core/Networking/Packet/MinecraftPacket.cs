@@ -5,10 +5,12 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Security.Cryptography;
 using fNbt;
 using nylium.Core.Entity.Inventories;
 using nylium.Core.Networking.DataTypes;
 using nylium.Utilities;
+using Org.BouncyCastle.Crypto;
 using Serilog;
 
 // TODO compressed packets
@@ -28,6 +30,7 @@ namespace nylium.Core.Networking.Packet {
         public MemoryStream Data { get; set; }
 
         public bool CompressionEnabled { get; set; }
+        public bool EncryptionEnabled { get; set; }
 
         public static void Initialize() {
             Stopwatch stopwatch = new();
@@ -91,10 +94,19 @@ namespace nylium.Core.Networking.Packet {
             Read(stream);
         }
 
-        public static MinecraftPacket CreateClientPacket(bool compressed, Stream stream, ProtocolState state) {
+        public static MinecraftPacket CreateClientPacket(MinecraftClient client, MemoryStream stream, ProtocolState state) {
             int id = -1;
 
-            if(!compressed) {
+            if(client.EncryptionEnabled) {
+                byte[] decrypted = client.Decryptor.ProcessBytes(stream.ToArray(), 0, (int) stream.Length);
+
+                stream.Position = 0;
+                stream.SetLength(0);
+                stream.Write(decrypted);
+                stream.Position = 0;
+            }
+
+            if(!client.CompressionEnabled) {
                 VarInt varInt = new();
                 varInt.Read(stream);
                 varInt.Read(stream);
@@ -138,7 +150,7 @@ namespace nylium.Core.Networking.Packet {
             }
 
             MemoryStream mem = RMSManager.Get().GetStream();
-            mem.WriteByte(compressed ? (byte) 1 : (byte) 0);
+            mem.WriteByte(client.CompressionEnabled ? (byte) 1 : (byte) 0);
             stream.CopyTo(mem);
             mem.Position = 0;
 
@@ -379,12 +391,13 @@ namespace nylium.Core.Networking.Packet {
             new EntityMetadata(value).Write(Data);
         }
 
-        public byte[] ToArray(bool compress) {
+        public byte[] ToArray(bool compress, bool encrypt, BufferedBlockCipher encryptor) {
             CompressionEnabled = compress;
-            return ToArray();
+            EncryptionEnabled = encrypt;
+            return ToArray(encryptor);
         }
 
-        public byte[] ToArray() {
+        public byte[] ToArray(BufferedBlockCipher encryptor) {
             using(MemoryStream temp = RMSManager.Get().GetStream()) {
                 if(!CompressionEnabled) {
                     VarInt varInt = new(Id);
@@ -434,6 +447,10 @@ namespace nylium.Core.Networking.Packet {
                     new VarInt(output.Length + dataLengthLength).Write(temp);
                     new VarInt(dataLength).Write(temp);
                     temp.Write(output);
+                }
+
+                if(EncryptionEnabled) {
+                    return encryptor.ProcessBytes(temp.ToArray(), 0, (int) temp.Length);
                 }
 
                 return temp.ToArray();
