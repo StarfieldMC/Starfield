@@ -9,7 +9,8 @@ namespace nylium.Utilities {
 
         public static RecyclableMemoryStreamManager Get() {
             if(Instance == null) {
-                Instance = new RecyclableMemoryStreamManager();
+                Instance = new(1024, 16 * 1024, 16 * 16 * 1024, false);
+                Instance.AggressiveBufferReturn = true;
             }
 
             return Instance;
