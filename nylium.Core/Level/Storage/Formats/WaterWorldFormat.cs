@@ -10,6 +10,7 @@ using fNbt;
 using Jil;
 using nylium.Core.Entity.Entities;
 using nylium.Core.Entity.Inventories;
+using nylium.Core.Level.Generation.Generators;
 using nylium.Core.Networking.DataTypes;
 using nylium.Extensions;
 using nylium.Utilities;
@@ -53,6 +54,26 @@ namespace nylium.Core.Level.Storage.Formats {
             Stopwatch sw = new();
             sw.Start();
 
+            dynamic info;
+
+            using(MemoryStream output = RMSManager.Get().GetStream()) {
+                using(FileStream input = new(Path.Combine(World.GetDirectory(), "world-info.dat"), FileMode.Open)) {
+                    CompressionUtils.DeflateDecompress(input, output);
+                }
+
+                info = JSON.DeserializeDynamic(Encoding.UTF8.GetString(output.ToArray()));
+            }
+
+            World.Age = info.age;
+            
+            switch((string) info.generator.name) {
+                case "flat":
+                    World.Generator = new FlatWorldGenerator(World, info.generator.args);
+                    break;
+                default:
+                    throw new ArgumentException("Unknown world generator.");
+            }
+
             int bytesRead;
             byte[] buffer = new byte[32];
 
@@ -77,6 +98,20 @@ namespace nylium.Core.Level.Storage.Formats {
         public override bool Save() {
             Stopwatch sw = new();
             sw.Start();
+
+            dynamic info = new {
+                age = World.Age,
+                generator = new {
+                    name = World.Generator.GetName(),
+                    args = World.Generator.Arguments
+                }
+            };
+
+            using(FileStream output = new(Path.Combine(World.GetDirectory(), "world-info.dat"), FileMode.OpenOrCreate)) {
+                using(MemoryStream input = RMSManager.Get().GetStream(Encoding.UTF8.GetBytes(JSON.SerializeDynamic(info)))) {
+                    CompressionUtils.DeflateCompress(input, output);
+                }
+            }
 
             World.Chunks.Iterate(chunk => Save(chunk));
             ChunkWriter.Flush();

@@ -87,7 +87,8 @@ namespace nylium.Core.Networking {
             Configuration = new() {
                 ViewDistance = 12,
                 CompressionThreshold = -1,
-                OnlineMode = true
+                OnlineMode = false,
+                WorldGenArgs = new { }
             };
 
             Http = new();
@@ -105,7 +106,7 @@ namespace nylium.Core.Networking {
             Encryptor.Init(true, KeyPair.Public);
             #endregion
 
-            World = new(this, "world", new FlatWorldGenerator());
+            World = new(this, "world", new FlatWorldGenerator(World, Configuration.WorldGenArgs));
         }
 
         protected override TcpSession CreateSession() {

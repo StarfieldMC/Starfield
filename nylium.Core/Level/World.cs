@@ -35,11 +35,11 @@ namespace nylium.Core.Level {
         public List<BaseEntity> Entities { get; }
 
         public AbstractWorldFormat Format { get; set; }
-        public IWorldGenerator Generator { get; set; }
+        public AbstractWorldGenerator Generator { get; set; }
 
         private Thread WorldThread { get; }
 
-        public World(MinecraftServer server, string name, IWorldGenerator generator) {
+        public World(MinecraftServer server, string name, AbstractWorldGenerator generator) {
             Server = server;
             Name = name;
 
@@ -179,7 +179,7 @@ namespace nylium.Core.Level {
 
             if(!Format.Load(chunk)) {
                 chunk = new(this, x, z);
-                Generator.GenerateChunk(this, chunk);
+                Generator.GenerateChunk(chunk);
             }
 
             Chunks.Set(x.ToString() + z.ToString(), chunk);
