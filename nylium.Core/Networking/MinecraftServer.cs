@@ -106,7 +106,7 @@ namespace nylium.Core.Networking {
             Encryptor.Init(true, KeyPair.Public);
             #endregion
 
-            World = new(this, "world", new FlatWorldGenerator(World, Configuration.WorldGenArgs));
+            World = new(this, "world", new NoiseWorldGenerator(), Configuration.WorldGenArgs);
         }
 
         protected override TcpSession CreateSession() {

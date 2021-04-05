@@ -45,6 +45,8 @@ namespace nylium.Core.Entity.Entities {
             Gamemode = gamemode;
 
             Parent.Format.Load(this);
+
+            Y = 100;
         }
 
         public void HandleMovement(MinecraftPacket packet) {

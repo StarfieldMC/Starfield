@@ -65,10 +65,16 @@ namespace nylium.Core.Level.Storage.Formats {
             }
 
             World.Age = info.age;
+            World.Seed = info.seed;
             
             switch((string) info.generator.name) {
                 case "flat":
-                    World.Generator = new FlatWorldGenerator(World, info.generator.args);
+                    World.Generator = new FlatWorldGenerator();
+                    World.Generator.Initialize(World, info.generator.args);
+                    break;
+                case "noise":
+                    World.Generator = new NoiseWorldGenerator();
+                    World.Generator.Initialize(World, info.generator.args);
                     break;
                 default:
                     throw new ArgumentException("Unknown world generator.");
@@ -101,6 +107,7 @@ namespace nylium.Core.Level.Storage.Formats {
 
             dynamic info = new {
                 age = World.Age,
+                seed = World.Seed,
                 generator = new {
                     name = World.Generator.GetName(),
                     args = World.Generator.Arguments

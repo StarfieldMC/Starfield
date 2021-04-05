@@ -2,10 +2,10 @@
 
     public abstract class AbstractWorldGenerator {
 
-        public World World { get; }
-        public dynamic Arguments { get; }
+        public World World { get; set; }
+        public dynamic Arguments { get; set; }
 
-        public AbstractWorldGenerator(World world, object args) {
+        public virtual void Initialize(World world, object args) {
             World = world;
             Arguments = args;
         }

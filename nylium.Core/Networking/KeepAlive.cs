@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Net.Sockets;
 using System.Timers;
 using nylium.Core.Networking.Packet;
 using nylium.Core.Networking.Packet.Server.Play;
+using nylium.Utilities;
 
 namespace nylium.Core.Networking {
 
@@ -44,19 +44,12 @@ namespace nylium.Core.Networking {
         private void KeepAliveTimer_Elapsed(object sender, ElapsedEventArgs e) {
             TimeoutTimer.Stop();
 
-            SP1FKeepAlive keepAlive = new(LongRandom(random));
+            SP1FKeepAlive keepAlive = new(RandomUtils.Long(random));
             Send(keepAlive);
 
             HasResponded = false;
             TimeoutTimer.Start();
             TimeoutTimer.Interval = TimeoutTimer.Interval;
-        }
-
-        private long LongRandom(Random rand) {
-            byte[] buf = new byte[8];
-            rand.NextBytes(buf);
-
-            return BitConverter.ToInt64(buf, 0);
         }
 
         public void Start() {

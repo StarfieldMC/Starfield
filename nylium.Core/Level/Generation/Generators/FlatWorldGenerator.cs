@@ -4,8 +4,9 @@ namespace nylium.Core.Level.Generation.Generators {
 
     public class FlatWorldGenerator : AbstractWorldGenerator {
 
-        public FlatWorldGenerator(World world, dynamic args) : base(world, (object) args) {
-            // TODO process arguments here for generating custom flat worlds
+        public override void Initialize(World world, object args) {
+            // TODO process arguments for custom flat world generation here
+            base.Initialize(world, args);
         }
 
         public override void GenerateChunk(Chunk chunk) {

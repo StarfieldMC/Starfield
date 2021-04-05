@@ -20,13 +20,14 @@ namespace nylium.Core.Level {
 
     public class World {
 
-        private const int initializationChunks = 32; // how big of a chunk grid (square) to generate on initialization
+        private const int initializationChunks = 10; // how big of a chunk grid (square) to generate on initialization
         private int lastEntityId = 0;
 
         public MinecraftServer Server { get; }
 
         public string Name { get; }
         public long Age { get; set; }
+        public int Seed { get; set; }
 
         //public Dictionary<(int, int), Chunk> Chunks { get; }
         public TimedCache<Chunk> Chunks { get; }
@@ -39,15 +40,17 @@ namespace nylium.Core.Level {
 
         private Thread WorldThread { get; }
 
-        public World(MinecraftServer server, string name, AbstractWorldGenerator generator) {
+        public World(MinecraftServer server, string name, AbstractWorldGenerator generator, object generatorArgs) {
             Server = server;
             Name = name;
+            Seed = new Random().Next(int.MinValue, int.MaxValue);
 
             Chunks = new("Chunk cache", TimeSpan.FromMinutes(5));
             PlayerEntities = new();
             Entities = new();
 
             Generator = generator;
+            generator.Initialize(this, generatorArgs);
 
             if(!Directory.Exists(GetDirectory())) {
                 Directory.CreateDirectory(GetDirectory());
