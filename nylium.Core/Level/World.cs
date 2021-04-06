@@ -53,9 +53,9 @@ namespace nylium.Core.Level {
             generator.Initialize(this, generatorArgs);
 
             if(!Directory.Exists(GetDirectory())) {
-                Directory.CreateDirectory(GetDirectory());
+                //Directory.CreateDirectory(GetDirectory()); TODO
 
-                Format = new WaterWorldFormat(this);
+                //Format = new WaterWorldFormat(this); TODO
 
                 // world does not exist - generate
                 int a = (int) Math.Floor(initializationChunks / 2d);
@@ -64,17 +64,29 @@ namespace nylium.Core.Level {
                 Stopwatch totalStopwatch = new();
                 totalStopwatch.Start();
 
+                Stopwatch chunkStopwatch = new();
+                double chunkAvg = 0;
+
                 for(int x = -a; x <= a; x++) {
                     for(int z = -a; z <= a; z++) {
+                        chunkStopwatch.Start();
                         LoadChunk(x, z);
+                        chunkStopwatch.Stop();
+
+                        chunkAvg += Math.Round(chunkStopwatch.Elapsed.TotalMilliseconds, 2);
+                        chunkStopwatch.Reset();
+
                         i++;
                     }
                 }
 
-                totalStopwatch.Stop();
-                Log.Information(string.Format("Finished generating world! ({0} chunks) Took {1}ms", i, Math.Round(totalStopwatch.Elapsed.TotalMilliseconds, 2)));
+                chunkAvg /= i;
 
-                Format.Save();
+                totalStopwatch.Stop();
+                Log.Information(string.Format("Finished generating world! ({0} chunks, {1}ms/chunk avg) Took {2}ms",
+                    i, Math.Round(chunkAvg, 3), Math.Round(totalStopwatch.Elapsed.TotalMilliseconds, 2)));
+
+                //Format.Save(); TODO
             } else {
                 Format = new WaterWorldFormat(this);
                 Format.Load();
@@ -117,7 +129,7 @@ namespace nylium.Core.Level {
             return ++lastEntityId;
         }
 
-        public Blocks.Block GetBlock(int x, int y, int z) {
+        public Block GetBlock(int x, int y, int z) {
             Chunk chunk = GetChunk((int) Math.Floor(x / (double) Chunk.X_SIZE), (int) Math.Floor(z / (double) Chunk.Z_SIZE));
 
             // of course C# has to be different and have a remainder operator instead of modulo
@@ -159,6 +171,20 @@ namespace nylium.Core.Level {
             return chunks;
         }
 
+        public KeyValuePair<(int, int), Chunk>[] GetChunksInViewDistanceKeyValuePair(int chunkX, int chunkZ, sbyte viewDistance) {
+            KeyValuePair<(int, int), Chunk>[] chunks = new KeyValuePair<(int, int), Chunk>[(int) Math.Pow((viewDistance * 2) + 1, 2)];
+            int i = 0;
+
+            for(int x = chunkX - viewDistance; x <= chunkX + viewDistance; x++) {
+                for(int z = chunkZ - viewDistance; z <= chunkZ + viewDistance; z++) {
+                    chunks[i] = new((x, z), GetChunk(x, z));
+                    i++;
+                }
+            }
+
+            return chunks;
+        }
+
         public List<MinecraftClient> GetClientsWithChunkLoaded(int chunkX, int chunkZ) {
             List<MinecraftClient> clients = new();
 
@@ -167,7 +193,7 @@ namespace nylium.Core.Level {
             foreach(TcpSession session in Server.GetSessions()) {
                 if(session is MinecraftClient client) {
                     if(client.GameState == MinecraftClient.State.Playing) {
-                        if(client.LoadedChunks.Contains(chunk)) {
+                        if(client.LoadedChunks.ContainsKey((chunk.X, chunk.Z))) {
                             clients.Add(client);
                         }
                     }
@@ -180,7 +206,12 @@ namespace nylium.Core.Level {
         public Chunk LoadChunk(int x, int z) {
             Chunk chunk = new(this, x, z);
 
-            if(!Format.Load(chunk)) {
+            if(Format != null) {
+                if(!Format.Load(chunk)) {
+                    chunk = new(this, x, z);
+                    Generator.GenerateChunk(chunk);
+                }
+            } else {
                 chunk = new(this, x, z);
                 Generator.GenerateChunk(chunk);
             }
