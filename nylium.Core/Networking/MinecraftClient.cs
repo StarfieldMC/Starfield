@@ -511,7 +511,7 @@ namespace nylium.Core.Networking {
             Log.Debug($"Client with id [{Id}] disconnected");
 
             if(ProtocolState == ProtocolState.Play && Player != null) {
-                World.Format.Save(Player);
+                if(World.Format != null) World.Format.Save(Player);
                 World.PlayerEntities.Remove(Player);
 
                 SP32PlayerInfo playerInfo = new(Player.Uuid);

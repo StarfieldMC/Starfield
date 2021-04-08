@@ -44,9 +44,11 @@ namespace nylium.Core.Entity.Entities {
             Uuid = uuid;
             Gamemode = gamemode;
 
-            Parent.Format.Load(this);
+            if(Parent.Format != null) Parent.Format.Load(this);
 
-            Y = 100;
+#if DEBUG
+            Y = 128;
+#endif
         }
 
         public void HandleMovement(MinecraftPacket packet) {

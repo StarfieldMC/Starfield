@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -27,7 +28,7 @@ namespace nylium.Core.Level {
 
         public string Name { get; }
         public long Age { get; set; }
-        public int Seed { get; set; }
+        public long Seed { get; set; }
 
         //public Dictionary<(int, int), Chunk> Chunks { get; }
         public TimedCache<Chunk> Chunks { get; }
@@ -43,7 +44,11 @@ namespace nylium.Core.Level {
         public World(MinecraftServer server, string name, AbstractWorldGenerator generator, object generatorArgs) {
             Server = server;
             Name = name;
-            Seed = new Random().Next(int.MinValue, int.MaxValue);
+
+            byte[] buffer = new byte[8];
+            new Random().NextBytes(buffer);
+
+            Seed = BinaryPrimitives.ReadInt64LittleEndian(buffer);
 
             Chunks = new("Chunk cache", TimeSpan.FromMinutes(5));
             PlayerEntities = new();
@@ -53,28 +58,43 @@ namespace nylium.Core.Level {
             generator.Initialize(this, generatorArgs);
 
             if(!Directory.Exists(GetDirectory())) {
+#if !DEBUG
                 Directory.CreateDirectory(GetDirectory());
-
                 Format = new WaterWorldFormat(this);
+#endif
 
                 // world does not exist - generate
                 int a = (int) Math.Floor(initializationChunks / 2d);
                 int i = 0;
+
+                Stopwatch chunkStopwatch = new();
+                double chunkAvg = 0;
 
                 Stopwatch totalStopwatch = new();
                 totalStopwatch.Start();
 
                 for(int x = -a; x <= a; x++) {
                     for(int z = -a; z <= a; z++) {
+                        chunkStopwatch.Start();
                         LoadChunk(x, z);
+                        chunkStopwatch.Stop();
+
+                        chunkAvg += Math.Round(chunkStopwatch.Elapsed.TotalMilliseconds, 2);
+                        chunkStopwatch.Reset();
+
                         i++;
                     }
                 }
 
-                totalStopwatch.Stop();
-                Log.Information(string.Format("Finished generating world! ({0} chunks) Took {1}ms", i, Math.Round(totalStopwatch.Elapsed.TotalMilliseconds, 2)));
+                chunkAvg /= i;
 
+                totalStopwatch.Stop();
+                Log.Information(string.Format("Finished generating world! ({0} chunks, {1}ms/chunk avg) Took {2}ms",
+                    i, Math.Round(chunkAvg, 3), Math.Round(totalStopwatch.Elapsed.TotalMilliseconds, 2)));
+
+#if !DEBUG
                 Format.Save();
+#endif
             } else {
                 Format = new WaterWorldFormat(this);
                 Format.Load();
@@ -108,7 +128,7 @@ namespace nylium.Core.Level {
             Server.MulticastAsync(timeUpdate);
 
             if(Age % 24000 == 0) {
-                Task.Run(() => Format.Save());
+                if(Format != null) Task.Run(() => Format.Save());
             }
         }
 
@@ -180,8 +200,9 @@ namespace nylium.Core.Level {
         public Chunk LoadChunk(int x, int z) {
             Chunk chunk = new(this, x, z);
 
-            if(!Format.Load(chunk)) {
-                chunk = new(this, x, z);
+            if(Format != null) {
+                if(!Format.Load(chunk)) Generator.GenerateChunk(chunk);
+            } else {
                 Generator.GenerateChunk(chunk);
             }
 

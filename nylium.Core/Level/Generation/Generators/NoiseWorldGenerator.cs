@@ -1,15 +1,25 @@
 ﻿using System;
+using Microsoft.CSharp.RuntimeBinder;
 using nylium.Core.Blocks;
 
 namespace nylium.Core.Level.Generation.Generators {
 
     public class NoiseWorldGenerator : AbstractWorldGenerator {
 
+        private long Seed { get; set; }
         private FastNoiseLite Noise { get; set; }
 
         public override void Initialize(World world, object args) {
             base.Initialize(world, args);
-            Noise = new(world.Seed);
+
+            try {
+                Seed = ((dynamic) args).seed;
+            } catch(RuntimeBinderException) {
+                Seed = world.Seed;
+            }
+
+            Noise = new(Seed);
+            Noise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2S);
             Noise.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
             Noise.SetFractalType(FastNoiseLite.FractalType.FBm);
         }
