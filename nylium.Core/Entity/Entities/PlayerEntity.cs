@@ -44,9 +44,9 @@ namespace nylium.Core.Entity.Entities {
             Uuid = uuid;
             Gamemode = gamemode;
 
-            if(Parent.Format != null) Parent.Format.Load(this);
+            Parent.Format.Load(this);
 
-            Y = 254;
+            Y = 100;
         }
 
         public void HandleMovement(MinecraftPacket packet) {
@@ -137,13 +137,13 @@ namespace nylium.Core.Entity.Entities {
                     SP40UpdateViewPosition updateViewPosition = new(ChunkX, ChunkZ);
                     Client.Send(updateViewPosition);
 
-                    KeyValuePair<(int, int), Chunk>[] chunks = Parent.GetChunksInViewDistanceKeyValuePair(ChunkX, ChunkZ, Client.Configuration.ViewDistance);
+                    Chunk[] chunks = Parent.GetChunksInViewDistance(ChunkX, ChunkZ, Client.Configuration.ViewDistance);
 
-                    IEnumerable<KeyValuePair<(int, int), Chunk>> toUnload = Client.LoadedChunks.Except(chunks);
-                    IEnumerable<KeyValuePair<(int, int), Chunk>> toLoad = chunks.Except(Client.LoadedChunks);
+                    IEnumerable<Chunk> toUnload = Client.LoadedChunks.Except(chunks);
+                    IEnumerable<Chunk> toLoad = chunks.Except(Client.LoadedChunks);
 
-                    Client.UnloadChunks(toUnload);
-                    Client.LoadChunks(toLoad);
+                    Client.UnloadChunks(toUnload.ToArray());
+                    Client.LoadChunks(toLoad.ToArray());
                 }
             }
 
@@ -209,7 +209,7 @@ namespace nylium.Core.Entity.Entities {
                     }
 
                     if(digging.Status == requiredAction) {
-                        Block air = Block.Create(Parent, "minecraft:air");
+                        Blocks.Block air = Blocks.Block.Create(Parent, "minecraft:air");
 
                         Parent.SetBlock(air, digging.Location.X, digging.Location.Y, digging.Location.Z);
 
@@ -225,22 +225,22 @@ namespace nylium.Core.Entity.Entities {
                     Position.Int pos = new(playerBlockPlacement.Location);
 
                     switch(playerBlockPlacement.Face) {
-                        case Block.Face.Top:
+                        case Blocks.Block.Face.Top:
                             pos.Y++;
                             break;
-                        case Block.Face.Bottom:
+                        case Blocks.Block.Face.Bottom:
                             pos.Y--;
                             break;
-                        case Block.Face.North:
+                        case Blocks.Block.Face.North:
                             pos.Z--;
                             break;
-                        case Block.Face.East:
+                        case Blocks.Block.Face.East:
                             pos.X++;
                             break;
-                        case Block.Face.South:
+                        case Blocks.Block.Face.South:
                             pos.Z++;
                             break;
-                        case Block.Face.West:
+                        case Blocks.Block.Face.West:
                             pos.X--;
                             break;
                     }

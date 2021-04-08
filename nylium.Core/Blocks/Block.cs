@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -17,8 +16,8 @@ namespace nylium.Core.Blocks {
         //                                 id      state id range     protocol id
         private static readonly Dictionary<string, (ushort, ushort,      int)> blocks = new();
 
-        //                                                   state id
-        private static readonly ConcurrentDictionary<(World, ushort), Block> blockCache = new();
+        //                                             state id
+        private static readonly Dictionary<(World, ushort),    Block> blockCache = new();
 
         public static int bitsPerBlock = 0;
 
@@ -60,7 +59,7 @@ namespace nylium.Core.Blocks {
             }
 
             Block block = new(parent, stateId);
-            blockCache.TryAdd(key, block);
+            blockCache.Add(key, block);
 
             return block;
         }
@@ -73,7 +72,7 @@ namespace nylium.Core.Blocks {
             }
 
             Block block = new(parent, stateId);
-            blockCache.TryAdd(key, block);
+            blockCache.Add(key, block);
 
             return block;
         }

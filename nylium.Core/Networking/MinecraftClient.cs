@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 using DaanV2.UUID;
 using fNbt.Tags;
 using Jil;
@@ -55,7 +53,7 @@ namespace nylium.Core.Networking {
         public PlayerEntity Player { get; set; }
         public World World { get; set; }
 
-        public ConcurrentDictionary<(int, int), Chunk> LoadedChunks { get; set; }
+        public List<Chunk> LoadedChunks { get; set; }
 
         public bool CompressionEnabled { get; set; }
         public bool EncryptionEnabled { get; set; }
@@ -216,7 +214,7 @@ namespace nylium.Core.Networking {
                         World = Server.World;
                         Player = new(World, this, username, playerUuid, Gamemode.Creative, 0, 1, 0, 0, 0, true);
 
-                        SP24JoinGame joinGame = new(Player.EntityId, false, Player.Gamemode, Gamemode.Unknown,
+                        SP24JoinGame joinGame = new(Player.EntityId, false, Player.Gamemode, Player.Gamemode,
                             new Identifier[] { new(World.Name) }, Server.DimensionCodec.RootTag, Server.OverworldDimension.RootTag,
                             new(World.Name), 0, 99, Server.Configuration.ViewDistance, false, true, false, true);
                         Send(joinGame);
@@ -282,7 +280,7 @@ namespace nylium.Core.Networking {
                         SP40UpdateViewPosition updateViewPosition = new(Player.ChunkX, Player.ChunkZ);
                         Send(updateViewPosition);
 
-                        KeyValuePair<(int, int), Chunk>[] chunks = World.GetChunksInViewDistanceKeyValuePair(Player.ChunkX, Player.ChunkZ,
+                        Chunk[] chunks = World.GetChunksInViewDistance(Player.ChunkX, Player.ChunkZ,
                             (sbyte) (Configuration.ViewDistance - 1));
                         LoadChunks(chunks);
 
@@ -301,9 +299,7 @@ namespace nylium.Core.Networking {
                             _playerInfo = new(player.Uuid, 100); // TODO actual ping
                             Send(_playerInfo);
 
-                            Chunk chunk = World.GetChunk(player.ChunkX, player.ChunkZ);
-
-                            if(LoadedChunks.ContainsKey((chunk.X, chunk.Z))) {
+                            if(LoadedChunks.Contains(World.GetChunk(player.ChunkX, player.ChunkZ))) {
                                 SP04SpawnPlayer _spawnPlayer = new(player.EntityId, player.Uuid, player.X, player.Y, player.Z,
                                     player.Yaw, player.Pitch);
                                 Send(_spawnPlayer);
@@ -376,14 +372,12 @@ namespace nylium.Core.Networking {
             return true;
         }
 
-        public void LoadChunks(IEnumerable<KeyValuePair<(int, int), Chunk>> chunks) {
+        public void LoadChunks(Chunk[] chunks) {
+            MemoryStream convertStream = RMSManager.Get().GetStream("nylium.Core.Networking.MinecraftClient.LoadChunks()");
+
             // TODO somehow the entire chunk is underwater?
-            Parallel.ForEach(chunks, entry => {
-                Chunk chunk = entry.Value;
-
-                if(LoadedChunks.ContainsKey((chunk.X, chunk.Z))) return;
-
-                MemoryStream convertStream = RMSManager.Get().GetStream("nylium.Core.Networking.MinecraftClient.LoadChunks()");
+            for(int i = 0; i < chunks.Length; i++) {
+                Chunk chunk = chunks[i];
                 NbtCompound heightmap = chunk.CreateHeightmap();
 
                 int[] biomes = Enumerable.Repeat(127, 1024).ToArray();
@@ -427,22 +421,24 @@ namespace nylium.Core.Networking {
                     biomes, (sbyte[]) (Array) convertStream.ToArray(), Array.Empty<NbtCompound>());
                 SendAsync(chunkData);
 
-                LoadedChunks.TryAdd((chunk.X, chunk.Z), chunk);
-                convertStream.Dispose();
-            });
+                LoadedChunks.Add(chunk);
+
+                convertStream.Position = 0;
+                convertStream.SetLength(0);
+            }
+
+            convertStream.Dispose();
         }
 
-        public void UnloadChunks(IEnumerable<KeyValuePair<(int, int), Chunk>> chunks) {
-            Parallel.ForEach(chunks, entry => {
-                Chunk chunk = entry.Value;
-
-                if(!LoadedChunks.ContainsKey((chunk.X, chunk.Z))) return;
+        public void UnloadChunks(Chunk[] chunks) {
+            for(int i = 0; i < chunks.Length; i++) {
+                Chunk chunk = chunks[i];
 
                 SP1CUnloadChunk unloadChunk = new(chunk.X, chunk.Z);
                 SendAsync(unloadChunk);
 
-                LoadedChunks.TryRemove(new((chunk.X, chunk.Z), chunk));
-            });
+                LoadedChunks.Remove(chunk);
+            }
         }
 
         protected override void OnReceived(byte[] buffer, long offset, long size) {
@@ -515,7 +511,7 @@ namespace nylium.Core.Networking {
             Log.Debug($"Client with id [{Id}] disconnected");
 
             if(ProtocolState == ProtocolState.Play && Player != null) {
-                if(World.Format != null) World.Format.Save(Player);
+                World.Format.Save(Player);
                 World.PlayerEntities.Remove(Player);
 
                 SP32PlayerInfo playerInfo = new(Player.Uuid);
