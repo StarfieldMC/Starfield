@@ -90,6 +90,22 @@ namespace nylium.Core.Level {
             };
         }
 
+        public Chunk[] GetAdjacentChunks() {
+            Chunk[] chunks = new Chunk[4];
+
+            Chunk GetChunkOrNull(int chunkX, int chunkZ) {
+                string key = chunkX.ToString() + chunkZ.ToString();
+                return Parent.Chunks.Contains(key) ? Parent.Chunks.Get(key) : null;
+            }
+
+            chunks[0] = GetChunkOrNull(X - 1, Z);
+            chunks[1] = GetChunkOrNull(X + 1, Z);
+            chunks[2] = GetChunkOrNull(X, Z - 1);
+            chunks[3] = GetChunkOrNull(X, Z + 1);
+
+            return chunks;
+        }
+
         public class Section {
 
             public const int X_SIZE = 16;

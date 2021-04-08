@@ -21,7 +21,7 @@ namespace nylium.Core.Level {
 
     public class World {
 
-        private const int initializationChunks = 10; // how big of a chunk grid (square) to generate on initialization
+        private const int initializationChunks = 2; // how big of a chunk grid (square) to generate on initialization
         private int lastEntityId = 0;
 
         public MinecraftServer Server { get; }
@@ -161,7 +161,6 @@ namespace nylium.Core.Level {
 
         public Chunk GetChunk(int chunkX, int chunkZ) {
             string key = chunkX.ToString() + chunkZ.ToString();
-
             return Chunks.Contains(key) ? Chunks.Get(key) : LoadChunk(chunkX, chunkZ);
         }
 
