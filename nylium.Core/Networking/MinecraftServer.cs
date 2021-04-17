@@ -86,7 +86,7 @@ namespace nylium.Core.Networking {
 
             Configuration = new() {
                 ViewDistance = 12,
-                CompressionThreshold = -1,
+                CompressionThreshold = 128,
                 OnlineMode = true
             };
 
@@ -123,51 +123,16 @@ namespace nylium.Core.Networking {
             if(packet == null)
                 return;
 
-            byte[] buffer = packet.ToArray(false, false, null);
-            byte[] compressedBuffer = packet.ToArray(true, false, null);
-
             foreach(TcpSession session in Sessions.Values) {
                 if(session is MinecraftClient client) {
                     if(client.GameState != MinecraftClient.State.Playing) continue;
 
                     if(excludeSession != null) {
                         if(session != excludeSession) {
-                            // this is so fucking disgusting holy shit
-                            if(client.EncryptionEnabled) {
-                                byte[] encryptedBuffer = packet.ToArray(false, true, client.Encryptor);
-                                byte[] encryptedCompressedBuffer = packet.ToArray(true, true, client.Encryptor);
-
-                                if(client.CompressionEnabled) {
-                                    session.Send(encryptedCompressedBuffer, 0, encryptedCompressedBuffer.Length);
-                                } else {
-                                    session.Send(encryptedBuffer, 0, encryptedBuffer.Length);
-                                }
-                            } else {
-                                if(client.CompressionEnabled) {
-                                    session.Send(compressedBuffer, 0, compressedBuffer.Length);
-                                } else {
-                                    session.Send(buffer, 0, buffer.Length);
-                                }
-                            }
+                            client.Send(packet, false);
                         }
                     } else {
-                        // this is so fucking disgusting holy shit
-                        if(client.EncryptionEnabled) {
-                            byte[] encryptedBuffer = packet.ToArray(false, true, client.Encryptor);
-                            byte[] encryptedCompressedBuffer = packet.ToArray(true, true, client.Encryptor);
-
-                            if(client.CompressionEnabled) {
-                                session.Send(encryptedCompressedBuffer, 0, encryptedCompressedBuffer.Length);
-                            } else {
-                                session.Send(encryptedBuffer, 0, encryptedBuffer.Length);
-                            }
-                        } else {
-                            if(client.CompressionEnabled) {
-                                session.Send(compressedBuffer, 0, compressedBuffer.Length);
-                            } else {
-                                session.Send(buffer, 0, buffer.Length);
-                            }
-                        }
+                        client.Send(packet, false);
                     }
                 }
             }
@@ -183,51 +148,16 @@ namespace nylium.Core.Networking {
                 if(packet == null)
                     return;
 
-                byte[] buffer = packet.ToArray(false, false, null);
-                byte[] compressedBuffer = packet.ToArray(true, false, null);
-
                 foreach(TcpSession session in Sessions.Values) {
                     if(session is MinecraftClient client) {
                         if(client.GameState != MinecraftClient.State.Playing) continue;
 
                         if(excludeSession != null) {
                             if(session != excludeSession) {
-                                // this is so fucking disgusting holy shit
-                                if(client.EncryptionEnabled) {
-                                    byte[] encryptedBuffer = packet.ToArray(false, true, client.Encryptor);
-                                    byte[] encryptedCompressedBuffer = packet.ToArray(true, true, client.Encryptor);
-
-                                    if(client.CompressionEnabled) {
-                                        session.Send(encryptedCompressedBuffer, 0, encryptedCompressedBuffer.Length);
-                                    } else {
-                                        session.Send(encryptedBuffer, 0, encryptedBuffer.Length);
-                                    }
-                                } else {
-                                    if(client.CompressionEnabled) {
-                                        session.Send(compressedBuffer, 0, compressedBuffer.Length);
-                                    } else {
-                                        session.Send(buffer, 0, buffer.Length);
-                                    }
-                                }
+                                client.SendAsync(packet, false);
                             }
                         } else {
-                            // this is so fucking disgusting holy shit
-                            if(client.EncryptionEnabled) {
-                                byte[] encryptedBuffer = packet.ToArray(false, true, client.Encryptor);
-                                byte[] encryptedCompressedBuffer = packet.ToArray(true, true, client.Encryptor);
-
-                                if(client.CompressionEnabled) {
-                                    session.Send(encryptedCompressedBuffer, 0, encryptedCompressedBuffer.Length);
-                                } else {
-                                    session.Send(encryptedBuffer, 0, encryptedBuffer.Length);
-                                }
-                            } else {
-                                if(client.CompressionEnabled) {
-                                    session.Send(compressedBuffer, 0, compressedBuffer.Length);
-                                } else {
-                                    session.Send(buffer, 0, buffer.Length);
-                                }
-                            }
+                            client.SendAsync(packet, false);
                         }
                     }
                 }
@@ -243,51 +173,16 @@ namespace nylium.Core.Networking {
             if(packet == null)
                 return;
 
-            byte[] buffer = packet.ToArray(false, false, null);
-            byte[] compressedBuffer = packet.ToArray(true, false, null);
-
             foreach(TcpSession session in sessions) {
                 if(session is MinecraftClient client) {
                     if(client.GameState != MinecraftClient.State.Playing) continue;
 
                     if(excludeSession != null) {
                         if(session != excludeSession) {
-                            // this is so fucking disgusting holy shit
-                            if(client.EncryptionEnabled) {
-                                byte[] encryptedBuffer = packet.ToArray(false, true, client.Encryptor);
-                                byte[] encryptedCompressedBuffer = packet.ToArray(true, true, client.Encryptor);
-
-                                if(client.CompressionEnabled) {
-                                    session.Send(encryptedCompressedBuffer, 0, encryptedCompressedBuffer.Length);
-                                } else {
-                                    session.Send(encryptedBuffer, 0, encryptedBuffer.Length);
-                                }
-                            } else {
-                                if(client.CompressionEnabled) {
-                                    session.Send(compressedBuffer, 0, compressedBuffer.Length);
-                                } else {
-                                    session.Send(buffer, 0, buffer.Length);
-                                }
-                            }
+                            client.Send(packet, false);
                         }
                     } else {
-                        // this is so fucking disgusting holy shit
-                        if(client.EncryptionEnabled) {
-                            byte[] encryptedBuffer = packet.ToArray(false, true, client.Encryptor);
-                            byte[] encryptedCompressedBuffer = packet.ToArray(true, true, client.Encryptor);
-
-                            if(client.CompressionEnabled) {
-                                session.Send(encryptedCompressedBuffer, 0, encryptedCompressedBuffer.Length);
-                            } else {
-                                session.Send(encryptedBuffer, 0, encryptedBuffer.Length);
-                            }
-                        } else {
-                            if(client.CompressionEnabled) {
-                                session.Send(compressedBuffer, 0, compressedBuffer.Length);
-                            } else {
-                                session.Send(buffer, 0, buffer.Length);
-                            }
-                        }
+                        client.Send(packet, false);
                     }
                 }
             }
@@ -303,51 +198,16 @@ namespace nylium.Core.Networking {
                 if(packet == null)
                     return;
 
-                byte[] buffer = packet.ToArray(false, false, null);
-                byte[] compressedBuffer = packet.ToArray(true, false, null);
-
                 foreach(TcpSession session in sessions) {
                     if(session is MinecraftClient client) {
                         if(client.GameState != MinecraftClient.State.Playing) continue;
 
                         if(excludeSession != null) {
                             if(session != excludeSession) {
-                                // this is so fucking disgusting holy shit
-                                if(client.EncryptionEnabled) {
-                                    byte[] encryptedBuffer = packet.ToArray(false, true, client.Encryptor);
-                                    byte[] encryptedCompressedBuffer = packet.ToArray(true, true, client.Encryptor);
-
-                                    if(client.CompressionEnabled) {
-                                        session.Send(encryptedCompressedBuffer, 0, encryptedCompressedBuffer.Length);
-                                    } else {
-                                        session.Send(encryptedBuffer, 0, encryptedBuffer.Length);
-                                    }
-                                } else {
-                                    if(client.CompressionEnabled) {
-                                        session.Send(compressedBuffer, 0, compressedBuffer.Length);
-                                    } else {
-                                        session.Send(buffer, 0, buffer.Length);
-                                    }
-                                }
+                                client.SendAsync(packet, false);
                             }
                         } else {
-                            // this is so fucking disgusting holy shit
-                            if(client.EncryptionEnabled) {
-                                byte[] encryptedBuffer = packet.ToArray(false, true, client.Encryptor);
-                                byte[] encryptedCompressedBuffer = packet.ToArray(true, true, client.Encryptor);
-
-                                if(client.CompressionEnabled) {
-                                    session.Send(encryptedCompressedBuffer, 0, encryptedCompressedBuffer.Length);
-                                } else {
-                                    session.Send(encryptedBuffer, 0, encryptedBuffer.Length);
-                                }
-                            } else {
-                                if(client.CompressionEnabled) {
-                                    session.Send(compressedBuffer, 0, compressedBuffer.Length);
-                                } else {
-                                    session.Send(buffer, 0, buffer.Length);
-                                }
-                            }
+                            client.SendAsync(packet, false);
                         }
                     }
                 }

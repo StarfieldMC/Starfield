@@ -32,6 +32,8 @@ namespace nylium.Core.Networking.Packet {
         public bool CompressionEnabled { get; set; }
         public bool EncryptionEnabled { get; set; }
 
+        private ProtocolState state;
+
         public static void Initialize() {
             Stopwatch stopwatch = new();
             stopwatch.Start();
@@ -83,6 +85,7 @@ namespace nylium.Core.Networking.Packet {
         public MinecraftPacket() {
             PacketAttribute attribute = GetType().GetCustomAttribute<PacketAttribute>(false);
 
+            state = attribute.State;
             Id = attribute.Id;
             Data = RMSManager.Get().GetStream(GetType().FullName);
         }
@@ -448,6 +451,8 @@ namespace nylium.Core.Networking.Packet {
                     new VarInt(dataLength).Write(temp);
                     temp.Write(output);
                 }
+
+                if(!EncryptionEnabled && state == ProtocolState.Play) Debugger.Break();
 
                 if(EncryptionEnabled) {
                     return encryptor.ProcessBytes(temp.ToArray(), 0, (int) temp.Length);

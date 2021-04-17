@@ -43,6 +43,7 @@ namespace nylium.Core.Entity.Entities {
             Username = username;
             Uuid = uuid;
             Gamemode = gamemode;
+            Inventory.HeldSlot = 36;
 
             Parent.Format.Load(this);
         }
@@ -181,18 +182,24 @@ namespace nylium.Core.Entity.Entities {
                         return Math.Sqrt(Math.Pow(x2 - x1, 2) + Math.Pow(y2 - y1, 2) + Math.Pow(z2 - z1, 2)) <= 6.0;
                     }
 
+                    Block block = Parent.GetBlock(digging.Location.X, digging.Location.Y, digging.Location.Z);
                     SP07AcknowledgePlayerDigging acknowledgePlayerDigging;
 
-                    if(!IsLegal(X, Y + 1.5, Z, digging.Location.X, digging.Location.Y, digging.Location.Z)) {
-                        acknowledgePlayerDigging = new(digging.Location,
-                            Parent.GetBlock(digging.Location.X, digging.Location.Y, digging.Location.Z).StateId,
+                    if(block == null) {
+                        acknowledgePlayerDigging = new(digging.Location, 0,
                             (SP07AcknowledgePlayerDigging.ActionType) digging.Status, false);
                         Client.Send(acknowledgePlayerDigging);
                         break;
                     }
 
-                    acknowledgePlayerDigging = new(digging.Location,
-                        Parent.GetBlock(digging.Location.X, digging.Location.Y, digging.Location.Z).StateId,
+                    if(!IsLegal(X, Y + 1.5, Z, digging.Location.X, digging.Location.Y, digging.Location.Z)) {
+                        acknowledgePlayerDigging = new(digging.Location, block.StateId,
+                            (SP07AcknowledgePlayerDigging.ActionType) digging.Status, false);
+                        Client.Send(acknowledgePlayerDigging);
+                        break;
+                    }
+
+                    acknowledgePlayerDigging = new(digging.Location, block.StateId,
                         (SP07AcknowledgePlayerDigging.ActionType) digging.Status, true);
                     Client.Send(acknowledgePlayerDigging);
 
@@ -207,7 +214,7 @@ namespace nylium.Core.Entity.Entities {
                     }
 
                     if(digging.Status == requiredAction) {
-                        Blocks.Block air = Blocks.Block.Create(Parent, "minecraft:air");
+                        Block air = Block.Create(Parent, "minecraft:air");
 
                         Parent.SetBlock(air, digging.Location.X, digging.Location.Y, digging.Location.Z);
 
@@ -223,22 +230,22 @@ namespace nylium.Core.Entity.Entities {
                     Position.Int pos = new(playerBlockPlacement.Location);
 
                     switch(playerBlockPlacement.Face) {
-                        case Blocks.Block.Face.Top:
+                        case Block.Face.Top:
                             pos.Y++;
                             break;
-                        case Blocks.Block.Face.Bottom:
+                        case Block.Face.Bottom:
                             pos.Y--;
                             break;
-                        case Blocks.Block.Face.North:
+                        case Block.Face.North:
                             pos.Z--;
                             break;
-                        case Blocks.Block.Face.East:
+                        case Block.Face.East:
                             pos.X++;
                             break;
-                        case Blocks.Block.Face.South:
+                        case Block.Face.South:
                             pos.Z++;
                             break;
-                        case Blocks.Block.Face.West:
+                        case Block.Face.West:
                             pos.X--;
                             break;
                     }
@@ -246,9 +253,9 @@ namespace nylium.Core.Entity.Entities {
                     // TODO check for collisions here
 
                     if(Parent.GetBlock(pos.X, pos.Y, pos.Z) == null) {
-                        if(Inventory.HeldItem != null) {
+                        if(!Inventory.Slots[Inventory.HeldSlot].IsEmpty()) {
                             // TODO this will not work properly with blocks that have multiple states
-                            Block block = Block.Create(Parent, Item.GetItemNamedId(Inventory.HeldItem.Id));
+                            block = Block.Create(Parent, Item.GetItemNamedId(Inventory.Slots[Inventory.HeldSlot].Item.Id));
 
                             if(block == null || block.StateId == 0) {
                                 break;
@@ -284,7 +291,7 @@ namespace nylium.Core.Entity.Entities {
                     } else {
                         Inventory.Slots[creativeInventoryAction.Slot]
                             = creativeInventoryAction.ClickedItem.IsEmpty() ?
-                              Entity.Inventories.Inventory.Slot.Empty : creativeInventoryAction.ClickedItem;
+                              Inventory.Slot.Empty : creativeInventoryAction.ClickedItem;
                     }
                     break;
             }

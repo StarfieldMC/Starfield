@@ -534,22 +534,22 @@ namespace nylium.Core.Networking {
             Log.Debug($"Error in client occurred: {error}");
         }
 
-        public void Send(MinecraftPacket packet) {
+        public void Send(MinecraftPacket packet, bool dispose = true) {
             if(ProtocolState != ProtocolState.Unknown) {
                 Log.Debug($"Sending packet in state [{ProtocolState}] with id [0x{packet.Id:X}]");
                 base.Send(packet.ToArray(CompressionEnabled, EncryptionEnabled, Encryptor));
             }
 
-            packet.Dispose();
+            if(dispose) packet.Dispose();
         }
 
-        public void SendAsync(MinecraftPacket packet) {
+        public void SendAsync(MinecraftPacket packet, bool dispose = true) {
             if(ProtocolState != ProtocolState.Unknown) {
                 Log.Debug($"Sending packet in state [{ProtocolState}] with id [0x{packet.Id:X}]");
                 base.Send(packet.ToArray(CompressionEnabled, EncryptionEnabled, Encryptor));
             }
 
-            packet.Dispose();
+            if(dispose) packet.Dispose();
         }
 
         public enum State {

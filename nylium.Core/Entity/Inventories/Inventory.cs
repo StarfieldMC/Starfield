@@ -1,6 +1,5 @@
 ﻿using fNbt;
 using nylium.Core.Items;
-using Serilog;
 
 namespace nylium.Core.Entity.Inventories {
 
@@ -10,12 +9,6 @@ namespace nylium.Core.Entity.Inventories {
 
         public Slot[] Slots { get; set; }
         public int HeldSlot { get; set; }
-
-        public Item HeldItem {
-            get {
-                return Slots[HeldSlot].IsEmpty() ? null : Slots[HeldSlot].Item;
-            }
-        }
 
         public Inventory(BaseEntity parent, int slotCount) {
             Parent = parent;
