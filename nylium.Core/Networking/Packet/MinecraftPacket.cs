@@ -452,8 +452,6 @@ namespace nylium.Core.Networking.Packet {
                     temp.Write(output);
                 }
 
-                if(!EncryptionEnabled && state == ProtocolState.Play) Debugger.Break();
-
                 if(EncryptionEnabled) {
                     return encryptor.ProcessBytes(temp.ToArray(), 0, (int) temp.Length);
                 }

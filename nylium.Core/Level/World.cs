@@ -102,7 +102,7 @@ namespace nylium.Core.Level {
             Age++;
 
             SP4ETimeUpdate timeUpdate = new(Age, Age % 24000);
-            //Server.MulticastAsync(timeUpdate);
+            Server.MulticastAsync(timeUpdate);
 
             if(Age % 24000 == 0) {
                 Task.Run(() => Format.Save());
