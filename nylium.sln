@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "nylium.Core", "nylium.Core\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "nylium.Utilities", "nylium.Utilities\nylium.Utilities.csproj", "{B03CF592-1227-43A8-BDE9-E8E79F08E44D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nylium.Nbt", "nylium.Nbt\nylium.Nbt.csproj", "{FF10F8D3-BB80-4D7F-959B-C48CF24CACAD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{B03CF592-1227-43A8-BDE9-E8E79F08E44D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B03CF592-1227-43A8-BDE9-E8E79F08E44D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B03CF592-1227-43A8-BDE9-E8E79F08E44D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF10F8D3-BB80-4D7F-959B-C48CF24CACAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF10F8D3-BB80-4D7F-959B-C48CF24CACAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF10F8D3-BB80-4D7F-959B-C48CF24CACAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF10F8D3-BB80-4D7F-959B-C48CF24CACAD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

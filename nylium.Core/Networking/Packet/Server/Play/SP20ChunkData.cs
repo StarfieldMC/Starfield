@@ -1,6 +1,6 @@
-﻿using fNbt;
-using fNbt.Tags;
-using nylium.Core.Networking.DataTypes;
+﻿using nylium.Core.Networking.DataTypes;
+using nylium.Nbt;
+using nylium.Nbt.Tags;
 
 namespace nylium.Core.Networking.Packet.Server.Play {
 
@@ -11,17 +11,17 @@ namespace nylium.Core.Networking.Packet.Server.Play {
         public int ChunkZ { get; }
         public bool FullChunk { get; }
         public int PrimaryBitMask { get; }
-        public NbtCompound Heightmaps { get; }
+        public TagCompound Heightmaps { get; }
         public int[] Biomes { get; }
 
 #pragma warning disable 0108
         public sbyte[] Data { get; }
 #pragma warning restore 0108
 
-        public NbtCompound[] BlockEntities { get; }
+        public TagCompound[] BlockEntities { get; }
 
         public SP20ChunkData(int chunkX, int chunkZ, bool fullChunk, int primaryBitMask,
-            NbtCompound heightmaps, int[] biomes, sbyte[] data, NbtCompound[] blockEntities) {
+            TagCompound heightmaps, int[] biomes, sbyte[] data, TagCompound[] blockEntities) {
 
             ChunkX = chunkX;
             ChunkZ = chunkZ;
@@ -37,7 +37,7 @@ namespace nylium.Core.Networking.Packet.Server.Play {
             WriteBoolean(fullChunk);
             WriteVarInt(primaryBitMask);
 
-            WriteNBT(new NbtFile(heightmaps));
+            WriteNBT(new NBTFile(heightmaps));
 
             WriteVarInt(biomes.Length);
             WriteArray<int, VarInt>(biomes);
@@ -48,7 +48,7 @@ namespace nylium.Core.Networking.Packet.Server.Play {
             WriteVarInt(blockEntities.Length);
 
             for(int i = 0; i < blockEntities.Length; i++) {
-                WriteNBT(new NbtFile(blockEntities[i]));
+                WriteNBT(new NBTFile(blockEntities[i]));
             }
         }
     }

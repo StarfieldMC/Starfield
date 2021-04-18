@@ -46,5 +46,17 @@ namespace nylium.Utilities {
                 }
             }
         }
+
+        public static void GZipCompress(Stream input, Stream output) {
+            using(GZipStream zipStream = new(output, CompressionMode.Compress, true)) {
+                input.CopyTo(zipStream);
+            }
+        }
+
+        public static void GZipDecompress(Stream input, Stream output) {
+            using(GZipStream zipStream = new(input, CompressionMode.Decompress, true)) {
+                zipStream.CopyTo(output);
+            }
+        }
     }
 }

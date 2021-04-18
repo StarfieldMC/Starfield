@@ -6,12 +6,12 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
-using fNbt;
 using Jil;
 using nylium.Core.Entity.Entities;
 using nylium.Core.Entity.Inventories;
 using nylium.Core.Networking.DataTypes;
 using nylium.Extensions;
+using nylium.Nbt.Tags;
 using nylium.Utilities;
 using Serilog;
 
@@ -207,13 +207,16 @@ namespace nylium.Core.Level.Storage.Formats {
                 if(present) {
                     int item = entry.Value.item;
                     sbyte count = entry.Value.count;
-                    NbtFile nbt = null;
+                    TagCompound nbt = null;
 
                     if(entry.Value.ContainsKey("nbt")) {
                         byte[] buffer = Convert.FromBase64String(entry.Value.nbt);
 
-                        nbt = new NbtFile();
-                        nbt.LoadFromBuffer(buffer, 0, buffer.Length, NbtCompression.AutoDetect);
+                        nbt = new();
+                        
+                        using(MemoryStream stream = RMSManager.Get().GetStream(buffer)) {
+                            nbt.Read(stream);
+                        }
                     }
 
                     slot = new(present, item, count, nbt);
@@ -256,7 +259,10 @@ namespace nylium.Core.Level.Storage.Formats {
                     slotJson.count = slot.Count;
 
                     if(slot.NBT != null) {
-                        slotJson.nbt = Convert.ToBase64String(slot.NBT.SaveToBuffer(NbtCompression.ZLib));
+                        using(MemoryStream stream = RMSManager.Get().GetStream()) {
+                            slot.NBT.Write(stream);
+                            slotJson.nbt = Convert.ToBase64String(stream.ToArray());
+                        }
                     }
                 }
 

@@ -6,7 +6,6 @@ using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
 using DaanV2.UUID;
-using fNbt.Tags;
 using Jil;
 using NetCoreServer;
 using nylium.Core.Blocks;
@@ -23,6 +22,7 @@ using nylium.Core.Networking.Packet.Server.Play;
 using nylium.Core.Networking.Packet.Server.Status;
 using nylium.Core.Tags;
 using nylium.Extensions;
+using nylium.Nbt.Tags;
 using nylium.Utilities;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Engines;
@@ -142,7 +142,7 @@ namespace nylium.Core.Networking {
                             Player = new(World, this, username, playerUuid, Gamemode.Creative, 0, 1, 0, 0, 0, true);
 
                             SP24JoinGame joinGame = new(Player.EntityId, false, Player.Gamemode, Player.Gamemode,
-                                new Identifier[] { new(World.Name) }, Server.DimensionCodec.RootTag, Server.OverworldDimension.RootTag,
+                                new Identifier[] { new(World.Name) }, Server.DimensionCodec.Root, Server.OverworldDimension.Root,
                                 new(World.Name), 0, 99, Server.Configuration.ViewDistance, false, true, false, true);
                             Send(joinGame);
 
@@ -215,7 +215,7 @@ namespace nylium.Core.Networking {
                         Player = new(World, this, username, playerUuid, Gamemode.Creative, 0, 1, 0, 0, 0, true);
 
                         SP24JoinGame joinGame = new(Player.EntityId, false, Player.Gamemode, Player.Gamemode,
-                            new Identifier[] { new(World.Name) }, Server.DimensionCodec.RootTag, Server.OverworldDimension.RootTag,
+                            new Identifier[] { new(World.Name) }, Server.DimensionCodec.Root, Server.OverworldDimension.Root,
                             new(World.Name), 0, 99, Server.Configuration.ViewDistance, false, true, false, true);
                         Send(joinGame);
 
@@ -378,7 +378,7 @@ namespace nylium.Core.Networking {
             // TODO somehow the entire chunk is underwater?
             for(int i = 0; i < chunks.Length; i++) {
                 Chunk chunk = chunks[i];
-                NbtCompound heightmap = chunk.CreateHeightmap();
+                TagCompound heightmap = chunk.CreateHeightmap();
 
                 int[] biomes = Enumerable.Repeat(127, 1024).ToArray();
                 int mask = 0;
@@ -418,7 +418,7 @@ namespace nylium.Core.Networking {
                 }
 
                 SP20ChunkData chunkData = new(chunk.X, chunk.Z, true, mask, heightmap,
-                    biomes, (sbyte[]) (Array) convertStream.ToArray(), Array.Empty<NbtCompound>());
+                    biomes, (sbyte[]) (Array) convertStream.ToArray(), Array.Empty<TagCompound>());
                 SendAsync(chunkData);
 
                 LoadedChunks.Add(chunk);

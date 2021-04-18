@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\nylium.Extensions\nylium.Extensions.csproj" />
+    <ProjectReference Include="..\nylium.Nbt\nylium.Nbt.csproj" />
     <ProjectReference Include="..\nylium.Utilities\nylium.Utilities.csproj" />
   </ItemGroup>
 
@@ -32,7 +33,6 @@
 
   <ItemGroup>
     <PackageReference Include="BouncyCastle" Version="1.8.9" />
-    <PackageReference Include="CoreFNBT" Version="1.0.9" />
     <PackageReference Include="DaanV2.UUID.Net" Version="1.1.0" />
     <PackageReference Include="DeepCloner" Version="0.10.2" />
     <PackageReference Include="Jil" Version="3.0.0-alpha2" />

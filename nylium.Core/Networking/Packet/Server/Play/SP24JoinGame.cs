@@ -1,6 +1,6 @@
-﻿using fNbt.Tags;
+﻿using nylium.Nbt;
+using nylium.Nbt.Tags;
 using nylium.Utilities;
-using fNbt;
 
 namespace nylium.Core.Networking.Packet.Server.Play {
 
@@ -12,8 +12,8 @@ namespace nylium.Core.Networking.Packet.Server.Play {
         public Gamemode Gamemode { get; }
         public Gamemode PreviousGamemode { get; }
         public Identifier[] WorldNames { get; }
-        public NbtCompound DimensionCodec { get; }
-        public NbtCompound Dimension { get; }
+        public TagCompound DimensionCodec { get; }
+        public TagCompound Dimension { get; }
         public Identifier WorldName { get; }
         public long HashedSeed { get; }
         public int MaxPlayers { get; }
@@ -24,7 +24,7 @@ namespace nylium.Core.Networking.Packet.Server.Play {
         public bool IsFlat { get; }
 
         public SP24JoinGame(int entityId, bool isHardcore, Gamemode gamemode, Gamemode previousGamemode, Identifier[] worldNames,
-            NbtCompound dimensionCodec, NbtCompound dimension, Identifier worldName, long hashedSeed, int maxPlayers, int viewDistance,
+            TagCompound dimensionCodec, TagCompound dimension, Identifier worldName, long hashedSeed, int maxPlayers, int viewDistance,
             bool reducedDebugInfo, bool enableRespawnScreen, bool isDebug, bool isFlat) {
 
             EntityId = entityId;
@@ -51,8 +51,8 @@ namespace nylium.Core.Networking.Packet.Server.Play {
 
             WriteArray<Identifier, DataTypes.Identifier>(worldNames);
 
-            WriteNBT(new NbtFile(dimensionCodec));
-            WriteNBT(new NbtFile(dimension));
+            WriteNBT(new NBTFile(dimensionCodec));
+            WriteNBT(new NBTFile(dimension));
 
             WriteIdentifier(worldName);
             WriteLong(hashedSeed);

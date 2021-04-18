@@ -94,7 +94,7 @@ namespace nylium.Extensions {
         }
 
         public static uint ReadBigEndianUI(this byte[] x) {
-            return BinaryPrimitives.ReadUInt16BigEndian(x);
+            return BinaryPrimitives.ReadUInt32BigEndian(x);
         }
 
         public static ulong ReadBigEndianUL(this byte[] x) {
@@ -106,7 +106,7 @@ namespace nylium.Extensions {
         }
 
         public static int ReadBigEndianI(this byte[] x) {
-            return BinaryPrimitives.ReadInt16BigEndian(x);
+            return BinaryPrimitives.ReadInt32BigEndian(x);
         }
 
         public static long ReadBigEndianL(this byte[] x) {
@@ -160,7 +160,7 @@ namespace nylium.Extensions {
         }
 
         public static uint ReadLittleEndianUI(this byte[] x) {
-            return BinaryPrimitives.ReadUInt16LittleEndian(x);
+            return BinaryPrimitives.ReadUInt32LittleEndian(x);
         }
 
         public static ulong ReadLittleEndianUL(this byte[] x) {
@@ -172,7 +172,7 @@ namespace nylium.Extensions {
         }
 
         public static int ReadLittleEndianI(this byte[] x) {
-            return BinaryPrimitives.ReadInt16LittleEndian(x);
+            return BinaryPrimitives.ReadInt32LittleEndian(x);
         }
 
         public static long ReadLittleEndianL(this byte[] x) {

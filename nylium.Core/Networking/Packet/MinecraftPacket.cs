@@ -5,15 +5,13 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Security.Cryptography;
-using fNbt;
 using nylium.Core.Entity.Inventories;
 using nylium.Core.Networking.DataTypes;
+using nylium.Nbt;
 using nylium.Utilities;
 using Org.BouncyCastle.Crypto;
 using Serilog;
 
-// TODO compressed packets
 namespace nylium.Core.Networking.Packet {
 
     public class MinecraftPacket : IDisposable {
@@ -296,7 +294,7 @@ namespace nylium.Core.Networking.Packet {
             return new DataTypes.Identifier(Data).Value;
         }
 
-        protected NbtFile ReadNBT() {
+        protected NBTFile ReadNBT() {
             return new NBT(Data).Value;
         }
 
@@ -386,7 +384,7 @@ namespace nylium.Core.Networking.Packet {
             new DataTypes.Identifier(value).Write(Data);
         }
 
-        protected void WriteNBT(NbtFile value) {
+        protected void WriteNBT(NBTFile value) {
             new NBT(value).Write(Data);
         }
 

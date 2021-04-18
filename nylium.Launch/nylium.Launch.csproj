@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\nylium.Core\nylium.Core.csproj" />
+    <ProjectReference Include="..\nylium.Nbt\nylium.Nbt.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections;
-using fNbt;
-using fNbt.Tags;
 using nylium.Core.Blocks;
 using nylium.Extensions;
+using nylium.Nbt.Tags;
 
 namespace nylium.Core.Level {
 
@@ -53,7 +52,7 @@ namespace nylium.Core.Level {
             Sections[id].SetBlock(block, x, y, z);
         }
 
-        public NbtCompound CreateHeightmap() {
+        public TagCompound CreateHeightmap() {
             long[] data = new long[37];
 
             // TODO fuck this shit
@@ -86,7 +85,7 @@ namespace nylium.Core.Level {
             //}
 
             return new("") {
-                new NbtLongArray("MOTION_BLOCKING", data)
+                new TagLongArray("MOTION_BLOCKING", data)
             };
         }
 
