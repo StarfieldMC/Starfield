@@ -23,45 +23,26 @@ namespace nylium.Core.Networking.Packet.Server.Play {
         public bool IsDebug { get; }
         public bool IsFlat { get; }
 
-        public SP24JoinGame(int entityId, bool isHardcore, Gamemode gamemode, Gamemode previousGamemode, Identifier[] worldNames,
+        public SP24JoinGame(MinecraftClient client, int entityId, bool isHardcore, Gamemode gamemode, Gamemode previousGamemode, Identifier[] worldNames,
             TagCompound dimensionCodec, TagCompound dimension, Identifier worldName, long hashedSeed, int maxPlayers, int viewDistance,
-            bool reducedDebugInfo, bool enableRespawnScreen, bool isDebug, bool isFlat) {
+            bool reducedDebugInfo, bool enableRespawnScreen, bool isDebug, bool isFlat) : base(client) {
 
-            EntityId = entityId;
-            IsHardcore = isHardcore;
-            Gamemode = gamemode;
-            PreviousGamemode = previousGamemode;
-            WorldNames = worldNames;
-            DimensionCodec = dimensionCodec;
-            Dimension = dimension;
-            WorldName = worldName;
-            HashedSeed = hashedSeed;
-            MaxPlayers = maxPlayers;
-            ViewDistance = viewDistance;
-            ReducedDebugInfo = reducedDebugInfo;
-            EnableRespawnScreen = enableRespawnScreen;
-            IsDebug = isDebug;
-            IsFlat = isFlat;
-
-            WriteInt(entityId);
-            WriteBoolean(isHardcore);
-            WriteUnsignedByte((byte) gamemode);
-            WriteByte((sbyte) previousGamemode);
-            WriteVarInt(worldNames.Length);
-
-            WriteArray<Identifier, DataTypes.Identifier>(worldNames);
-
-            WriteNBT(new NBTFile(dimensionCodec));
-            WriteNBT(new NBTFile(dimension));
-
-            WriteIdentifier(worldName);
-            WriteLong(hashedSeed);
-            WriteVarInt(maxPlayers);
-            WriteVarInt(viewDistance);
-            WriteBoolean(reducedDebugInfo);
-            WriteBoolean(enableRespawnScreen);
-            WriteBoolean(isDebug);
-            WriteBoolean(isFlat);
+            EntityId = Data.WriteInt(entityId);
+            IsHardcore = Data.WriteBoolean(isHardcore);
+            Gamemode = (Gamemode) Data.WriteUnsignedByte((byte) gamemode);
+            PreviousGamemode = (Gamemode) Data.WriteByte((sbyte) previousGamemode);
+            Data.WriteVarInt(worldNames.Length);
+            WorldNames = Data.WriteArray<Identifier, DataTypes.Identifier>(worldNames);
+            DimensionCodec = Data.WriteNBT(new NBTFile(dimensionCodec)).Root;
+            Dimension = Data.WriteNBT(new NBTFile(dimension)).Root;
+            WorldName = Data.WriteIdentifier(worldName);
+            HashedSeed = Data.WriteLong(hashedSeed);
+            MaxPlayers = Data.WriteVarInt(maxPlayers);
+            ViewDistance = Data.WriteVarInt(viewDistance);
+            ReducedDebugInfo = Data.WriteBoolean(reducedDebugInfo);
+            EnableRespawnScreen = Data.WriteBoolean(enableRespawnScreen);
+            IsDebug = Data.WriteBoolean(isDebug);
+            IsFlat = Data.WriteBoolean(isFlat);
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace nylium.Core.Networking.Packet.Server.Play {
+﻿namespace nylium.Core.Networking.Packet.Server.Play {
 
     [Packet(0x05, ProtocolState.Play, PacketSide.Server)]
     public class SP05EntityAnimation : MinecraftPacket {
@@ -8,12 +6,9 @@ namespace nylium.Core.Networking.Packet.Server.Play {
         public int EntityId { get; }
         public AnimationType Animation { get; }
 
-        public SP05EntityAnimation(int entityId, AnimationType animation) {
-            EntityId = entityId;
-            Animation = animation;
-
-            WriteVarInt(entityId);
-            WriteUnsignedByte((byte) Animation);
+        public SP05EntityAnimation(MinecraftClient client, int entityId, AnimationType animation) : base(client) {
+            EntityId = Data.WriteVarInt(entityId);
+            Animation = (AnimationType) Data.WriteUnsignedByte((byte) animation);
         }
 
         public enum AnimationType : byte {

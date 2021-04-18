@@ -101,7 +101,7 @@ namespace nylium.Core.Level {
         private void Tick() {
             Age++;
 
-            SP4ETimeUpdate timeUpdate = new(Age, Age % 24000);
+            SP4ETimeUpdate timeUpdate = new(null, Age, Age % 24000);
             Server.MulticastAsync(timeUpdate);
 
             if(Age % 24000 == 0) {

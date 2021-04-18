@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace nylium.Core.Networking.Packet.Server.Play {
+﻿namespace nylium.Core.Networking.Packet.Server.Play {
 
     [Packet(0x29, ProtocolState.Play, PacketSide.Server)]
     public class SP29EntityRotation : MinecraftPacket {
@@ -10,16 +8,11 @@ namespace nylium.Core.Networking.Packet.Server.Play {
         public float Pitch { get; }
         public bool OnGround { get; }
 
-        public SP29EntityRotation(int entityId, float yaw, float pitch, bool onGround) {
-            EntityId = entityId;
-            Yaw = yaw;
-            Pitch = pitch;
-            OnGround = onGround;
-
-            WriteVarInt(entityId);
-            WriteAngle(yaw);
-            WriteAngle(pitch);
-            WriteBoolean(onGround);
+        public SP29EntityRotation(MinecraftClient client, int entityId, float yaw, float pitch, bool onGround) : base(client) {
+            EntityId = Data.WriteVarInt(entityId);
+            Yaw = Data.WriteAngle(yaw);
+            Pitch = Data.WriteAngle(pitch);
+            OnGround = Data.WriteBoolean(onGround);
         }
     }
 }

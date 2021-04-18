@@ -8,12 +8,9 @@ namespace nylium.Core.Networking.Packet.Server.Play {
         public Identifier Channel { get; }
         public sbyte[] MessageData { get; }
 
-        public SP17PluginMessage(Identifier channel, sbyte[] data) {
-            Channel = channel;
-            MessageData = data;
-
-            WriteIdentifier(channel);
-            WriteByteArray(data);
+        public SP17PluginMessage(MinecraftClient client, Identifier channel, sbyte[] data) : base(client) {
+            Channel = Data.WriteIdentifier(channel);
+            MessageData = Data.WriteByteArray(data);
         }
     }
 }

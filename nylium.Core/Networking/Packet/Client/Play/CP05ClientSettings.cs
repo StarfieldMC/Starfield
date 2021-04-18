@@ -22,13 +22,13 @@ namespace nylium.Core.Networking.Packet.Client.Play {
 
         public MainHandSetting MainHand { get; }
 
-        public CP05ClientSettings(Stream stream) : base(stream) {
-            Locale = ReadString();
-            ViewDistance = ReadByte();
-            ChatMode = (ChatModeSetting) ReadVarInt();
-            ChatColors = ReadBoolean();
+        public CP05ClientSettings(MinecraftClient client, Stream stream) : base(client, stream) {
+            Locale = Data.ReadString();
+            ViewDistance = Data.ReadByte();
+            ChatMode = (ChatModeSetting) Data.ReadVarInt();
+            ChatColors = Data.ReadBoolean();
 
-            byte displayedSkinParts = ReadUnsignedByte();
+            byte displayedSkinParts = Data.ReadUnsignedByte();
 
             if(displayedSkinParts.IsBitSet(0)) {
                 CapeEnabled = true;
@@ -58,7 +58,7 @@ namespace nylium.Core.Networking.Packet.Client.Play {
                 HatEnabled = true;
             }
 
-            MainHand = (MainHandSetting) ReadVarInt();
+            MainHand = (MainHandSetting) Data.ReadVarInt();
         }
 
         public enum ChatModeSetting : int {

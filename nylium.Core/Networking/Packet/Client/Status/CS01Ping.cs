@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 
 namespace nylium.Core.Networking.Packet.Client.Status {
 
@@ -8,8 +7,8 @@ namespace nylium.Core.Networking.Packet.Client.Status {
 
         public long Payload { get; }
 
-        public CS01Ping(Stream stream) : base(stream) {
-            Payload = ReadLong();
+        public CS01Ping(MinecraftClient client, Stream stream) : base(client, stream) {
+            Payload = Data.ReadLong();
         }
     }
 }

@@ -11,10 +11,10 @@ namespace nylium.Core.Networking.Packet.Client.Play {
         public Position.Int Location { get; }
         public Blocks.Block.Face Face { get; }
 
-        public CP1BPlayerDigging(Stream stream) : base(stream) {
-            Status = (ActionType) ReadVarInt();
-            Location = ReadPosition();
-            Face = (Blocks.Block.Face) ReadByte();
+        public CP1BPlayerDigging(MinecraftClient client, Stream stream) : base(client, stream) {
+            Status = (ActionType) Data.ReadVarInt();
+            Location = Data.ReadPosition();
+            Face = (Block.Face) Data.ReadByte();
         }
 
         public enum ActionType : int {

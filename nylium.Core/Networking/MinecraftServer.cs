@@ -131,10 +131,10 @@ namespace nylium.Core.Networking {
 
                     if(excludeSession != null) {
                         if(session != excludeSession) {
-                            client.Send(packet, false);
+                            client.Send(new(client, packet));
                         }
                     } else {
-                        client.Send(packet, false);
+                        client.Send(new(client, packet));
                     }
                 }
             }
@@ -156,10 +156,10 @@ namespace nylium.Core.Networking {
 
                         if(excludeSession != null) {
                             if(session != excludeSession) {
-                                client.SendAsync(packet, false);
+                                client.Send(new(client, packet));
                             }
                         } else {
-                            client.SendAsync(packet, false);
+                            client.Send(new(client, packet));
                         }
                     }
                 }
@@ -181,10 +181,10 @@ namespace nylium.Core.Networking {
 
                     if(excludeSession != null) {
                         if(session != excludeSession) {
-                            client.Send(packet, false);
+                            client.Send(new(client, packet));
                         }
                     } else {
-                        client.Send(packet, false);
+                        client.Send(new(client, packet));
                     }
                 }
             }
@@ -206,10 +206,10 @@ namespace nylium.Core.Networking {
 
                         if(excludeSession != null) {
                             if(session != excludeSession) {
-                                client.SendAsync(packet, false);
+                                client.Send(new(client, packet));
                             }
                         } else {
-                            client.SendAsync(packet, false);
+                            client.Send(new(client, packet));
                         }
                     }
                 }

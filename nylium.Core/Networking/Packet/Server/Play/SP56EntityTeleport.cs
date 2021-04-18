@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace nylium.Core.Networking.Packet.Server.Play {
+﻿namespace nylium.Core.Networking.Packet.Server.Play {
 
     [Packet(0x56, ProtocolState.Play, PacketSide.Server)]
     public class SP56EntityTeleport : MinecraftPacket {
@@ -13,22 +11,16 @@ namespace nylium.Core.Networking.Packet.Server.Play {
         public float Pitch { get; }
         public bool OnGround { get; }
 
-        public SP56EntityTeleport(int entityId, double x, double y, double z, float yaw, float pitch, bool onGround) {
-            EntityId = entityId;
-            X = x;
-            Y = y;
-            Z = z;
-            Yaw = yaw;
-            Pitch = pitch;
-            OnGround = onGround;
+        public SP56EntityTeleport(MinecraftClient client, int entityId, double x, double y, double z,
+            float yaw, float pitch, bool onGround) : base(client) {
 
-            WriteVarInt(entityId);
-            WriteDouble(x);
-            WriteDouble(y);
-            WriteDouble(z);
-            WriteAngle(yaw);
-            WriteAngle(pitch);
-            WriteBoolean(onGround);
+            EntityId = Data.WriteVarInt(entityId);
+            X = Data.WriteDouble(x);
+            Y = Data.WriteDouble(y);
+            Z = Data.WriteDouble(z);
+            Yaw = Data.WriteAngle(yaw);
+            Pitch = Data.WriteAngle(pitch);
+            OnGround = Data.WriteBoolean(onGround);
         }
     }
 }

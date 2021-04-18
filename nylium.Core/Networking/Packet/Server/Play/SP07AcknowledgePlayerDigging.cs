@@ -1,5 +1,4 @@
-﻿using System;
-using nylium.Utilities;
+﻿using nylium.Utilities;
 
 namespace nylium.Core.Networking.Packet.Server.Play {
 
@@ -11,16 +10,11 @@ namespace nylium.Core.Networking.Packet.Server.Play {
         public ActionType Status { get; }
         public bool Successful { get; }
 
-        public SP07AcknowledgePlayerDigging(Position.Int location, int block, ActionType status, bool successful) {
-            Location = location;
-            Block = block;
-            Status = status;
-            Successful = successful;
-
-            WritePosition(location);
-            WriteVarInt(block);
-            WriteVarInt((int) status);
-            WriteBoolean(successful);
+        public SP07AcknowledgePlayerDigging(MinecraftClient client, Position.Int location, int block, ActionType status, bool successful) : base(client) {
+            Location = Data.WritePosition(location);
+            Block = Data.WriteVarInt(block);
+            Status = (ActionType) Data.WriteVarInt((int) status);
+            Successful = Data.WriteBoolean(successful);
         }
 
         public enum ActionType : int {

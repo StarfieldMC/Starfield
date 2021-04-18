@@ -9,10 +9,10 @@ namespace nylium.Core.Networking.Packet.Client.Play {
         public ActionType Action { get; }
         public int JumpBoost { get; }
 
-        public CP1CEntityAction(Stream stream) : base(stream) {
-            EntityId = ReadVarInt();
-            Action = (ActionType) ReadVarInt();
-            JumpBoost = ReadVarInt();
+        public CP1CEntityAction(MinecraftClient client, Stream stream) : base(client, stream) {
+            EntityId = Data.ReadVarInt();
+            Action = (ActionType) Data.ReadVarInt();
+            JumpBoost = Data.ReadVarInt();
         }
         
         public enum ActionType : int {

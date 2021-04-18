@@ -7,8 +7,8 @@ namespace nylium.Core.Networking.Packet.Client.Play {
 
         public long KeepAliveId { get; }
 
-        public CP10KeepAlive(Stream stream) : base(stream) {
-            KeepAliveId = ReadLong();
+        public CP10KeepAlive(MinecraftClient client, Stream stream) : base(client, stream) {
+            KeepAliveId = Data.ReadLong();
         }
     }
 }

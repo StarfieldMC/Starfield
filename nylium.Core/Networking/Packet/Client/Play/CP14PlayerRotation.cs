@@ -9,10 +9,10 @@ namespace nylium.Core.Networking.Packet.Client.Play {
         public float Pitch { get; }
         public bool OnGround { get; }
 
-        public CP14PlayerRotation(Stream stream) : base(stream) {
-            Yaw = ReadFloat();
-            Pitch = ReadFloat();
-            OnGround = ReadBoolean();
+        public CP14PlayerRotation(MinecraftClient client, Stream stream) : base(client, stream) {
+            Yaw = Data.ReadFloat();
+            Pitch = Data.ReadFloat();
+            OnGround = Data.ReadBoolean();
         }
     }
 }

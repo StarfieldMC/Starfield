@@ -5,10 +5,8 @@
 
         public long Payload { get; }
 
-        public SS01Pong(long payload) {
-            Payload = payload;
-
-            WriteLong(payload);
+        public SS01Pong(MinecraftClient client, long payload) : base(client) {
+            Payload = Data.WriteLong(payload);
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using nylium.Core.Networking.DataTypes;
 
 namespace nylium.Core.Networking.Packet.Server.Play {
@@ -10,12 +9,9 @@ namespace nylium.Core.Networking.Packet.Server.Play {
         public int EntityId { get; }
         public List<EntityMetadata.Entry> Metadata { get; }
 
-        public SP44EntityMetadata(int entityId, List<EntityMetadata.Entry> metadata) {
-            EntityId = entityId;
-            Metadata = metadata;
-
-            WriteVarInt(entityId);
-            WriteEntityMetadata(metadata);
+        public SP44EntityMetadata(MinecraftClient client, int entityId, List<EntityMetadata.Entry> metadata) : base(client) {
+            EntityId = Data.WriteVarInt(entityId);
+            Metadata = Data.WriteEntityMetadata(metadata);
         }
     }
 }

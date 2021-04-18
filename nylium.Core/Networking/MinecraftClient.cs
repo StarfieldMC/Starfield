@@ -66,8 +66,8 @@ namespace nylium.Core.Networking {
         public MinecraftClient(MinecraftServer server) : base(server) {
             GameState = State.Disconnected;
             ProtocolState = ProtocolState.Unknown;
-            KeepAlive = new(Send, () => {
-                SP19Disconnect disconnect = new(TIMEOUT_MESSAGE);
+            KeepAlive = new(this, () => {
+                SP19Disconnect disconnect = new(this, TIMEOUT_MESSAGE);
                 Send(disconnect);
             }, 1000);
             Server = server;
@@ -91,14 +91,14 @@ namespace nylium.Core.Networking {
         private bool HandleStatusPacket(MinecraftPacket packet) {
             switch(packet) {
                 case CS00Request: {
-                        SS00Response response = new(MinecraftServer.STATUS_STRING);
+                        SS00Response response = new(this, MinecraftServer.STATUS_STRING);
                         Send(response);
                         break;
                     }
                 case CS01Ping: {
                         CS01Ping ping = (CS01Ping) packet;
 
-                        SS01Pong pong = new(ping.Payload);
+                        SS01Pong pong = new(this, ping.Payload);
                         Send(pong);
                         Disconnect();
                         break;
@@ -120,7 +120,7 @@ namespace nylium.Core.Networking {
                             RNGCryptoServiceProvider rng = new();
                             rng.GetBytes(verifyToken);
 
-                            SL01EncryptionRequest encryptionRequest = new("",
+                            SL01EncryptionRequest encryptionRequest = new(this, "",
                                 (sbyte[]) (Array) SubjectPublicKeyInfoFactory.CreateSubjectPublicKeyInfo(Server.KeyPair.Public).ToAsn1Object().GetDerEncoded(),
                                 (sbyte[]) (Array) verifyToken);
                             Send(encryptionRequest);
@@ -128,20 +128,20 @@ namespace nylium.Core.Networking {
                             UUID playerUuid = UUIDFactory.CreateUUID(3, 1, "OfflinePlayer:" + username);
 
                             if(Server.Configuration.CompressionThreshold > 0) {
-                                SL03SetCompression setCompression = new(Server.Configuration.CompressionThreshold);
+                                SL03SetCompression setCompression = new(this, Server.Configuration.CompressionThreshold);
                                 Send(setCompression);
 
                                 CompressionEnabled = true;
                             }
 
-                            SL02LoginSuccess loginSuccess = new(playerUuid, username);
+                            SL02LoginSuccess loginSuccess = new(this, playerUuid, username);
                             Send(loginSuccess);
 
                             ProtocolState = ProtocolState.Play;
                             World = Server.World;
                             Player = new(World, this, username, playerUuid, Gamemode.Creative, 0, 1, 0, 0, 0, true);
 
-                            SP24JoinGame joinGame = new(Player.EntityId, false, Player.Gamemode, Player.Gamemode,
+                            SP24JoinGame joinGame = new(this, Player.EntityId, false, Player.Gamemode, Player.Gamemode,
                                 new Identifier[] { new(World.Name) }, Server.DimensionCodec.Root, Server.OverworldDimension.Root,
                                 new(World.Name), 0, 99, Server.Configuration.ViewDistance, false, true, false, true);
                             Send(joinGame);
@@ -160,7 +160,7 @@ namespace nylium.Core.Networking {
                             0, encryptionResponse.VerifyToken.Length);
 
                         if(!decryptedVerifyToken.SequenceEqual(verifyToken)) {
-                            SL00Disconnect disconnect = new(new {
+                            SL00Disconnect disconnect = new(this, new {
                                 text = "Invalid verify token."
                             });
 
@@ -184,7 +184,7 @@ namespace nylium.Core.Networking {
                             $"https://sessionserver.mojang.com/session/minecraft/hasJoined?username={username}&serverId={hash}"));
 
                         if(!response.IsSuccessStatusCode) {
-                            SL00Disconnect disconnect = new(new {
+                            SL00Disconnect disconnect = new(this, new {
                                 text = "Request to the Mojang session server was not successful."
                             });
 
@@ -201,20 +201,20 @@ namespace nylium.Core.Networking {
                         EncryptionEnabled = true;
 
                         if(Server.Configuration.CompressionThreshold > 0) {
-                            SL03SetCompression setCompression = new(Server.Configuration.CompressionThreshold);
+                            SL03SetCompression setCompression = new(this, Server.Configuration.CompressionThreshold);
                             Send(setCompression);
 
                             CompressionEnabled = true;
                         }
 
-                        SL02LoginSuccess loginSuccess = new(playerUuid, username);
+                        SL02LoginSuccess loginSuccess = new(this, playerUuid, username);
                         Send(loginSuccess);
 
                         ProtocolState = ProtocolState.Play;
                         World = Server.World;
                         Player = new(World, this, username, playerUuid, Gamemode.Creative, 0, 1, 0, 0, 0, true);
 
-                        SP24JoinGame joinGame = new(Player.EntityId, false, Player.Gamemode, Player.Gamemode,
+                        SP24JoinGame joinGame = new(this, Player.EntityId, false, Player.Gamemode, Player.Gamemode,
                             new Identifier[] { new(World.Name) }, Server.DimensionCodec.Root, Server.OverworldDimension.Root,
                             new(World.Name), 0, 99, Server.Configuration.ViewDistance, false, true, false, true);
                         Send(joinGame);
@@ -236,7 +236,7 @@ namespace nylium.Core.Networking {
                         if(KeepAlive != null) {
                             KeepAlive.HasResponded = true;
                         } else {
-                            SP19Disconnect disconnect = new(new {
+                            SP19Disconnect disconnect = new(this, new {
                                 text = "keepAlive == null"
                             });
 
@@ -251,56 +251,56 @@ namespace nylium.Core.Networking {
                         Configuration.ViewDistance = (clientSettings.ViewDistance > Server.Configuration.ViewDistance)
                             ? Server.Configuration.ViewDistance : clientSettings.ViewDistance;
 
-                        SP13WindowItems windowItems = new(0, Player.Inventory.Slots);
+                        SP13WindowItems windowItems = new(this, 0, Player.Inventory.Slots);
                         Send(windowItems);
 
-                        SP3FHeldItemChange heldItemChange = new((sbyte) (Player.Inventory.HeldSlot - 36)); // mojang moment
+                        SP3FHeldItemChange heldItemChange = new(this, (sbyte) (Player.Inventory.HeldSlot - 36)); // mojang moment
                         Send(heldItemChange);
 
-                        SP5ADeclareRecipes declareRecipes = new(Array.Empty<Recipes.Recipe>()); // TODO generate recipes from recipes.json
+                        SP5ADeclareRecipes declareRecipes = new(this, Array.Empty<Recipes.Recipe>()); // TODO generate recipes from recipes.json
                         Send(declareRecipes);
 
-                        SP5BTags tags = new(Tag.blockTags.ToArray(),
+                        SP5BTags tags = new(this, Tag.blockTags.ToArray(),
                             Tag.itemTags.ToArray(),
                             Tag.fluidTags.ToArray(),
                             Tag.entityTags.ToArray());
                         Send(tags);
 
-                        //SP1AEntityStatus entityStatus = new(Player.EntityId, SP1AEntityStatus.EntityStatus.SetOpLevel4);
+                        //SP1AEntityStatus entityStatus = new(this, Player.EntityId, SP1AEntityStatus.EntityStatus.SetOpLevel4);
                         //Send(entityStatus);
 
-                        //SP35UnlockRecipes unlockRecipes = new(SP35UnlockRecipes.RecipeAction.Init,
+                        //SP35UnlockRecipes unlockRecipes = new(this, SP35UnlockRecipes.RecipeAction.Init,
                         //    false, false, false, false, false, false, false, false, new Utilities.Identifier[] { }, new Utilities.Identifier[] { });
                         //Send(unlockRecipes);
 
-                        SP34PlayerPositionAndLook playerPositionAndLook = new(Player.X, Player.Y, Player.Z,
+                        SP34PlayerPositionAndLook playerPositionAndLook = new(this, Player.X, Player.Y, Player.Z,
                             Player.Yaw, Player.Pitch, 0, random.Next(int.MaxValue));
                         Send(playerPositionAndLook);
 
-                        SP40UpdateViewPosition updateViewPosition = new(Player.ChunkX, Player.ChunkZ);
+                        SP40UpdateViewPosition updateViewPosition = new(this, Player.ChunkX, Player.ChunkZ);
                         Send(updateViewPosition);
 
                         Chunk[] chunks = World.GetChunksInViewDistance(Player.ChunkX, Player.ChunkZ,
                             (sbyte) (Configuration.ViewDistance - 1));
                         LoadChunks(chunks);
 
-                        SP3DWorldBorder worldBorder = new(0, 0, 0, 4096, 0, 2048, 16, 2);
+                        SP3DWorldBorder worldBorder = new(this, 0, 0, 0, 4096, 0, 2048, 16, 2);
                         Send(worldBorder);
 
-                        SP42SpawnPosition spawnPosition = new(new(0, 1, 0));
+                        SP42SpawnPosition spawnPosition = new(this, new(0, 1, 0));
                         Send(spawnPosition);
 
                         for(int i = 0; i < World.PlayerEntities.Count; i++) {
                             PlayerEntity player = World.PlayerEntities[i];
 
-                            SP32PlayerInfo _playerInfo = new(player.Uuid, player.Username, player.Gamemode, 0);
+                            SP32PlayerInfo _playerInfo = new(this, player.Uuid, player.Username, player.Gamemode, 0);
                             Send(_playerInfo);
 
-                            _playerInfo = new(player.Uuid, 100); // TODO actual ping
+                            _playerInfo = new(this, player.Uuid, 100); // TODO actual ping
                             Send(_playerInfo);
 
                             if(LoadedChunks.Contains(World.GetChunk(player.ChunkX, player.ChunkZ))) {
-                                SP04SpawnPlayer _spawnPlayer = new(player.EntityId, player.Uuid, player.X, player.Y, player.Z,
+                                SP04SpawnPlayer _spawnPlayer = new(this, player.EntityId, player.Uuid, player.X, player.Y, player.Z,
                                     player.Yaw, player.Pitch);
                                 Send(_spawnPlayer);
                             }
@@ -308,13 +308,13 @@ namespace nylium.Core.Networking {
 
                         World.PlayerEntities.Add(Player);
 
-                        SP32PlayerInfo playerInfo = new(Player.Uuid, Player.Username, Player.Gamemode, 0);
+                        SP32PlayerInfo playerInfo = new(null, Player.Uuid, Player.Username, Player.Gamemode, 0);
                         Server.Multicast(playerInfo);
 
-                        playerInfo = new(Player.Uuid, 100); // TODO actual ping
+                        playerInfo = new(null, Player.Uuid, 100); // TODO actual ping
                         Server.Multicast(playerInfo);
 
-                        SP04SpawnPlayer spawnPlayer = new(Player.EntityId, Player.Uuid, Player.X, Player.Y, Player.Z,
+                        SP04SpawnPlayer spawnPlayer = new(null, Player.EntityId, Player.Uuid, Player.X, Player.Y, Player.Z,
                             Player.Yaw, Player.Pitch);
                         Server.MulticastAsync(spawnPlayer, this);
 
@@ -324,7 +324,7 @@ namespace nylium.Core.Networking {
                 case CP2CAnimation: {
                         CP2CAnimation animation = (CP2CAnimation) packet;
 
-                        SP05EntityAnimation entityAnimation = new(Player.EntityId, animation.MainHand ?
+                        SP05EntityAnimation entityAnimation = new(null, Player.EntityId, animation.MainHand ?
                             SP05EntityAnimation.AnimationType.SwingMainArm : SP05EntityAnimation.AnimationType.SwingOffhand);
                         Server.MulticastAsync(entityAnimation, this);
                         break;
@@ -417,7 +417,7 @@ namespace nylium.Core.Networking {
                     }
                 }
 
-                SP20ChunkData chunkData = new(chunk.X, chunk.Z, true, mask, heightmap,
+                SP20ChunkData chunkData = new(this, chunk.X, chunk.Z, true, mask, heightmap,
                     biomes, (sbyte[]) (Array) convertStream.ToArray(), Array.Empty<TagCompound>());
                 SendAsync(chunkData);
 
@@ -434,7 +434,7 @@ namespace nylium.Core.Networking {
             for(int i = 0; i < chunks.Length; i++) {
                 Chunk chunk = chunks[i];
 
-                SP1CUnloadChunk unloadChunk = new(chunk.X, chunk.Z);
+                SP1CUnloadChunk unloadChunk = new(this, chunk.X, chunk.Z);
                 SendAsync(unloadChunk);
 
                 LoadedChunks.Remove(chunk);
@@ -514,11 +514,11 @@ namespace nylium.Core.Networking {
                 World.Format.Save(Player);
                 World.PlayerEntities.Remove(Player);
 
-                SP32PlayerInfo playerInfo = new(Player.Uuid);
+                SP32PlayerInfo playerInfo = new(null, Player.Uuid);
                 Server.MulticastAsync(playerInfo, this);
 
                 // TODO is there a packet to destroy only one entity?
-                SP36DestroyEntities destroyEntities = new(new int[] { Player.EntityId });
+                SP36DestroyEntities destroyEntities = new(null, new int[] { Player.EntityId });
                 Server.MulticastAsync(destroyEntities, this);
             }
 
@@ -537,7 +537,7 @@ namespace nylium.Core.Networking {
         public void Send(MinecraftPacket packet, bool dispose = true) {
             if(ProtocolState != ProtocolState.Unknown) {
                 Log.Debug($"Sending packet in state [{ProtocolState}] with id [0x{packet.Id:X}]");
-                base.Send(packet.ToArray(CompressionEnabled, EncryptionEnabled, Encryptor));
+                base.Send(packet.ToArray());
             }
 
             if(dispose) packet.Dispose();
@@ -546,7 +546,7 @@ namespace nylium.Core.Networking {
         public void SendAsync(MinecraftPacket packet, bool dispose = true) {
             if(ProtocolState != ProtocolState.Unknown) {
                 Log.Debug($"Sending packet in state [{ProtocolState}] with id [0x{packet.Id:X}]");
-                base.Send(packet.ToArray(CompressionEnabled, EncryptionEnabled, Encryptor));
+                base.Send(packet.ToArray());
             }
 
             if(dispose) packet.Dispose();

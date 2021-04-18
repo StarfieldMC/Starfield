@@ -7,8 +7,8 @@ namespace nylium.Core.Networking.Packet.Client.Play {
 
         public bool MainHand { get; }
 
-        public CP2CAnimation(Stream stream) : base(stream) {
-            MainHand = ReadVarInt() == 0;
+        public CP2CAnimation(MinecraftClient client, Stream stream) : base(client, stream) {
+            MainHand = Data.ReadVarInt() == 0;
         }
     }
 }

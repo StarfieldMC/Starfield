@@ -85,7 +85,7 @@ namespace nylium.Core.Entity.Entities {
                     newOnGround = __p.OnGround;
                     break;
                 case CP15PlayerMovement:
-                    SP2AEntityMovement entityMovement = new(EntityId);
+                    SP2AEntityMovement entityMovement = new(Client, EntityId);
                     Client.Server.MulticastAsync(entityMovement, Client);
                     return;
             }
@@ -94,7 +94,7 @@ namespace nylium.Core.Entity.Entities {
                 if(double.IsInfinity(newX) || double.IsInfinity(newY) || double.IsInfinity(newZ)
                     || newX > 3.2 * Math.Pow(10, 7) || newZ > 3.2 * Math.Pow(10, 7)) {
 
-                    SP19Disconnect disconnect = new(new {
+                    SP19Disconnect disconnect = new(Client, new {
                         text = "Invalid move packet received"
                     });
                     Client.Send(disconnect);
@@ -112,7 +112,7 @@ namespace nylium.Core.Entity.Entities {
                 if(total - expected > 100) {
                     Console.WriteLine($"Client with id [{Id}] moved too fast!");
 
-                    SP56EntityTeleport teleport = new(EntityId, LastX, LastY, LastZ,
+                    SP56EntityTeleport teleport = new(Client, EntityId, LastX, LastY, LastZ,
                         Yaw, Pitch, LastOnGround);
                     Client.Send(teleport);
                 }
@@ -122,7 +122,7 @@ namespace nylium.Core.Entity.Entities {
                 Z = newZ;
                 OnGround = newOnGround;
 
-                SP27EntityPosition entityPosition = new(EntityId,
+                SP27EntityPosition entityPosition = new(Client, EntityId,
                     (short) (((X * 32) - (LastX * 32)) * 128),
                     (short) (((Y * 32) - (LastY * 32)) * 128),
                     (short) (((Z * 32) - (LastZ * 32)) * 128),
@@ -133,7 +133,7 @@ namespace nylium.Core.Entity.Entities {
                 if(ChunkX != Math.Floor(LastX / Chunk.X_SIZE)
                     || ChunkZ != Math.Floor(LastZ / Chunk.Z_SIZE)) {
 
-                    SP40UpdateViewPosition updateViewPosition = new(ChunkX, ChunkZ);
+                    SP40UpdateViewPosition updateViewPosition = new(Client, ChunkX, ChunkZ);
                     Client.Send(updateViewPosition);
 
                     Chunk[] chunks = Parent.GetChunksInViewDistance(ChunkX, ChunkZ, Client.Configuration.ViewDistance);
@@ -168,7 +168,7 @@ namespace nylium.Core.Entity.Entities {
 
                 OnGround = newOnGround;
 
-                SP29EntityRotation entityRotation = new(EntityId, Yaw, Pitch, OnGround);
+                SP29EntityRotation entityRotation = new(Client, EntityId, Yaw, Pitch, OnGround);
                 Client.Server.MulticastAsync(entityRotation, Client);
             }
         }
@@ -186,20 +186,20 @@ namespace nylium.Core.Entity.Entities {
                     SP07AcknowledgePlayerDigging acknowledgePlayerDigging;
 
                     if(block == null) {
-                        acknowledgePlayerDigging = new(digging.Location, 0,
+                        acknowledgePlayerDigging = new(Client, digging.Location, 0,
                             (SP07AcknowledgePlayerDigging.ActionType) digging.Status, false);
                         Client.Send(acknowledgePlayerDigging);
                         break;
                     }
 
                     if(!IsLegal(X, Y + 1.5, Z, digging.Location.X, digging.Location.Y, digging.Location.Z)) {
-                        acknowledgePlayerDigging = new(digging.Location, block.StateId,
+                        acknowledgePlayerDigging = new(Client, digging.Location, block.StateId,
                             (SP07AcknowledgePlayerDigging.ActionType) digging.Status, false);
                         Client.Send(acknowledgePlayerDigging);
                         break;
                     }
 
-                    acknowledgePlayerDigging = new(digging.Location, block.StateId,
+                    acknowledgePlayerDigging = new(Client, digging.Location, block.StateId,
                         (SP07AcknowledgePlayerDigging.ActionType) digging.Status, true);
                     Client.Send(acknowledgePlayerDigging);
 
@@ -218,7 +218,7 @@ namespace nylium.Core.Entity.Entities {
 
                         Parent.SetBlock(air, digging.Location.X, digging.Location.Y, digging.Location.Z);
 
-                        SP0BBlockChange blockChange = new(digging.Location, air.StateId);
+                        SP0BBlockChange blockChange = new(null, digging.Location, air.StateId);
                         Client.Server.MulticastAsync(blockChange, Client, Parent.GetClientsWithChunkLoaded(
                             (int) Math.Floor((double) digging.Location.X / Chunk.X_SIZE),
                             (int) Math.Floor((double) digging.Location.Z / Chunk.Z_SIZE)).ToArray());
@@ -265,7 +265,7 @@ namespace nylium.Core.Entity.Entities {
 
                             Parent.SetBlock(block, pos.X, pos.Y, pos.Z);
 
-                            SP0BBlockChange _blockChange = new(pos, block.StateId);
+                            SP0BBlockChange _blockChange = new(null, pos, block.StateId);
                             Client.Server.MulticastAsync(_blockChange, Client, Parent.GetClientsWithChunkLoaded(
                                 (int) Math.Floor((double) pos.X / Chunk.X_SIZE),
                                 (int) Math.Floor((double) pos.Z / Chunk.Z_SIZE)).ToArray());

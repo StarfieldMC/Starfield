@@ -20,35 +20,27 @@ namespace nylium.Core.Networking.Packet.Server.Play {
 
         public TagCompound[] BlockEntities { get; }
 
-        public SP20ChunkData(int chunkX, int chunkZ, bool fullChunk, int primaryBitMask,
-            TagCompound heightmaps, int[] biomes, sbyte[] data, TagCompound[] blockEntities) {
+        public SP20ChunkData(MinecraftClient client, int chunkX, int chunkZ, bool fullChunk, int primaryBitMask,
+            TagCompound heightmaps, int[] biomes, sbyte[] data, TagCompound[] blockEntities) : base(client) {
 
-            ChunkX = chunkX;
-            ChunkZ = chunkZ;
-            FullChunk = fullChunk;
-            PrimaryBitMask = primaryBitMask;
-            Heightmaps = heightmaps;
-            Biomes = biomes;
-            Data = data;
+            ChunkX = base.Data.WriteInt(chunkX);
+            ChunkZ = base.Data.WriteInt(chunkZ);
+            FullChunk = base.Data.WriteBoolean(fullChunk);
+            PrimaryBitMask = base.Data.WriteVarInt(primaryBitMask);
+            Heightmaps = base.Data.WriteNBT(new NBTFile(heightmaps)).Root;
+
+            if(fullChunk) {
+                base.Data.WriteVarInt(biomes.Length);
+                Biomes = base.Data.WriteArray<int, VarInt>(biomes);
+            }
+
+            base.Data.WriteVarInt(data.Length);
+            Data = base.Data.WriteByteArray(data);
+            base.Data.WriteVarInt(blockEntities.Length);
             BlockEntities = blockEntities;
 
-            WriteInt(chunkX);
-            WriteInt(chunkZ);
-            WriteBoolean(fullChunk);
-            WriteVarInt(primaryBitMask);
-
-            WriteNBT(new NBTFile(heightmaps));
-
-            WriteVarInt(biomes.Length);
-            WriteArray<int, VarInt>(biomes);
-
-            WriteVarInt(data.Length);
-            WriteByteArray(data);
-
-            WriteVarInt(blockEntities.Length);
-
             for(int i = 0; i < blockEntities.Length; i++) {
-                WriteNBT(new NBTFile(blockEntities[i]));
+                base.Data.WriteNBT(new NBTFile(blockEntities[i]));
             }
         }
     }

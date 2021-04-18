@@ -1,5 +1,4 @@
-﻿using System;
-using nylium.Core.Entity.Inventories;
+﻿using nylium.Core.Entity.Inventories;
 using nylium.Core.Networking.DataTypes;
 
 namespace nylium.Core.Networking.Packet.Server.Play {
@@ -10,13 +9,10 @@ namespace nylium.Core.Networking.Packet.Server.Play {
         public byte WindowId { get; }
         public Inventory.Slot[] SlotData { get; }
 
-        public SP13WindowItems(byte windowId, Inventory.Slot[] slotData) {
-            WindowId = windowId;
-            SlotData = slotData;
-
-            WriteUnsignedByte(windowId);
-            WriteShort((short) slotData.Length);
-            WriteArray<Inventory.Slot, Slot>(slotData);
+        public SP13WindowItems(MinecraftClient client, byte windowId, Inventory.Slot[] slotData) : base(client) {
+            WindowId = Data.WriteUnsignedByte(windowId);
+            Data.WriteShort((short) slotData.Length);
+            SlotData = Data.WriteArray<Inventory.Slot, Slot>(slotData);
         }
     }
 }

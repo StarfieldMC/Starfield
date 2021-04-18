@@ -11,11 +11,11 @@ namespace nylium.Core.Networking.Packet.Client.Play {
         public double Z { get; }
         public bool OnGround { get; }
 
-        public CP12PlayerPosition(Stream stream) : base(stream) {
-            X = ReadDouble();
-            FeetY = ReadDouble();
-            Z = ReadDouble();
-            OnGround = ReadBoolean();
+        public CP12PlayerPosition(MinecraftClient client, Stream stream) : base(client, stream) {
+            X = Data.ReadDouble();
+            FeetY = Data.ReadDouble();
+            Z = Data.ReadDouble();
+            OnGround = Data.ReadBoolean();
         }
     }
 }

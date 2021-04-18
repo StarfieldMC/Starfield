@@ -11,26 +11,16 @@
         public sbyte Flags { get; }
         public int TeleportId { get; }
 
-        public SP34PlayerPositionAndLook(double x, double y, double z,
-            float yaw, float pitch, sbyte flags, int teleportId) {
+        public SP34PlayerPositionAndLook(MinecraftClient client, double x, double y, double z,
+            float yaw, float pitch, sbyte flags, int teleportId) : base(client) {
 
-            X = x;
-            Y = y;
-            Z = z;
-            Yaw = yaw;
-            Pitch = pitch;
-            Flags = flags;
-            TeleportId = teleportId;
-
-            WriteDouble(x);
-            WriteDouble(y);
-            WriteDouble(z);
-
-            WriteFloat(yaw);
-            WriteFloat(pitch);
-
-            WriteByte(flags);
-            WriteVarInt(teleportId);
+            X = Data.WriteDouble(x);
+            Y = Data.WriteDouble(y);
+            Z = Data.WriteDouble(z);
+            Yaw = Data.WriteFloat(yaw);
+            Pitch = Data.WriteFloat(pitch);
+            Flags = Data.WriteByte(flags);
+            TeleportId = Data.WriteVarInt(teleportId);
         }
     }
 }
