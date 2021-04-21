@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using nylium.Core.Entity.Entities;
 
 namespace nylium.Core.Level.Storage {
@@ -11,14 +12,14 @@ namespace nylium.Core.Level.Storage {
             World = world;
         }
 
-        public abstract bool Load();
-        public abstract bool Save();
+        public virtual async Task<bool> Load() { return true; }
+        public virtual async Task<bool> Save() { return true; }
 
-        public abstract bool Load(Chunk chunk);
-        public abstract bool Save(Chunk chunk);
+        public virtual async Task<bool> Load(Chunk chunk) { return true; }
+        public virtual async Task<bool> Save(Chunk chunk) { return true; }
 
-        public abstract bool Load(PlayerEntity player);
-        public abstract bool Save(PlayerEntity player);
+        public virtual async Task<bool> Load(PlayerEntity player) { return true; }
+        public virtual async Task<bool> Save(PlayerEntity player) { return true; }
 
         public abstract void Dispose();
     }

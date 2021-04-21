@@ -37,7 +37,7 @@ namespace nylium.Core {
             if(Server != null) {
                 if(Server.World != null) {
                     if(Server.World.Format != null) {
-                        Server.World.Format.Save();
+                        Server.World.Format.Save().Wait();
                     }
                 }
             }

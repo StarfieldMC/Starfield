@@ -71,10 +71,10 @@ namespace nylium.Core.Level {
                 totalStopwatch.Stop();
                 Log.Information(string.Format("Finished generating world! ({0} chunks) Took {1}ms", i, Math.Round(totalStopwatch.Elapsed.TotalMilliseconds, 2)));
 
-                Format.Save();
+                Format.Save().Wait();
             } else {
                 Format = new WaterWorldFormat(this);
-                Format.Load();
+                Format.Load().Wait();
             }
 
             WorldThread = new(Update);
@@ -105,7 +105,7 @@ namespace nylium.Core.Level {
             Server.MulticastAsync(timeUpdate);
 
             if(Age % 24000 == 0) {
-                Task.Run(() => Format.Save());
+                Format.Save();
             }
         }
 
@@ -177,12 +177,16 @@ namespace nylium.Core.Level {
         public Chunk LoadChunk(int x, int z) {
             Chunk chunk = new(this, x, z);
 
-            if(!Format.Load(chunk)) {
-                chunk = new(this, x, z);
-                Generator.GenerateChunk(this, chunk);
-            }
+            Format.Load(chunk).ContinueWith(task => {
+                if(!task.Result) {
+                    chunk = new(this, x, z);
+                    Generator.GenerateChunk(this, chunk);
+                }
 
-            Chunks.Set(x.ToString() + z.ToString(), chunk);
+                Chunks.Set(x.ToString() + z.ToString(), chunk);
+                return chunk;
+            });
+
             return chunk;
         }
 
