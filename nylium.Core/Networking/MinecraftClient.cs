@@ -8,7 +8,7 @@ using System.Text;
 using DaanV2.UUID;
 using Jil;
 using NetCoreServer;
-using nylium.Core.Blocks;
+using nylium.Core.Block;
 using nylium.Core.Configuration;
 using nylium.Core.Entity.Entities;
 using nylium.Core.Level;
@@ -401,9 +401,9 @@ namespace nylium.Core.Networking {
                         });
 
                         DataTypes.Short blockCount = new((short) nonAirBlockCount);
-                        DataTypes.UByte bitsPerBlock = new((byte) Block.bitsPerBlock);
+                        DataTypes.UByte bitsPerBlock = new((byte) 15); // BaseBlock.bitsPerBlock
 
-                        long[] compactedLong = section.ToCompactedLongArray(Block.bitsPerBlock);
+                        long[] compactedLong = section.ToCompactedLongArray(15); // BaseBlock.bitsPerBlock
 
                         DataTypes.VarInt dataArrayLength = new(compactedLong.Length);
                         DataTypes.Array<long, DataTypes.Long> dataArray = new(compactedLong);

@@ -1,5 +1,5 @@
 ﻿using System.IO;
-using nylium.Core.Blocks;
+using nylium.Core.Block;
 using nylium.Utilities;
 
 namespace nylium.Core.Networking.Packet.Client.Play {
@@ -9,7 +9,7 @@ namespace nylium.Core.Networking.Packet.Client.Play {
 
         public bool MainHand { get; }
         public Position.Int Location { get; }
-        public Block.Face Face { get; }
+        public BaseBlock.Face Face { get; }
         public float CursorPositionX { get; }
         public float CursorPositionY { get; }
         public float CursorPositionZ { get; }
@@ -18,7 +18,7 @@ namespace nylium.Core.Networking.Packet.Client.Play {
         public CP2EPlayerBlockPlacement(MinecraftClient client, Stream stream) : base(client, stream) {
             MainHand = Data.ReadVarInt() == 0;
             Location = Data.ReadPosition();
-            Face = (Block.Face) Data.ReadVarInt();
+            Face = (BaseBlock.Face) Data.ReadVarInt();
             CursorPositionX = Data.ReadFloat();
             CursorPositionY = Data.ReadFloat();
             CursorPositionZ = Data.ReadFloat();

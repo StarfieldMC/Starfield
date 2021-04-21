@@ -109,7 +109,8 @@ namespace nylium.Core.Level.Storage.Formats {
                                 ushort blockId = BitConverter.ToUInt16(data, i * sizeof(ushort));
 
                                 if(blockId != 0) {
-                                    section.SetBlock(Blocks.Block.Create(World, BitConverter.ToUInt16(data, i * sizeof(ushort))), x, y, z);
+                                    //section.SetBlock(Blocks.BaseBlock.Create(World, BitConverter.ToUInt16(data, i * sizeof(ushort))), x, y, z);
+                                    section.SetBlock(new Block.BaseBlock(chunk, x, y, z, 0, blockId), x, y, z);
                                 }
 
                                 i++;
@@ -141,7 +142,7 @@ namespace nylium.Core.Level.Storage.Formats {
 
                 section.Iterate(block => {
                     if(block != null) {
-                        byte[] b = block.StateId.WriteLittleEndian();
+                        byte[] b = block.State.WriteLittleEndian();
 
                         buffer[i] = b[0];
                         buffer[i + 1] = b[1];

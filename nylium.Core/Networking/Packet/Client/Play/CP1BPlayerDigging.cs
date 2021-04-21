@@ -1,5 +1,5 @@
 ﻿using System.IO;
-using nylium.Core.Blocks;
+using nylium.Core.Block;
 using nylium.Utilities;
 
 namespace nylium.Core.Networking.Packet.Client.Play {
@@ -9,12 +9,12 @@ namespace nylium.Core.Networking.Packet.Client.Play {
 
         public ActionType Status { get; }
         public Position.Int Location { get; }
-        public Blocks.Block.Face Face { get; }
+        public BaseBlock.Face Face { get; }
 
         public CP1BPlayerDigging(MinecraftClient client, Stream stream) : base(client, stream) {
             Status = (ActionType) Data.ReadVarInt();
             Location = Data.ReadPosition();
-            Face = (Block.Face) Data.ReadByte();
+            Face = (BaseBlock.Face) Data.ReadByte();
         }
 
         public enum ActionType : int {
