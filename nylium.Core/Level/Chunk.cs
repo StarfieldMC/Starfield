@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections;
-using nylium.Core.Block;
+using nylium.Core.Blocks;
 using nylium.Extensions;
 using nylium.Nbt.Tags;
 
@@ -32,7 +32,7 @@ namespace nylium.Core.Level {
             Sections = new Section[SECTION_COUNT];
         }
 
-        public BaseBlock GetBlock(int x, int y, int z) {
+        public Block GetBlock(int x, int y, int z) {
             if(y < 0 || y >= Y_SIZE) return null;
 
             int id = (int) Math.Floor((double) y / Section.Y_SIZE);
@@ -42,7 +42,7 @@ namespace nylium.Core.Level {
             return Sections[id].GetBlock(x, y, z);
         }
 
-        public void SetBlock(BaseBlock block, int x, int y, int z) {
+        public void SetBlock(Block block, int x, int y, int z) {
             if(y < 0 || y >= Y_SIZE) return;
 
             int id = (int) Math.Floor((double) y / Section.Y_SIZE);
@@ -97,35 +97,35 @@ namespace nylium.Core.Level {
 
             public int Id { get; }
             public Chunk Parent { get; }
-            private BaseBlock[,,] Blocks { get; }
+            private Block[,,] Blocks { get; }
 
             public Section(int id, Chunk parent) {
                 Id = id;
                 Parent = parent;
-                Blocks = new BaseBlock[Y_SIZE, X_SIZE, Z_SIZE];
+                Blocks = new Block[Y_SIZE, X_SIZE, Z_SIZE];
             }
 
-            public Section(int id, Chunk parent, BaseBlock[,,] blocks) {
+            public Section(int id, Chunk parent, Block[,,] blocks) {
                 Id = id;
                 Parent = parent;
                 Blocks = blocks;
             }
 
-            public BaseBlock GetBlock(int x, int y, int z) {
+            public Block GetBlock(int x, int y, int z) {
                 if(x < 0 || y < 0 || z < 0) return null;
                 if(x >= X_SIZE || y >= Y_SIZE || z >= Z_SIZE) return null;
 
                 return Blocks[y, x, z];
             }
 
-            public void SetBlock(BaseBlock block, int x, int y, int z) {
+            public void SetBlock(Block block, int x, int y, int z) {
                 if(x < 0 || y < 0 || z < 0) return;
                 if(x >= X_SIZE || y >= Y_SIZE || z >= Z_SIZE) return;
 
                 byte chunkY = (byte) ((Id * Y_SIZE) + y);
 
                 if(Parent.Heightmap[x, z].Item2 < chunkY || Parent.Heightmap[x, z] == default) {
-                    Parent.Heightmap[x, z] = (true, chunkY, block.State);
+                    Parent.Heightmap[x, z] = (true, chunkY, block.StateId);
                 }
 
                 Blocks[y, x, z] = block;
@@ -141,7 +141,7 @@ namespace nylium.Core.Level {
                 return emptyCount >= X_SIZE * Y_SIZE * Z_SIZE;
             }
 
-            public void Iterate(Action<BaseBlock> action, bool flipXZ = false) {
+            public void Iterate(Action<Block> action, bool flipXZ = false) {
                 if(flipXZ) {
                     for(int y = 0; y < Y_SIZE; y++) {
                         for(int z = 0; z < Z_SIZE; z++) {
@@ -178,7 +178,7 @@ namespace nylium.Core.Level {
                         longIndex = 0;
                     }
 
-                    BitArray id = new((block == null ? (ushort) 0 : block.State).WriteLittleEndian());
+                    BitArray id = new((block == null ? (ushort) 0 : block.StateId).WriteLittleEndian());
 
                     bool[] bits = new bool[bitsPerBlock];
                     bool removing = true;

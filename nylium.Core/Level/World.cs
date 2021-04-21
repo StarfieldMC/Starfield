@@ -5,7 +5,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using NetCoreServer;
-using nylium.Core.Block;
+using nylium.Core.Blocks;
 using nylium.Core.Entity;
 using nylium.Core.Entity.Entities;
 using nylium.Core.Level.Generation;
@@ -114,7 +114,7 @@ namespace nylium.Core.Level {
             return ++lastEntityId;
         }
 
-        public BaseBlock GetBlock(int x, int y, int z) {
+        public Blocks.Block GetBlock(int x, int y, int z) {
             Chunk chunk = GetChunk((int) Math.Floor(x / (double) Chunk.X_SIZE), (int) Math.Floor(z / (double) Chunk.Z_SIZE));
 
             // of course C# has to be different and have a remainder operator instead of modulo
@@ -125,7 +125,7 @@ namespace nylium.Core.Level {
             return chunk.GetBlock(Mod(x, Chunk.X_SIZE), y, Mod(z, Chunk.Z_SIZE));
         }
 
-        public void SetBlock(BaseBlock block, int x, int y, int z) {
+        public void SetBlock(Block block, int x, int y, int z) {
             Chunk chunk = GetChunk((int) Math.Floor(x / (double) Chunk.X_SIZE), (int) Math.Floor(z / (double) Chunk.Z_SIZE));
 
             // of course C# has to be different and have a remainder operator instead of modulo

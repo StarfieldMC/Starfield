@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using DaanV2.UUID;
-using nylium.Core.Block;
+using nylium.Core.Blocks;
 using nylium.Core.Entity.Inventories;
 using nylium.Core.Items;
 using nylium.Core.Level;
@@ -182,7 +182,7 @@ namespace nylium.Core.Entity.Entities {
                         return Math.Sqrt(Math.Pow(x2 - x1, 2) + Math.Pow(y2 - y1, 2) + Math.Pow(z2 - z1, 2)) <= 6.0;
                     }
 
-                    BaseBlock block = Parent.GetBlock(digging.Location.X, digging.Location.Y, digging.Location.Z);
+                    Block block = Parent.GetBlock(digging.Location.X, digging.Location.Y, digging.Location.Z);
                     SP07AcknowledgePlayerDigging acknowledgePlayerDigging;
 
                     if(block == null) {
@@ -193,13 +193,13 @@ namespace nylium.Core.Entity.Entities {
                     }
 
                     if(!IsLegal(X, Y + 1.5, Z, digging.Location.X, digging.Location.Y, digging.Location.Z)) {
-                        acknowledgePlayerDigging = new(Client, digging.Location, block.State,
+                        acknowledgePlayerDigging = new(Client, digging.Location, block.StateId,
                             (SP07AcknowledgePlayerDigging.ActionType) digging.Status, false);
                         Client.Send(acknowledgePlayerDigging);
                         break;
                     }
 
-                    acknowledgePlayerDigging = new(Client, digging.Location, block.State,
+                    acknowledgePlayerDigging = new(Client, digging.Location, block.StateId,
                         (SP07AcknowledgePlayerDigging.ActionType) digging.Status, true);
                     Client.Send(acknowledgePlayerDigging);
 
@@ -214,21 +214,11 @@ namespace nylium.Core.Entity.Entities {
                     }
 
                     if(digging.Status == requiredAction) {
-                        //BaseBlock air = BaseBlock.Create(Parent, "minecraft:air");
-                        int Mod(int x, int m) {
-                            return ((x % m) + m) % m;
-                        }
-
-                        BaseBlock air = new Block.Blocks.AirBlock(Parent.GetChunk(
-                            (int) Math.Floor((double) digging.Location.X / Chunk.X_SIZE),
-                            (int) Math.Floor((double) digging.Location.Z / Chunk.Z_SIZE)),
-                            Mod(digging.Location.X, Chunk.X_SIZE),
-                            digging.Location.Y,
-                            Mod(digging.Location.Z, Chunk.Z_SIZE));
+                        Block air = Block.Create(Parent, "minecraft:air");
 
                         Parent.SetBlock(air, digging.Location.X, digging.Location.Y, digging.Location.Z);
 
-                        SP0BBlockChange blockChange = new(null, digging.Location, air.State);
+                        SP0BBlockChange blockChange = new(null, digging.Location, air.StateId);
                         Client.Server.MulticastAsync(blockChange, Client, Parent.GetClientsWithChunkLoaded(
                             (int) Math.Floor((double) digging.Location.X / Chunk.X_SIZE),
                             (int) Math.Floor((double) digging.Location.Z / Chunk.Z_SIZE)).ToArray());
@@ -240,22 +230,22 @@ namespace nylium.Core.Entity.Entities {
                     Position.Int pos = new(playerBlockPlacement.Location);
 
                     switch(playerBlockPlacement.Face) {
-                        case BaseBlock.Face.Top:
+                        case Block.Face.Top:
                             pos.Y++;
                             break;
-                        case BaseBlock.Face.Bottom:
+                        case Block.Face.Bottom:
                             pos.Y--;
                             break;
-                        case BaseBlock.Face.North:
+                        case Block.Face.North:
                             pos.Z--;
                             break;
-                        case BaseBlock.Face.East:
+                        case Block.Face.East:
                             pos.X++;
                             break;
-                        case BaseBlock.Face.South:
+                        case Block.Face.South:
                             pos.Z++;
                             break;
-                        case BaseBlock.Face.West:
+                        case Block.Face.West:
                             pos.X--;
                             break;
                     }
@@ -265,10 +255,9 @@ namespace nylium.Core.Entity.Entities {
                     if(Parent.GetBlock(pos.X, pos.Y, pos.Z) == null) {
                         if(!Inventory.Slots[Inventory.HeldSlot].IsEmpty()) {
                             // TODO this will not work properly with blocks that have multiple states
-                            //block = new(Parent.GetChunk(ChunkX, ChunkZ), pos.X, pos.Y, pos.Z, Item.GetItemNamedId(Inventory.Slots[Inventory.HeldSlot].Item.Id), 0);
-                            block = null;
+                            block = Block.Create(Parent, Item.GetItemNamedId(Inventory.Slots[Inventory.HeldSlot].Item.Id));
 
-                            if(block == null || block.State == 0) {
+                            if(block == null || block.StateId == 0) {
                                 break;
                             }
 
@@ -276,7 +265,7 @@ namespace nylium.Core.Entity.Entities {
 
                             Parent.SetBlock(block, pos.X, pos.Y, pos.Z);
 
-                            SP0BBlockChange _blockChange = new(null, pos, block.State);
+                            SP0BBlockChange _blockChange = new(null, pos, block.StateId);
                             Client.Server.MulticastAsync(_blockChange, Client, Parent.GetClientsWithChunkLoaded(
                                 (int) Math.Floor((double) pos.X / Chunk.X_SIZE),
                                 (int) Math.Floor((double) pos.Z / Chunk.Z_SIZE)).ToArray());

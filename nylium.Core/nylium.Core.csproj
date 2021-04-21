@@ -13,11 +13,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Block\BlockTemplate.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>BlockTemplate.tt</DependentUpon>
-    </Compile>
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -33,7 +28,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Block\Blocks\" />
     <Folder Include="Networking\Packet\Server\Handshake\" />
   </ItemGroup>
 
@@ -48,15 +42,4 @@
     <PackageReference Include="Sigil" Version="5.0.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="Block\BlockTemplate.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>BlockTemplate.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
-  </ItemGroup>
-  
 </Project>
