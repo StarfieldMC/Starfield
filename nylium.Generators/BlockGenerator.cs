@@ -73,14 +73,12 @@ namespace nylium.Core.Blocks.Foo {{
                             if1.Append(" = ");
 
                             if(property.Value == "true" || property.Value == "false") {
-                                @if.Append(bool.Parse((string) property.Value));
-                                if1.Append(bool.Parse((string) property.Value));
+                                @if.Append(((string) property.Value).ToLower());
+                                if1.Append(((string) property.Value).ToLower());
                             } else if(((string) property.Value).All(char.IsDigit)) {
-                                @if.Append(int.Parse((string) property.Value));
-                                if1.Append(int.Parse((string) property.Value));
+                                @if.Append(((string) property.Value).ToLower());
+                                if1.Append(((string) property.Value).ToLower());
                             } else {
-                                @if.Append((string) property.Value);
-
                                 @if.Append("\"");
                                 @if.Append((string) property.Value);
                                 @if.Append("\"");
@@ -91,28 +89,30 @@ namespace nylium.Core.Blocks.Foo {{
                             }
 
                             @if.Append(" && ");
-                            @if.Append(";");
+                            if1.Append(";");
                         }
 
                         string str = @if.ToString().Substring(0, @if.Length - 4);
-                        str += ") State = " + state.id + ";\n";
+                        str += ") { State = " + state.id + "; return; }\n";
 
                         propIfs += str;
                     } else {
                         propIfs += "State = " + state.id + ";";
                     }
 
-                    if1.Append(" }");
+                    if1.Append("return; }");
                     string str1 = if1.ToString();
 
                     stateIfs += str1;
                 }
 
+                string cs = "Block" + ti.ToTitleCase(id.Replace("minecraft:", "").Replace("_", " ")).Replace(" ", "");
+
                 string source = string.Format(blockBase,
-                    "Block" + ti.ToTitleCase(id.Replace("minecraft:", "").Replace("_", " ")).Replace(" ", ""),
+                    cs,
                     id, defaultState, 0, 0, propIfs, stateIfs);
 
-                context.AddSource(id.Replace("minecraft:", ""), SourceText.From(source, Encoding.UTF8));
+                context.AddSource(cs, SourceText.From(source, Encoding.UTF8));
             }
         }
 
