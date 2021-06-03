@@ -11,8 +11,8 @@ namespace nylium.Core.Blocks {
         public static ushort MinimumState { get; set; }
         public static ushort MaximumState { get; set; }
 
-        public ushort State { get; }
-        public dynamic Properties { get; }
+        public ushort State { get; set; }
+        public dynamic Properties { get; set;  }
 
         public BlockBase(dynamic properties) {
             Properties = properties;

@@ -18,12 +18,13 @@ namespace nylium.Generators {
 
         private const string blockBase = @"
 using System;
+using nylium.Core.Blocks;
 
 namespace nylium.Core.Blocks.Foo {{
 
     public class {0} {{
 
-        static {0}() {{
+        static {0}() : BlockBase {{
             Id = ""{1}"";
             DefaultState = {2};
             MinimumState = {3};
@@ -52,7 +53,10 @@ namespace nylium.Core.Blocks.Foo {{
                 string propIfs = "";
                 string stateIfs = "";
 
+                int stateCount = 0;
+
                 foreach(dynamic state in block.Value.states) {
+                    stateCount++;
                     if(state.ContainsKey("default")) {
                         if(state.@default) defaultState = state.id;
                     }
@@ -64,6 +68,8 @@ namespace nylium.Core.Blocks.Foo {{
 
                     if(state.ContainsKey("properties")) {
                         foreach(dynamic property in state.properties) {
+                            //if((string) property.Value == "east") Debugger.Break();
+
                             @if.Append("prop.");
                             @if.Append(property.Key);
                             @if.Append(" == ");
@@ -100,13 +106,17 @@ namespace nylium.Core.Blocks.Foo {{
                         propIfs += "State = " + state.id + ";";
                     }
 
-                    if1.Append("return; }");
+                    if1.Append("return; }\n");
                     string str1 = if1.ToString();
 
                     stateIfs += str1;
                 }
 
+                //if(stateCount > 2) Debugger.Break();
+
                 string cs = "Block" + ti.ToTitleCase(id.Replace("minecraft:", "").Replace("_", " ")).Replace(" ", "");
+
+                if(cs == "BlockPolishedBlackstoneWall" || cs == "BlockPistonHead" || cs == "BlockQuartzBricks" || cs == "BlockPolishedBlackstoneStairs") Debugger.Break();
 
                 string source = string.Format(blockBase,
                     cs,
