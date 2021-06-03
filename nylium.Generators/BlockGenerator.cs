@@ -80,6 +80,9 @@ namespace nylium.Core.Blocks.Foo {{
                             @if.Append(" == ");
 
                             if1.Append(" Properties.");
+                            if(Array.IndexOf(reserved, (string) property.Key) >= 0) {
+                                if1.Append("@");
+                            }
                             if1.Append(property.Key);
                             if1.Append(" = ");
 
