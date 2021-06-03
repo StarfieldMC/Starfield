@@ -16,6 +16,8 @@ namespace nylium.Generators {
     [Generator]
     public class BlockGenerator : ISourceGenerator {
 
+        private string[] reserved = new string[] { "short", "bool", "long", "int", "byte" };
+
         private const string blockBase = @"
 using System;
 using nylium.Core.Blocks;
@@ -71,6 +73,9 @@ namespace nylium.Core.Blocks.Foo {{
                             //if((string) property.Value == "east") Debugger.Break();
 
                             @if.Append("prop.");
+                            if(Array.IndexOf(reserved, (string) property.Key) >= 0) {
+                                @if.Append("@");
+                            }
                             @if.Append(property.Key);
                             @if.Append(" == ");
 
@@ -116,7 +121,7 @@ namespace nylium.Core.Blocks.Foo {{
 
                 string cs = "Block" + ti.ToTitleCase(id.Replace("minecraft:", "").Replace("_", " ")).Replace(" ", "");
 
-                if(cs.EndsWith("ConcretePowder") || cs.EndsWith("Bed") || cs.EndsWith("Stairs")) Debugger.Break();
+                if(cs.EndsWith("PistonHead")) Debugger.Break();
 
                 string source = string.Format(blockBase,
                     cs,
