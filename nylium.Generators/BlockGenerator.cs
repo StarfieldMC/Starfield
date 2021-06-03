@@ -22,9 +22,9 @@ using nylium.Core.Blocks;
 
 namespace nylium.Core.Blocks.Foo {{
 
-    public class {0} {{
+    public class {0} : BlockBase {{
 
-        static {0}() : BlockBase {{
+        static {0}() {{
             Id = ""{1}"";
             DefaultState = {2};
             MinimumState = {3};
@@ -116,7 +116,7 @@ namespace nylium.Core.Blocks.Foo {{
 
                 string cs = "Block" + ti.ToTitleCase(id.Replace("minecraft:", "").Replace("_", " ")).Replace(" ", "");
 
-                if(cs == "BlockPolishedBlackstoneWall" || cs == "BlockPistonHead" || cs == "BlockQuartzBricks" || cs == "BlockPolishedBlackstoneStairs") Debugger.Break();
+                if(cs.EndsWith("ConcretePowder") || cs.EndsWith("Bed") || cs.EndsWith("Stairs")) Debugger.Break();
 
                 string source = string.Format(blockBase,
                     cs,
