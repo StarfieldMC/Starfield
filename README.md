@@ -12,7 +12,7 @@
 # Goals/Features
 - [x] Cross-platform
 - [x] Low memory usage
-- [x] Relatively small size (<5 MB)
+- [ ] ~~Relatively small size (<5 MB)~~
 - [ ] Close-to-vanilla experience
 - [ ] Plugin API
 - [ ] High customizability
