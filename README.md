@@ -9,16 +9,10 @@
   <br><br>
 </p>
 
-# NOTICE
-This repository has been archived, which means that it won't be updated anymore.  
-I have lost the will to do this and I have realized that this is much more complicated than I thought.  
-I might come back to this project sometime in the future but I don't want to give any warranty.  
-Feel free to fork this repository and if you have any questions, send them to the email address on my GitHub profile.
-
 # Goals/Features
 - [x] Cross-platform
 - [x] Low memory usage
-- [ ] ~~Relatively small size (<5 MB)~~
+- [ ] Relatively small size (<5 MB)
 - [ ] Close-to-vanilla experience
 - [ ] Plugin API
 - [ ] High customizability
