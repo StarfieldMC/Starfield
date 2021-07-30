@@ -1,4 +1,6 @@
-﻿using nylium.Core;
+﻿using System.Linq;
+using nylium.Core;
+using nylium.Core.Block;
 using nylium.Nbt;
 using nylium.Nbt.Tags;
 
@@ -7,6 +9,13 @@ namespace nylium.Launch {
     class Program {
 
         static void Main(string[] args) {
+            if(args.Length > 0) {
+                if(args[0] == "--generator") {
+                    BlockGenerator.Run(args.Skip(1).ToArray());
+                    return;
+                }
+            }
+            
             Nylium.Run(args);
 
             //NBTFile nbt = new(new System.IO.FileStream("D:\\poo.nbt", System.IO.FileMode.OpenOrCreate), new("root") {

@@ -89,7 +89,7 @@ namespace nylium.Core.Networking {
             Configuration = new() {
                 ViewDistance = 12,
                 CompressionThreshold = 128,
-                OnlineMode = true
+                OnlineMode = false
             };
 
             Http = new();

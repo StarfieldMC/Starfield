@@ -42,10 +42,4 @@
     <PackageReference Include="Sigil" Version="5.0.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\nylium.Generators\nylium.Generators.csproj"
-                      OutputItemType="Analyzer"
-                      ReferenceOutputAssembly="false" />
-  </ItemGroup>
-
 </Project>
