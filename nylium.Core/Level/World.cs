@@ -5,7 +5,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using NetCoreServer;
-using nylium.Core.Blocks;
+using nylium.Core.Block;
 using nylium.Core.Entity;
 using nylium.Core.Entity.Entities;
 using nylium.Core.Level.Generation;
@@ -69,7 +69,8 @@ namespace nylium.Core.Level {
                 }
 
                 totalStopwatch.Stop();
-                Log.Information(string.Format("Finished generating world! ({0} chunks) Took {1}ms", i, Math.Round(totalStopwatch.Elapsed.TotalMilliseconds, 2)));
+                Log.Information(string.Format("Finished generating world! ({0} chunks) Took {1}ms",
+                    i, Math.Round(totalStopwatch.Elapsed.TotalMilliseconds, 2)));
 
                 Format.Save();
             } else {
@@ -98,15 +99,25 @@ namespace nylium.Core.Level {
             } while(true);
         }
 
+        private int _timeUpdateCounter = 0;
+
+        // TODO fix this idk
         private void Tick() {
-            Age++;
+            _timeUpdateCounter++;
 
-            SP4ETimeUpdate timeUpdate = new(null, Age, Age % 24000);
-            Server.MulticastAsync(timeUpdate);
+            if(_timeUpdateCounter == 20) {
+                Age++;
 
-            if(Age % 24000 == 0) {
-                Task.Run(() => Format.Save());
+                SP4ETimeUpdate timeUpdate = new(null, Age, Age % 24000);
+                Server.MulticastAsync(timeUpdate);
+
+                _timeUpdateCounter = 0;
             }
+            
+            // save world every hour (3 minecraft days)
+            /*if(Age % (24000 * 3) == 1) {
+                Task.Run(() => Format.Save());
+            }*/
         }
 
         // TODO better way to do this?
@@ -114,7 +125,7 @@ namespace nylium.Core.Level {
             return ++lastEntityId;
         }
 
-        public Blocks.Block GetBlock(int x, int y, int z) {
+        public BlockBase GetBlock(int x, int y, int z) {
             Chunk chunk = GetChunk((int) Math.Floor(x / (double) Chunk.X_SIZE), (int) Math.Floor(z / (double) Chunk.Z_SIZE));
 
             // of course C# has to be different and have a remainder operator instead of modulo
@@ -125,7 +136,7 @@ namespace nylium.Core.Level {
             return chunk.GetBlock(Mod(x, Chunk.X_SIZE), y, Mod(z, Chunk.Z_SIZE));
         }
 
-        public void SetBlock(Block block, int x, int y, int z) {
+        public void SetBlock(BlockBase block, int x, int y, int z) {
             Chunk chunk = GetChunk((int) Math.Floor(x / (double) Chunk.X_SIZE), (int) Math.Floor(z / (double) Chunk.Z_SIZE));
 
             // of course C# has to be different and have a remainder operator instead of modulo

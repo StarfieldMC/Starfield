@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using DaanV2.UUID;
-using nylium.Core.Blocks;
+using nylium.Core.Block;
+using nylium.Core.Block.Blocks;
 using nylium.Core.Entity.Inventories;
 using nylium.Core.Items;
 using nylium.Core.Level;
@@ -62,15 +63,13 @@ namespace nylium.Core.Entity.Entities {
             bool newOnGround = OnGround;
 
             switch(packet) {
-                case CP12PlayerPosition:
-                    CP12PlayerPosition p = (CP12PlayerPosition) packet;
+                case CP12PlayerPosition p:
                     newX = p.X;
                     newY = p.FeetY;
                     newZ = p.Z;
                     newOnGround = p.OnGround;
                     break;
-                case CP13PlayerPositionAndRotation:
-                    CP13PlayerPositionAndRotation _p = (CP13PlayerPositionAndRotation) packet;
+                case CP13PlayerPositionAndRotation _p:
                     newX = _p.X;
                     newY = _p.FeetY;
                     newZ = _p.Z;
@@ -78,8 +77,7 @@ namespace nylium.Core.Entity.Entities {
                     newPitch = _p.Pitch;
                     newOnGround = _p.OnGround;
                     break;
-                case CP14PlayerRotation:
-                    CP14PlayerRotation __p = (CP14PlayerRotation) packet;
+                case CP14PlayerRotation __p:
                     newYaw = __p.Yaw;
                     newPitch = __p.Pitch;
                     newOnGround = __p.OnGround;
@@ -130,8 +128,8 @@ namespace nylium.Core.Entity.Entities {
                 Client.Server.MulticastAsync(entityPosition, Client);
 
                 // player changed chunk
-                if(ChunkX != Math.Floor(LastX / Chunk.X_SIZE)
-                    || ChunkZ != Math.Floor(LastZ / Chunk.Z_SIZE)) {
+                if(ChunkX != (int) Math.Floor(LastX / Chunk.X_SIZE)
+                    || ChunkZ != (int) Math.Floor(LastZ / Chunk.Z_SIZE)) {
 
                     SP40UpdateViewPosition updateViewPosition = new(Client, ChunkX, ChunkZ);
                     Client.Send(updateViewPosition);
@@ -175,14 +173,12 @@ namespace nylium.Core.Entity.Entities {
 
         public void HandleWorldAction(MinecraftPacket packet) {
             switch(packet) {
-                case CP1BPlayerDigging:
-                    CP1BPlayerDigging digging = (CP1BPlayerDigging) packet;
-
+                case CP1BPlayerDigging digging:
                     bool IsLegal(double x1, double y1, double z1, double x2, double y2, double z2) {
                         return Math.Sqrt(Math.Pow(x2 - x1, 2) + Math.Pow(y2 - y1, 2) + Math.Pow(z2 - z1, 2)) <= 6.0;
                     }
-
-                    Block block = Parent.GetBlock(digging.Location.X, digging.Location.Y, digging.Location.Z);
+                    
+                    BlockBase block = Parent.GetBlock(digging.Location.X, digging.Location.Y, digging.Location.Z);
                     SP07AcknowledgePlayerDigging acknowledgePlayerDigging;
 
                     if(block == null) {
@@ -193,13 +189,13 @@ namespace nylium.Core.Entity.Entities {
                     }
 
                     if(!IsLegal(X, Y + 1.5, Z, digging.Location.X, digging.Location.Y, digging.Location.Z)) {
-                        acknowledgePlayerDigging = new(Client, digging.Location, block.StateId,
+                        acknowledgePlayerDigging = new(Client, digging.Location, block.State,
                             (SP07AcknowledgePlayerDigging.ActionType) digging.Status, false);
                         Client.Send(acknowledgePlayerDigging);
                         break;
                     }
 
-                    acknowledgePlayerDigging = new(Client, digging.Location, block.StateId,
+                    acknowledgePlayerDigging = new(Client, digging.Location, block.State,
                         (SP07AcknowledgePlayerDigging.ActionType) digging.Status, true);
                     Client.Send(acknowledgePlayerDigging);
 
@@ -214,38 +210,36 @@ namespace nylium.Core.Entity.Entities {
                     }
 
                     if(digging.Status == requiredAction) {
-                        Block air = Block.Create(Parent, "minecraft:air");
+                        BlockBase air = new BlockAir();
 
                         Parent.SetBlock(air, digging.Location.X, digging.Location.Y, digging.Location.Z);
 
-                        SP0BBlockChange blockChange = new(null, digging.Location, air.StateId);
+                        SP0BBlockChange blockChange = new(null, digging.Location, air.State);
                         Client.Server.MulticastAsync(blockChange, Client, Parent.GetClientsWithChunkLoaded(
                             (int) Math.Floor((double) digging.Location.X / Chunk.X_SIZE),
                             (int) Math.Floor((double) digging.Location.Z / Chunk.Z_SIZE)).ToArray());
                     }
                     break;
-                case CP2EPlayerBlockPlacement:
-                    CP2EPlayerBlockPlacement playerBlockPlacement = (CP2EPlayerBlockPlacement) packet;
-
+                case CP2EPlayerBlockPlacement playerBlockPlacement:
                     Position.Int pos = new(playerBlockPlacement.Location);
 
                     switch(playerBlockPlacement.Face) {
-                        case Block.Face.Top:
+                        case Face.Top:
                             pos.Y++;
                             break;
-                        case Block.Face.Bottom:
+                        case Face.Bottom:
                             pos.Y--;
                             break;
-                        case Block.Face.North:
+                        case Face.North:
                             pos.Z--;
                             break;
-                        case Block.Face.East:
+                        case Face.East:
                             pos.X++;
                             break;
-                        case Block.Face.South:
+                        case Face.South:
                             pos.Z++;
                             break;
-                        case Block.Face.West:
+                        case Face.West:
                             pos.X--;
                             break;
                     }
@@ -254,10 +248,11 @@ namespace nylium.Core.Entity.Entities {
 
                     if(Parent.GetBlock(pos.X, pos.Y, pos.Z) == null) {
                         if(!Inventory.Slots[Inventory.HeldSlot].IsEmpty()) {
+                            // TODO i cant to this, great
                             // TODO this will not work properly with blocks that have multiple states
-                            block = Block.Create(Parent, Item.GetItemNamedId(Inventory.Slots[Inventory.HeldSlot].Item.Id));
+                            //block = Block.Create(Parent, Item.GetItemNamedId(Inventory.Slots[Inventory.HeldSlot].Item.Id));
 
-                            if(block == null || block.StateId == 0) {
+                            /*if(block == null || block.State == 0) {
                                 break;
                             }
 
@@ -265,10 +260,10 @@ namespace nylium.Core.Entity.Entities {
 
                             Parent.SetBlock(block, pos.X, pos.Y, pos.Z);
 
-                            SP0BBlockChange _blockChange = new(null, pos, block.StateId);
+                            SP0BBlockChange _blockChange = new(null, pos, block.State);
                             Client.Server.MulticastAsync(_blockChange, Client, Parent.GetClientsWithChunkLoaded(
                                 (int) Math.Floor((double) pos.X / Chunk.X_SIZE),
-                                (int) Math.Floor((double) pos.Z / Chunk.Z_SIZE)).ToArray());
+                                (int) Math.Floor((double) pos.Z / Chunk.Z_SIZE)).ToArray());*/
                         }
                     }
                     break;
@@ -279,13 +274,10 @@ namespace nylium.Core.Entity.Entities {
 
         public void HandleInventoryAction(MinecraftPacket packet) {
             switch(packet) {
-                case CP25HeldItemChange:
-                    CP25HeldItemChange heldItemChange = (CP25HeldItemChange) packet;
+                case CP25HeldItemChange heldItemChange:
                     Inventory.HeldSlot = heldItemChange.Slot + 36; // mojang moment
                     break;
-                case CP28CreativeInventoryAction:
-                    CP28CreativeInventoryAction creativeInventoryAction = (CP28CreativeInventoryAction) packet;
-
+                case CP28CreativeInventoryAction creativeInventoryAction:
                     if(creativeInventoryAction.Slot == -1) {
                         // TODO spawn item entity here
                     } else {

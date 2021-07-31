@@ -8,7 +8,7 @@ using System.Text;
 using DaanV2.UUID;
 using Jil;
 using NetCoreServer;
-using nylium.Core.Blocks;
+using nylium.Core.Block;
 using nylium.Core.Configuration;
 using nylium.Core.Entity.Entities;
 using nylium.Core.Level;
@@ -76,9 +76,8 @@ namespace nylium.Core.Networking {
 
         private bool HandleHandshakePacket(MinecraftPacket packet) {
             switch(packet) {
-                case CH00Handshake: {
-                        CH00Handshake handshake = (CH00Handshake) packet;
-                        ProtocolState = handshake.NextState;
+                case CH00Handshake handshake: {
+                    ProtocolState = handshake.NextState;
                         break;
                     }
                 default:
@@ -95,10 +94,8 @@ namespace nylium.Core.Networking {
                         Send(response);
                         break;
                     }
-                case CS01Ping: {
-                        CS01Ping ping = (CS01Ping) packet;
-
-                        SS01Pong pong = new(this, ping.Payload);
+                case CS01Ping ping: {
+                    SS01Pong pong = new(this, ping.Payload);
                         Send(pong);
                         Disconnect();
                         break;
@@ -112,9 +109,8 @@ namespace nylium.Core.Networking {
 
         private bool HandleLoginPacket(MinecraftPacket packet) {
             switch(packet) {
-                case CL00LoginStart: {
-                        CL00LoginStart loginStart = (CL00LoginStart) packet;
-                        username = loginStart.Username;
+                case CL00LoginStart loginStart: {
+                    username = loginStart.Username;
 
                         if(Server.Configuration.OnlineMode) {
                             RNGCryptoServiceProvider rng = new();
@@ -151,10 +147,8 @@ namespace nylium.Core.Networking {
                         }
                         break;
                     }
-                case CL01EncryptionResponse: {
-                        CL01EncryptionResponse encryptionResponse = (CL01EncryptionResponse) packet;
-
-                        byte[] decryptedSharedSecret = Server.Decryptor.ProcessBlock((byte[]) (Array) encryptionResponse.SharedSecret,
+                case CL01EncryptionResponse encryptionResponse: {
+                    byte[] decryptedSharedSecret = Server.Decryptor.ProcessBlock((byte[]) (Array) encryptionResponse.SharedSecret,
                             0, encryptionResponse.SharedSecret.Length);
                         byte[] decryptedVerifyToken = Server.Decryptor.ProcessBlock((byte[]) (Array) encryptionResponse.VerifyToken,
                             0, encryptionResponse.VerifyToken.Length);
@@ -246,9 +240,8 @@ namespace nylium.Core.Networking {
 
                         break;
                     }
-                case CP05ClientSettings: {
-                        CP05ClientSettings clientSettings = (CP05ClientSettings) packet;
-                        Configuration.ViewDistance = (clientSettings.ViewDistance > Server.Configuration.ViewDistance)
+                case CP05ClientSettings clientSettings: {
+                    Configuration.ViewDistance = (clientSettings.ViewDistance > Server.Configuration.ViewDistance)
                             ? Server.Configuration.ViewDistance : clientSettings.ViewDistance;
 
                         SP13WindowItems windowItems = new(this, 0, Player.Inventory.Slots);
@@ -321,10 +314,8 @@ namespace nylium.Core.Networking {
                         GameState = State.Playing;
                         break;
                     }
-                case CP2CAnimation: {
-                        CP2CAnimation animation = (CP2CAnimation) packet;
-
-                        SP05EntityAnimation entityAnimation = new(null, Player.EntityId, animation.MainHand ?
+                case CP2CAnimation animation: {
+                    SP05EntityAnimation entityAnimation = new(null, Player.EntityId, animation.MainHand ?
                             SP05EntityAnimation.AnimationType.SwingMainArm : SP05EntityAnimation.AnimationType.SwingOffhand);
                         Server.MulticastAsync(entityAnimation, this);
                         break;
@@ -401,9 +392,9 @@ namespace nylium.Core.Networking {
                         });
 
                         DataTypes.Short blockCount = new((short) nonAirBlockCount);
-                        DataTypes.UByte bitsPerBlock = new((byte) Block.bitsPerBlock);
+                        DataTypes.UByte bitsPerBlock = new((byte) 15); // TODO dynamically calculate bits per block
 
-                        long[] compactedLong = section.ToCompactedLongArray(Block.bitsPerBlock);
+                        long[] compactedLong = section.ToCompactedLongArray(15);
 
                         DataTypes.VarInt dataArrayLength = new(compactedLong.Length);
                         DataTypes.Array<long, DataTypes.Long> dataArray = new(compactedLong);

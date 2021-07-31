@@ -4,7 +4,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using NetCoreServer;
-using nylium.Core.Blocks;
 using nylium.Core.Configuration;
 using nylium.Core.Entity;
 using nylium.Core.Items;
@@ -81,7 +80,6 @@ namespace nylium.Core.Networking {
             }
 
             MinecraftPacket.Initialize();
-            Block.Initialize();
             BaseEntity.Initialize();
             Item.Initialize();
             Tag.Initialize();
