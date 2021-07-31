@@ -248,7 +248,7 @@ namespace nylium.Core.Entity.Entities {
 
                     if(Parent.GetBlock(pos.X, pos.Y, pos.Z) == null) {
                         if(!Inventory.Slots[Inventory.HeldSlot].IsEmpty()) {
-                            // TODO i cant to this, great
+                            // TODO improve this with the item rewrite
                             // TODO this will not work properly with blocks that have multiple states
                             //block = Block.Create(Parent, Item.GetItemNamedId(Inventory.Slots[Inventory.HeldSlot].Item.Id));
 

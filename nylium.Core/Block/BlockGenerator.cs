@@ -137,6 +137,8 @@ namespace nylium.Core.Block.Blocks {{
             
             dynamic blockstates = JSON.DeserializeDynamic(Encoding.UTF8.GetString(resultStream.ToArray()));
 
+            int bitsPerBlock = 0;
+
             foreach(dynamic block in blocks) {
                 string namedId = block.Key;
                 
@@ -285,6 +287,9 @@ namespace nylium.Core.Block.Blocks {{
                 File.WriteAllText(Path.Combine(outputDirectory, generated.Key),
                     generated.Value);
             }
+            
+            bitsPerBlock = (int) Math.Ceiling(Math.Log2(maxStateId));
+            Console.WriteLine("Bits per block: " + bitsPerBlock);
         }
     }
 }

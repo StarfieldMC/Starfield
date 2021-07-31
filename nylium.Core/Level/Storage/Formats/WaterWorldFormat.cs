@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using Jil;
+using nylium.Core.Block;
 using nylium.Core.Entity.Entities;
 using nylium.Core.Entity.Inventories;
 using nylium.Core.Networking.DataTypes;
@@ -109,8 +110,7 @@ namespace nylium.Core.Level.Storage.Formats {
                                 ushort blockId = BitConverter.ToUInt16(data, i * sizeof(ushort));
 
                                 if(blockId != 0) {
-                                    // TODO
-                                    // section.SetBlock(Blocks.Block.Create(World, BitConverter.ToUInt16(data, i * sizeof(ushort))), x, y, z);
+                                    section.SetBlock(new BlockBase.Dynamic(BitConverter.ToUInt16(data, i * sizeof(ushort))), x, y, z);
                                 }
 
                                 i++;
@@ -154,7 +154,7 @@ namespace nylium.Core.Level.Storage.Formats {
                     i += sizeof(ushort);
                 });
 
-                if(!buffer.All(b => b == 0)) {
+                if(buffer.Any(b => b != 0)) {
                     if(ChunkLookup.ContainsKey((chunk.X, chunk.Z, id))) {
                         (long, long) info = ChunkLookup[(chunk.X, chunk.Z, id)];
 

@@ -13,9 +13,6 @@ namespace nylium.Core {
         public static MinecraftServer Server { get; set; }
 
         public static void Run(string[] args) {
-            //Blocks.BlockBase block = new Blocks.Foo.CobblestoneStairs(3662);
-            //Console.WriteLine(block.Properties);
-            //Console.ReadKey();
             Directory.CreateDirectory(WORLDS_DIRECTORY);
 
             Log.Logger = new LoggerConfiguration()

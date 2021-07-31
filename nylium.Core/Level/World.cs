@@ -101,7 +101,7 @@ namespace nylium.Core.Level {
 
         private int _timeUpdateCounter = 0;
 
-        // TODO fix this idk
+        // TODO fix time update being sent every tick
         private void Tick() {
             _timeUpdateCounter++;
 

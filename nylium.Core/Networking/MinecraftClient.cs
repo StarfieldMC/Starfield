@@ -366,7 +366,6 @@ namespace nylium.Core.Networking {
         public void LoadChunks(Chunk[] chunks) {
             MemoryStream convertStream = RMSManager.Get().GetStream("nylium.Core.Networking.MinecraftClient.LoadChunks()");
 
-            // TODO somehow the entire chunk is underwater?
             for(int i = 0; i < chunks.Length; i++) {
                 Chunk chunk = chunks[i];
                 TagCompound heightmap = chunk.CreateHeightmap();
@@ -392,9 +391,9 @@ namespace nylium.Core.Networking {
                         });
 
                         DataTypes.Short blockCount = new((short) nonAirBlockCount);
-                        DataTypes.UByte bitsPerBlock = new((byte) 15); // TODO dynamically calculate bits per block
+                        DataTypes.UByte bitsPerBlock = new(BlockBase.bitsPerBlock);
 
-                        long[] compactedLong = section.ToCompactedLongArray(15);
+                        long[] compactedLong = section.ToCompactedLongArray(BlockBase.bitsPerBlock);
 
                         DataTypes.VarInt dataArrayLength = new(compactedLong.Length);
                         DataTypes.Array<long, DataTypes.Long> dataArray = new(compactedLong);

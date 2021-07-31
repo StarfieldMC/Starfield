@@ -9,6 +9,8 @@ using nylium.Utilities;
 namespace nylium.Core.Block {
 
     public abstract class BlockBase {
+
+        public const int bitsPerBlock = 15;
         
         // TODO we don't want this
         private static readonly Dictionary<string, (ushort, ushort, int)> blocks = new();
@@ -20,7 +22,7 @@ namespace nylium.Core.Block {
         public abstract ushort DefaultState { get; }
 
         public abstract ushort State { get; set; }
-        
+
         // TODO we don't want this
         static BlockBase() {
             using(MemoryStream compressedStream = RMSManager.Get().GetStream(Properties.Resources.blockstates)) {
@@ -47,6 +49,21 @@ namespace nylium.Core.Block {
         public static int GetBlockProtocolId(string namedId) {
             return blocks.ContainsKey(namedId.Replace("minecraft:", "")) ?
                 blocks[namedId.Replace("minecraft:", "")].Item3 : -1;
+        }
+
+        public class Dynamic : BlockBase {
+
+            public override string Id { get { return "minecraft:unknown"; } }
+            
+            public override ushort MinimumState { get { return 0; } }
+            public override ushort MaximumState { get { return 0; } }
+            public override ushort DefaultState { get { return 0; } }
+            
+            public override ushort State { get; set; }
+
+            public Dynamic(ushort state) {
+                State = state;
+            }
         }
     }
 }
