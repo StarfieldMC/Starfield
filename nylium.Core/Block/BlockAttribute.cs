@@ -12,10 +12,10 @@ namespace nylium.Core.Block {
         public ushort MaximumState { get; }
         public ushort DefaultState { get; }
 
-        public BlockAttribute(Identifier id, int protocolId,
+        public BlockAttribute(string id, int protocolId,
             ushort minState, ushort maxState, ushort defaultState) {
 
-            Id = id;
+            Id = new Identifier(id);
             ProtocolId = protocolId;
             MinimumState = minState;
             MaximumState = maxState;
