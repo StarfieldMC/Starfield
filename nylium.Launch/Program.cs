@@ -1,8 +1,6 @@
 ﻿using System.Linq;
 using nylium.Core;
-using nylium.Core.Block;
-using nylium.Nbt;
-using nylium.Nbt.Tags;
+using nylium.Generators;
 
 namespace nylium.Launch {
 
@@ -10,7 +8,7 @@ namespace nylium.Launch {
 
         static void Main(string[] args) {
             if(args.Length > 0) {
-                if(args[0] == "--generator") {
+                if(args[0] == "--generate-blocks") {
                     BlockGenerator.Run(args.Skip(1).ToArray());
                     return;
                 }

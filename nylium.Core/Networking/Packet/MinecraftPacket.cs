@@ -38,7 +38,7 @@ namespace nylium.Core.Networking.Packet {
                         || string.Equals(t.Namespace, "nylium.Core.Networking.Packet.Client.Play"))
                       .ToArray();
 
-            Type[] ctorParams = new Type[] { typeof(MinecraftClient), typeof(Stream) };
+            Type[] ctorParams = { typeof(MinecraftClient), typeof(Stream) };
 
             for(int i = 0; i < packetTypes.Length; i++) {
                 Type t = packetTypes[i];

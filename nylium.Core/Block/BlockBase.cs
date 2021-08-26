@@ -1,69 +1,65 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
+using IntervalTree;
 using Ionic.Zlib;
 using Jil;
 using nylium.Utilities;
+using nylium.Utilities.Collections;
+using Serilog;
 
 namespace nylium.Core.Block {
 
     public abstract class BlockBase {
 
-        public const int bitsPerBlock = 15;
+        public const int BITS_PER_BLOCK = 15;
         
-        // TODO we don't want this
-        private static readonly Dictionary<string, (ushort, ushort, int)> blocks = new();
-
-        public abstract string Id { get; }
-
-        public abstract ushort MinimumState { get; }
-        public abstract ushort MaximumState { get; }
-        public abstract ushort DefaultState { get; }
+        private BlockAttribute Attribute {
+            get {
+                return GetType().GetCustomAttribute<BlockAttribute>(false);
+            }
+        }
+        
+        public Identifier Id { get { return Attribute.Id; } }
+        public int ProtocolId { get { return Attribute.ProtocolId; } }
+        
+        public ushort MinimumState { get { return Attribute.MinimumState; } }
+        public ushort MaximumState { get { return Attribute.MaximumState; } }
+        public ushort DefaultState { get { return Attribute.DefaultState; } }
 
         public abstract ushort State { get; set; }
+        
+        public BlockBase() { }
+        public BlockBase(ushort state) { }
 
-        // TODO we don't want this
-        static BlockBase() {
-            using(MemoryStream compressedStream = RMSManager.Get().GetStream(Properties.Resources.blockstates)) {
-                using(GZipStream zipStream = new(compressedStream, CompressionMode.Decompress)) {
-                    using(MemoryStream resultStream = RMSManager.Get().GetStream()) {
-                        zipStream.CopyTo(resultStream);
-
-                        dynamic json = JSON.DeserializeDynamic(Encoding.UTF8.GetString(resultStream.ToArray()));
-
-                        foreach(dynamic block in json[0].blocks.block) {
-                            string namedId = block.Value.text_id;
-                            int id = block.Value.numeric_id;
-                            int minState = block.Value.min_state_id;
-                            int maxState = block.Value.max_state_id;
-
-                            blocks.Add(namedId, ((ushort) minState, (ushort) maxState, id));
-                        }
-                    }
-                }
-            }
+        private static BlockAttribute GetAttribute(Type block) {
+            return block.GetCustomAttribute<BlockAttribute>(false);
         }
         
-        // TODO we don't want this
-        public static int GetBlockProtocolId(string namedId) {
-            return blocks.ContainsKey(namedId.Replace("minecraft:", "")) ?
-                blocks[namedId.Replace("minecraft:", "")].Item3 : -1;
+        public static Identifier GetId(Type block) {
+            return GetAttribute(block).Id;
         }
-
-        public class Dynamic : BlockBase {
-
-            public override string Id { get { return "minecraft:unknown"; } }
-            
-            public override ushort MinimumState { get { return 0; } }
-            public override ushort MaximumState { get { return 0; } }
-            public override ushort DefaultState { get { return 0; } }
-            
-            public override ushort State { get; set; }
-
-            public Dynamic(ushort state) {
-                State = state;
-            }
+        
+        public static int GetProtocolId(Type block) {
+            return GetAttribute(block).ProtocolId;
+        }
+        
+        public static ushort GetMinimumState(Type block) {
+            return GetAttribute(block).MinimumState;
+        }
+        
+        public static ushort GetMaximumState(Type block) {
+            return GetAttribute(block).MaximumState;
+        }
+        
+        public static ushort GetDefaultState(Type block) {
+            return GetAttribute(block).DefaultState;
         }
     }
 }

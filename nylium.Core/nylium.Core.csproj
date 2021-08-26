@@ -28,6 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Block\Blocks" />
     <Folder Include="Networking\Packet\Server\Handshake\" />
   </ItemGroup>
 
@@ -37,6 +38,7 @@
     <PackageReference Include="DeepCloner" Version="0.10.2" />
     <PackageReference Include="Jil" Version="3.0.0-alpha2" />
     <PackageReference Include="NetCoreServer" Version="5.0.15" />
+    <PackageReference Include="RangeTree" Version="3.0.1" />
     <PackageReference Include="Serilog" Version="2.10.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="4.0.0-dev-00831" />
     <PackageReference Include="Sigil" Version="5.0.0" />
