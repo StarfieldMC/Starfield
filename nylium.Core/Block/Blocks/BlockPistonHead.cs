@@ -271,9 +271,9 @@ Type = "sticky";
             State = state;
         }
 
-        public BlockPistonHead(string facing, bool short, string type) {
+        public BlockPistonHead(string facing, bool @short, string type) {
             Facing = facing;
-            Short = short;
+            Short = @short;
             Type = type;
         }
     }

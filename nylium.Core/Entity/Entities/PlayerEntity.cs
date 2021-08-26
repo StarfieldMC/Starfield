@@ -249,10 +249,10 @@ namespace nylium.Core.Entity.Entities {
                     if(Parent.GetBlock(pos.X, pos.Y, pos.Z) == null) {
                         if(!Inventory.Slots[Inventory.HeldSlot].IsEmpty()) {
                             // TODO improve this with the item rewrite
-                            // TODO this will not work properly with blocks that have multiple states
-                            //block = Block.Create(Parent, Item.GetItemNamedId(Inventory.Slots[Inventory.HeldSlot].Item.Id));
-
-                            /*if(block == null || block.State == 0) {
+                            block = BlockRepository.Create(
+                                new Identifier(Item.GetItemNamedId(Inventory.Slots[Inventory.HeldSlot].Item.Id)));
+                            
+                            if(block == null || block.State == 0) {
                                 break;
                             }
 
@@ -263,7 +263,7 @@ namespace nylium.Core.Entity.Entities {
                             SP0BBlockChange _blockChange = new(null, pos, block.State);
                             Client.Server.MulticastAsync(_blockChange, Client, Parent.GetClientsWithChunkLoaded(
                                 (int) Math.Floor((double) pos.X / Chunk.X_SIZE),
-                                (int) Math.Floor((double) pos.Z / Chunk.Z_SIZE)).ToArray());*/
+                                (int) Math.Floor((double) pos.Z / Chunk.Z_SIZE)).ToArray());
                         }
                     }
                     break;

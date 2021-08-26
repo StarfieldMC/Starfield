@@ -47,7 +47,8 @@ namespace nylium.Core.Tags {
                                     int[] ids = new int[tag.Value.values.Length];
 
                                     for(int i = 0; i < tag.Value.values.Length; i++) {
-                                        int id = BlockBase.GetBlockProtocolId((string) tag.Value.values[i]);
+                                        int id = BlockRepository.Create(new Identifier((string) tag.Value.values[i]))
+                                            .ProtocolId;
 
                                         if(id != -1) {
                                             ids[i] = id;

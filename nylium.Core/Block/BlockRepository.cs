@@ -6,7 +6,7 @@ using System.Reflection;
 using nylium.Utilities.Collections;
 using Serilog;
 using IntervalTree;
-using nylium.Core.Networking.DataTypes;
+using nylium.Utilities;
 
 namespace nylium.Core.Block {
     
@@ -58,15 +58,15 @@ namespace nylium.Core.Block {
             Log.Debug("Initialized block repository in " + Math.Round(stopwatch.Elapsed.TotalMilliseconds, 2) + "ms");
         }
 
-        public BlockBase Create(ushort state) {
+        public static BlockBase Create(ushort state) {
             return stateBlocks.Query(state).First()(state);
         }
 
-        public BlockBase Create(Identifier id) {
+        public static BlockBase Create(Identifier id) {
             return blocks.Get(id)();
         }
 
-        public BlockBase Create(int protocolId) {
+        public static BlockBase Create(int protocolId) {
             return blocks.Get(protocolId)();
         }
     }

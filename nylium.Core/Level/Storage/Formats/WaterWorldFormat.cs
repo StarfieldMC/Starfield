@@ -110,7 +110,8 @@ namespace nylium.Core.Level.Storage.Formats {
                                 ushort blockId = BitConverter.ToUInt16(data, i * sizeof(ushort));
 
                                 if(blockId != 0) {
-                                    section.SetBlock(new BlockBase.Dynamic(BitConverter.ToUInt16(data, i * sizeof(ushort))), x, y, z);
+                                    section.SetBlock(BlockRepository.Create(BitConverter.ToUInt16(data, i * sizeof(ushort))),
+                                        x, y, z);
                                 }
 
                                 i++;

@@ -391,9 +391,9 @@ namespace nylium.Core.Networking {
                         });
 
                         DataTypes.Short blockCount = new((short) nonAirBlockCount);
-                        DataTypes.UByte bitsPerBlock = new(BlockBase.bitsPerBlock);
+                        DataTypes.UByte bitsPerBlock = new(BlockBase.BITS_PER_BLOCK);
 
-                        long[] compactedLong = section.ToCompactedLongArray(BlockBase.bitsPerBlock);
+                        long[] compactedLong = section.ToCompactedLongArray(BlockBase.BITS_PER_BLOCK);
 
                         DataTypes.VarInt dataArrayLength = new(compactedLong.Length);
                         DataTypes.Array<long, DataTypes.Long> dataArray = new(compactedLong);
