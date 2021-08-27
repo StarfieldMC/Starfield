@@ -1,7 +1,12 @@
 ﻿using System;
 using System.IO;
 using System.Net;
+using nylium.Core.Block;
+using nylium.Core.Entity;
+using nylium.Core.Items;
 using nylium.Core.Networking;
+using nylium.Core.Networking.Packet;
+using nylium.Core.Tags;
 using Serilog;
 
 namespace nylium.Core {
@@ -26,6 +31,12 @@ namespace nylium.Core {
 
             AppDomain.CurrentDomain.UnhandledException += ShutdownHook;
             AppDomain.CurrentDomain.ProcessExit += ShutdownHook;
+            
+            MinecraftPacket.Initialize();
+            BaseEntity.Initialize();
+            BlockRepository.Initialize();
+            Item.Initialize();
+            Tag.Initialize();
 
             Server = new(IPAddress.Any, args.Length > 0 ? int.Parse(args[0]) : 25565);
             Server.Start();

@@ -79,11 +79,6 @@ namespace nylium.Core.Networking {
                 TheEndDimension = new NBTFile().Read(stream);
             }
 
-            MinecraftPacket.Initialize();
-            BaseEntity.Initialize();
-            Item.Initialize();
-            Tag.Initialize();
-
             Configuration = new() {
                 ViewDistance = 12,
                 CompressionThreshold = 128,

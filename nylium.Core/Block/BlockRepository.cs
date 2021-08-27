@@ -23,8 +23,8 @@ namespace nylium.Core.Block {
 
             Assembly.GetExecutingAssembly().GetTypes()
                 .Where(t => t.Namespace == "nylium.Core.Block.Blocks")
-                .AsParallel()
-                .ForAll(t => {
+                .ToList()
+                .ForEach(t => {
                     ConstructorInfo constructor = t.GetConstructor(ctorParams);
                     ConstructorInfo defaultConstructor = t.GetConstructor(Type.EmptyTypes);
                     
