@@ -58,5 +58,12 @@ namespace nylium.Generators.Properties {
                 return ((byte[])(obj));
             }
         }
+        
+        internal static byte[] items {
+            get {
+                object obj = ResourceManager.GetObject("items", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
     }
 }

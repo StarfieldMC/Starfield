@@ -11,6 +11,9 @@ namespace nylium.Launch {
                 if(args[0] == "--generate-blocks") {
                     BlockGenerator.Run(args.Skip(1).ToArray());
                     return;
+                } else if(args[0] == "--generate-items") {
+                    ItemGenerator.Run(args.Skip(1).ToArray());
+                    return;
                 }
             }
             

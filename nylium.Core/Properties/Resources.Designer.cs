@@ -66,13 +66,6 @@ namespace nylium.Core.Properties {
             }
         }
         
-        internal static byte[] items {
-            get {
-                object obj = ResourceManager.GetObject("items", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
         internal static byte[] nether {
             get {
                 object obj = ResourceManager.GetObject("nether", resourceCulture);

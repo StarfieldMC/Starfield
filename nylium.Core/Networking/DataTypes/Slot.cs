@@ -34,7 +34,7 @@ namespace nylium.Core.Networking.DataTypes {
             new Boolean(Value.Present).Write(stream);
             
             if(Value.Present) {
-                new VarInt(Value.Item.Id).Write(stream);
+                new VarInt(Value.Item.ProtocolId).Write(stream);
                 new Byte(Value.Count).Write(stream);
                 
                 if(Value.NBT == null) {

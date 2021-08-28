@@ -29,6 +29,7 @@
 
   <ItemGroup>
     <Folder Include="Block\Blocks" />
+    <Folder Include="Item\Items" />
     <Folder Include="Networking\Packet\Server\Handshake\" />
   </ItemGroup>
 

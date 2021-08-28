@@ -132,6 +132,9 @@ namespace nylium.Core.Block.Blocks {{
 
             foreach(dynamic block in blocks) {
                 string namedId = block.Key;
+
+                // air is unneeded
+                if(namedId == "minecraft:air") continue;
                 
                 Console.WriteLine("Generating " + namedId);
 

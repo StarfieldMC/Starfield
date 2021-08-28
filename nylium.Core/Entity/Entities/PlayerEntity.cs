@@ -5,7 +5,7 @@ using DaanV2.UUID;
 using nylium.Core.Block;
 using nylium.Core.Block.Blocks;
 using nylium.Core.Entity.Inventories;
-using nylium.Core.Items;
+using nylium.Core.Item;
 using nylium.Core.Level;
 using nylium.Core.Networking;
 using nylium.Core.Networking.Packet;
@@ -247,10 +247,10 @@ namespace nylium.Core.Entity.Entities {
                     // TODO check for collisions here
 
                     if(Parent.GetBlock(pos.X, pos.Y, pos.Z) == null) {
-                        if(!Inventory.Slots[Inventory.HeldSlot].IsEmpty()) {
-                            // TODO improve this with the item rewrite
-                            block = BlockRepository.Create(
-                                new Identifier(Item.GetItemNamedId(Inventory.Slots[Inventory.HeldSlot].Item.Id)));
+                        Inventory.Slot held = Inventory.Slots[Inventory.HeldSlot];
+                        
+                        if(!held.IsEmpty() && held.Item is BlockItem item) {
+                            block = BlockRepository.Create(item.BlockProtocolId);
                             
                             if(block == null || block.State == 0) {
                                 break;

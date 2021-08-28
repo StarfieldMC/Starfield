@@ -3,7 +3,7 @@ using System.IO;
 using System.Net;
 using nylium.Core.Block;
 using nylium.Core.Entity;
-using nylium.Core.Items;
+using nylium.Core.Item;
 using nylium.Core.Networking;
 using nylium.Core.Networking.Packet;
 using nylium.Core.Tags;
@@ -35,7 +35,7 @@ namespace nylium.Core {
             MinecraftPacket.Initialize();
             BaseEntity.Initialize();
             BlockRepository.Initialize();
-            Item.Initialize();
+            ItemRepository.Initialize();
             Tag.Initialize();
 
             Server = new(IPAddress.Any, args.Length > 0 ? int.Parse(args[0]) : 25565);

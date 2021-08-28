@@ -20,6 +20,7 @@ namespace nylium.Core.Block {
 
         public const int BITS_PER_BLOCK = 15;
         
+        // TODO is it worth caching this?
         private BlockAttribute Attribute {
             get {
                 return GetType().GetCustomAttribute<BlockAttribute>(false);

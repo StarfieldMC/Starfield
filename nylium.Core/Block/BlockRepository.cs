@@ -29,7 +29,7 @@ namespace nylium.Core.Block {
                     ConstructorInfo defaultConstructor = t.GetConstructor(Type.EmptyTypes);
                     
                     if(constructor == null || defaultConstructor == null) {
-                        Log.Debug($"Type [{t.FullName}] is probably not a packet, ignoring");
+                        Log.Debug($"Type [{t.FullName}] is probably not a block, ignoring");
                         return;
                     }
 
