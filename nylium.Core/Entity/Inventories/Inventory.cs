@@ -23,7 +23,7 @@ namespace nylium.Core.Entity.Inventories {
 
         public class Slot {
 
-            public static Slot Empty { get; } = new Slot(false, null, 0, null);
+            public static Slot Empty { get; } = new(false, null, 0, null);
 
             public bool Present { get; }
             public ItemBase Item { get; }

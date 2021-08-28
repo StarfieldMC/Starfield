@@ -46,7 +46,7 @@ namespace nylium.Core.Level {
             if(y < 0 || y >= Y_SIZE) return;
 
             int id = (int) Math.Floor((double) y / Section.Y_SIZE);
-            if(Sections[id] == null) Sections[id] = new(id, this);
+            if(Sections[id] == null) Sections[id] = new Section(id, this);
 
             y -= (id * Section.Y_SIZE);
             Sections[id].SetBlock(block, x, y, z);
@@ -84,7 +84,7 @@ namespace nylium.Core.Level {
             //    }
             //}
 
-            return new("") {
+            return new TagCompound("") {
                 new TagLongArray("MOTION_BLOCKING", data)
             };
         }

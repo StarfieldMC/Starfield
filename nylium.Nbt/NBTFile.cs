@@ -22,7 +22,7 @@ namespace nylium.Nbt {
         public TagCompound Root { get; set; }
 
         public NBTFile(TagCompound root = null) {
-            Root = root ?? new("");
+            Root = root ?? new TagCompound("");
         }
 
         public NBTFile Read(Stream stream) {

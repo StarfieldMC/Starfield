@@ -121,7 +121,7 @@ namespace nylium.Core.Block.Blocks {{
             dynamic blocks = JSON.DeserializeDynamic(Encoding.UTF8.GetString(resultStream.ToArray()));
 
             compressedStream = RMSManager.Get().GetStream(Properties.Resources.blockstates);
-            zipStream = new(compressedStream, CompressionMode.Decompress); 
+            zipStream = new GZipStream(compressedStream, CompressionMode.Decompress); 
             resultStream = RMSManager.Get().GetStream();
             
             zipStream.CopyTo(resultStream);

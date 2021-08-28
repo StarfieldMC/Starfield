@@ -37,7 +37,7 @@ namespace nylium.Core {
             ItemRepository.Initialize();
             Tag.Initialize();
 
-            Server = new(IPAddress.Any, args.Length > 0 ? int.Parse(args[0]) : 25565);
+            Server = new MinecraftServer(IPAddress.Any, args.Length > 0 ? int.Parse(args[0]) : 25565);
             Server.Start();
         }
 

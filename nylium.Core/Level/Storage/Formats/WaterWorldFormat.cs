@@ -39,15 +39,15 @@ namespace nylium.Core.Level.Storage.Formats {
             Directory.CreateDirectory(chunksDir);
             Directory.CreateDirectory(playersDir);
 
-            LookupStream = new(Path.Combine(chunksDir, "lookup.bin"),
+            LookupStream = new FileStream(Path.Combine(chunksDir, "lookup.bin"),
                 FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
-            ChunkReader = new(new FileStream(Path.Combine(chunksDir, "chunks.bin"),
+            ChunkReader = new BinaryReader(new FileStream(Path.Combine(chunksDir, "chunks.bin"),
                 FileMode.OpenOrCreate, FileAccess.Read, FileShare.ReadWrite));
-            ChunkWriter = new(new FileStream(Path.Combine(chunksDir, "chunks.bin"),
+            ChunkWriter = new BinaryWriter(new FileStream(Path.Combine(chunksDir, "chunks.bin"),
                 FileMode.OpenOrCreate, FileAccess.Write, FileShare.ReadWrite));
 
-            ChunkLookup = new();
-            Formatter = new();
+            ChunkLookup = new Dictionary<(int, int, int), (long, long)>();
+            Formatter = new BinaryFormatter();
         }
 
         public override bool Load() {
@@ -214,14 +214,14 @@ namespace nylium.Core.Level.Storage.Formats {
                     if(entry.Value.ContainsKey("nbt")) {
                         byte[] buffer = Convert.FromBase64String(entry.Value.nbt);
 
-                        nbt = new();
+                        nbt = new TagCompound();
                         
                         using(MemoryStream stream = RMSManager.Get().GetStream(buffer)) {
                             nbt.Read(stream);
                         }
                     }
 
-                    slot = new(present, item, count, nbt);
+                    slot = new Inventory.Slot(present, item, count, nbt);
                 } else {
                     slot = Inventory.Slot.Empty;
                 }

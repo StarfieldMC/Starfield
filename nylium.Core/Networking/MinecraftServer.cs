@@ -15,6 +15,7 @@ using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Encodings;
 using Org.BouncyCastle.Crypto.Engines;
 using Org.BouncyCastle.Crypto.Generators;
+using Org.BouncyCastle.Security;
 
 namespace nylium.Core.Networking {
 
@@ -76,17 +77,17 @@ namespace nylium.Core.Networking {
                 TheEndDimension = new NBTFile().Read(stream);
             }
 
-            Configuration = new() {
+            Configuration = new ServerConfiguration {
                 ViewDistance = 12,
                 CompressionThreshold = 128,
                 OnlineMode = false
             };
 
-            Http = new();
+            Http = new System.Net.Http.HttpClient();
 
             #region encryption
             RsaKeyPairGenerator rsa = new();
-            rsa.Init(new(new(), 1024));
+            rsa.Init(new KeyGenerationParameters(new SecureRandom(), 1024));
 
             KeyPair = rsa.GenerateKeyPair();
 
@@ -97,7 +98,7 @@ namespace nylium.Core.Networking {
             Encryptor.Init(true, KeyPair.Public);
             #endregion
 
-            World = new(this, "world", new FlatWorldGenerator());
+            World = new World(this, "world", new FlatWorldGenerator());
         }
 
         protected override TcpSession CreateSession() {
@@ -121,10 +122,10 @@ namespace nylium.Core.Networking {
 
                     if(excludeSession != null) {
                         if(session != excludeSession) {
-                            client.Send(new(client, packet));
+                            client.Send(new MinecraftPacket(client, packet));
                         }
                     } else {
-                        client.Send(new(client, packet));
+                        client.Send(new MinecraftPacket(client, packet));
                     }
                 }
             }
@@ -146,10 +147,10 @@ namespace nylium.Core.Networking {
 
                         if(excludeSession != null) {
                             if(session != excludeSession) {
-                                client.Send(new(client, packet));
+                                client.Send(new MinecraftPacket(client, packet));
                             }
                         } else {
-                            client.Send(new(client, packet));
+                            client.Send(new MinecraftPacket(client, packet));
                         }
                     }
                 }
@@ -171,10 +172,10 @@ namespace nylium.Core.Networking {
 
                     if(excludeSession != null) {
                         if(session != excludeSession) {
-                            client.Send(new(client, packet));
+                            client.Send(new MinecraftPacket(client, packet));
                         }
                     } else {
-                        client.Send(new(client, packet));
+                        client.Send(new MinecraftPacket(client, packet));
                     }
                 }
             }
@@ -196,10 +197,10 @@ namespace nylium.Core.Networking {
 
                         if(excludeSession != null) {
                             if(session != excludeSession) {
-                                client.Send(new(client, packet));
+                                client.Send(new MinecraftPacket(client, packet));
                             }
                         } else {
-                            client.Send(new(client, packet));
+                            client.Send(new MinecraftPacket(client, packet));
                         }
                     }
                 }

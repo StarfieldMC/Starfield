@@ -43,9 +43,9 @@ namespace nylium.Core.Level {
             Server = server;
             Name = name;
 
-            Chunks = new("Chunk cache", TimeSpan.FromMinutes(5));
-            PlayerEntities = new();
-            Entities = new();
+            Chunks = new TimedCache<Chunk>("Chunk cache", TimeSpan.FromMinutes(5));
+            PlayerEntities = new List<PlayerEntity>();
+            Entities = new List<BaseEntity>();
 
             Generator = generator;
 
@@ -69,8 +69,8 @@ namespace nylium.Core.Level {
                 }
 
                 totalStopwatch.Stop();
-                Logger.Info(string.Format("Finished generating world! ({0} chunks) Took {1}ms",
-                    i, Math.Round(totalStopwatch.Elapsed.TotalMilliseconds, 2)));
+                Logger.Info(
+                    $"Finished generating world! ({i} chunks) Took {Math.Round(totalStopwatch.Elapsed.TotalMilliseconds, 2)}ms");
 
                 Format.Save();
             } else {
@@ -78,7 +78,7 @@ namespace nylium.Core.Level {
                 Format.Load();
             }
 
-            WorldThread = new(Update);
+            WorldThread = new Thread(Update);
             WorldThread.Name = "World update thread";
             WorldThread.Start();
         }
@@ -173,11 +173,9 @@ namespace nylium.Core.Level {
             Chunk chunk = GetChunk(chunkX, chunkZ);
 
             foreach(TcpSession session in Server.GetSessions()) {
-                if(session is MinecraftClient client) {
-                    if(client.GameState == MinecraftClient.State.Playing) {
-                        if(client.LoadedChunks.Contains(chunk)) {
-                            clients.Add(client);
-                        }
+                if(session is MinecraftClient { GameState: MinecraftClient.State.Playing } client) {
+                    if(client.LoadedChunks.Contains(chunk)) {
+                        clients.Add(client);
                     }
                 }
             }
@@ -189,7 +187,7 @@ namespace nylium.Core.Level {
             Chunk chunk = new(this, x, z);
 
             if(!Format.Load(chunk)) {
-                chunk = new(this, x, z);
+                chunk = new Chunk(this, x, z);
                 Generator.GenerateChunk(this, chunk);
             }
 

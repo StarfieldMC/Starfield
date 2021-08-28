@@ -51,7 +51,7 @@ namespace nylium.Core.Entity {
 
             OnGround = LastOnGround = onGround;
 
-            Inventory = new(this, slotCount);
+            Inventory = new Inventory(this, slotCount);
             Array.Fill(Inventory.Slots, Inventory.Slot.Empty);
         }
 

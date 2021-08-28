@@ -50,7 +50,7 @@ namespace nylium.Core.Item {
         #endregion
 
         public ItemAttribute(string id, int protocolId, byte maximumStackSize) {
-            Id = new(id);
+            Id = new Identifier(id);
             ProtocolId = protocolId;
             MaximumStackSize = maximumStackSize;
         }
@@ -120,7 +120,7 @@ namespace nylium.Core.Item {
             
             if(isHoe) {
                 Type = ItemType.Hoe;
-                TillableBlockStates = TillableBlockStates;
+                TillableBlockStates = null;
             } else {
                 Type = ItemType.Shovel;
                 FlattenableBlockStates = null;

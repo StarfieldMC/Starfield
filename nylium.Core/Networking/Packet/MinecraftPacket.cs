@@ -40,13 +40,11 @@ namespace nylium.Core.Networking.Packet {
 
             Type[] ctorParams = { typeof(MinecraftClient), typeof(Stream) };
 
-            for(int i = 0; i < packetTypes.Length; i++) {
-                Type t = packetTypes[i];
-
+            foreach (Type t in packetTypes) {
                 ConstructorInfo constructor = t.GetConstructor(ctorParams);
 
                 if(constructor == null) {
-                    Logger.Debug(string.Format("Type [{0}] is probably not a packet, ignoring", t.FullName));
+                    Logger.Debug($"Type [{t.FullName}] is probably not a packet, ignoring");
                     continue;
                 }
 
@@ -88,12 +86,12 @@ namespace nylium.Core.Networking.Packet {
             PacketAttribute attribute = GetType().GetCustomAttribute<PacketAttribute>(false);
 
             Id = attribute.Id;
-            Data = new((RecyclableMemoryStream) RMSManager.Get().GetStream(GetType().FullName));
+            Data = new MinecraftStream((RecyclableMemoryStream) RMSManager.Get().GetStream(GetType().FullName));
         }
 
         public MinecraftPacket(MinecraftClient client, Stream stream) {
             Client = client;
-            Data = new((RecyclableMemoryStream) RMSManager.Get().GetStream(GetType().FullName));
+            Data = new MinecraftStream((RecyclableMemoryStream) RMSManager.Get().GetStream(GetType().FullName));
 
             Length = Client.CompressionEnabled ? (int) stream.Length : new VarInt(stream).Value;
 
@@ -168,23 +166,19 @@ namespace nylium.Core.Networking.Packet {
                 case ProtocolState.Handshaking:
                     ctor = clientPacketConstructors[0][id];
 
-                    if(ctor == null) return null;
-                    return ctor(client, stream);
+                    return ctor?.Invoke(client, stream);
                 case ProtocolState.Status:
                     ctor = clientPacketConstructors[1][id];
 
-                    if(ctor == null) return null;
-                    return ctor(client, stream);
+                    return ctor?.Invoke(client, stream);
                 case ProtocolState.Login:
                     ctor = clientPacketConstructors[2][id];
 
-                    if(ctor == null) return null;
-                    return ctor(client, stream);
+                    return ctor?.Invoke(client, stream);
                 case ProtocolState.Play:
                     ctor = clientPacketConstructors[3][id];
 
-                    if(ctor == null) return null;
-                    return ctor(client, stream);
+                    return ctor?.Invoke(client, stream);
             }
 
             return null;
@@ -241,11 +235,7 @@ namespace nylium.Core.Networking.Packet {
                     temp.Write(output);
                 }
 
-                if(Client.EncryptionEnabled) {
-                    return Client.Encryptor.ProcessBytes(temp.ToArray(), 0, (int) temp.Length);
-                }
-
-                return temp.ToArray();
+                return Client.EncryptionEnabled ? Client.Encryptor.ProcessBytes(temp.ToArray(), 0, (int) temp.Length) : temp.ToArray();
             }
         }
 

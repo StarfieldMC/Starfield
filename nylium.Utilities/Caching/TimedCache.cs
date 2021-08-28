@@ -10,8 +10,8 @@ namespace nylium.Utilities.Caching {
         private CacheItemPolicy Policy { get; }
 
         public TimedCache(string name, TimeSpan slidingExpiration, long sizeLimit = int.MaxValue) {
-            Cache = new(name);
-            Policy = new() {
+            Cache = new MemoryCache(name);
+            Policy = new CacheItemPolicy {
                 SlidingExpiration = slidingExpiration
             };
         }

@@ -6,9 +6,9 @@ namespace nylium.Core.Networking.DataTypes {
 
     public class EntityMetadata : DataType<List<EntityMetadata.Entry>> {
 
-        public EntityMetadata() : base(new List<Entry> { new Entry(0xff, Entry.DataType.Unknown, null) }) { }
+        public EntityMetadata() : base(new List<Entry> { new(0xff, Entry.DataType.Unknown, null) }) { }
         public EntityMetadata(List<Entry> value) : base(value) { }
-        public EntityMetadata(Stream stream) : base(new List<Entry> { new Entry(0xff, Entry.DataType.Unknown, null) }) { Read(stream); }
+        public EntityMetadata(Stream stream) : base(new List<Entry> { new(0xff, Entry.DataType.Unknown, null) }) { Read(stream); }
 
         public override void Read(Stream stream) {
             byte[] read = new byte[1];

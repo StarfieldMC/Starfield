@@ -182,20 +182,20 @@ namespace nylium.Core.Entity.Entities {
                     SP07AcknowledgePlayerDigging acknowledgePlayerDigging;
 
                     if(block == null) {
-                        acknowledgePlayerDigging = new(Client, digging.Location, 0,
+                        acknowledgePlayerDigging = new SP07AcknowledgePlayerDigging(Client, digging.Location, 0,
                             (SP07AcknowledgePlayerDigging.ActionType) digging.Status, false);
                         Client.Send(acknowledgePlayerDigging);
                         break;
                     }
 
                     if(!IsLegal(X, Y + 1.5, Z, digging.Location.X, digging.Location.Y, digging.Location.Z)) {
-                        acknowledgePlayerDigging = new(Client, digging.Location, block.State,
+                        acknowledgePlayerDigging = new SP07AcknowledgePlayerDigging(Client, digging.Location, block.State,
                             (SP07AcknowledgePlayerDigging.ActionType) digging.Status, false);
                         Client.Send(acknowledgePlayerDigging);
                         break;
                     }
 
-                    acknowledgePlayerDigging = new(Client, digging.Location, block.State,
+                    acknowledgePlayerDigging = new SP07AcknowledgePlayerDigging(Client, digging.Location, block.State,
                         (SP07AcknowledgePlayerDigging.ActionType) digging.Status, true);
                     Client.Send(acknowledgePlayerDigging);
 
