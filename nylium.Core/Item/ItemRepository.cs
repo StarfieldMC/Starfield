@@ -17,19 +17,11 @@ namespace nylium.Core.Item {
             Stopwatch stopwatch = new();
             stopwatch.Start();
 
-            Type[] ctorParams = { typeof(ushort) };
-
             Assembly.GetExecutingAssembly().GetTypes()
                 .Where(t => t.Namespace == "nylium.Core.Item.Items")
                 .ToList()
                 .ForEach(t => {
-                    ConstructorInfo constructor = t.GetConstructor(ctorParams);
                     ConstructorInfo defaultConstructor = t.GetConstructor(Type.EmptyTypes);
-                    
-                    if(constructor == null || defaultConstructor == null) {
-                        Log.Debug($"Type [{t.FullName}] is probably not an item, ignoring");
-                        return;
-                    }
 
                     Func<ItemBase> defaultCtor = Expression.Lambda<Func<ItemBase>>(
                         Expression.New(defaultConstructor)).Compile();

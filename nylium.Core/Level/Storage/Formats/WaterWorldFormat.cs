@@ -257,7 +257,7 @@ namespace nylium.Core.Level.Storage.Formats {
                 slotJson.present = slot.Present;
 
                 if(slot.Present) {
-                    slotJson.item = slot.Item.Id;
+                    slotJson.item = slot.Item.ProtocolId;
                     slotJson.count = slot.Count;
 
                     if(slot.NBT != null) {
