@@ -1,5 +1,7 @@
+# Starfield
+
 <p align="center">
-  <a href="../../"><img style="max-width: 2000px; max-height: 496px; width: auto; height: auto;" src="https://uwu.nya.pub/static/gh.png"></a><br>
+  <!--<a href="../../"><img style="max-width: 2000px; max-height: 496px; width: auto; height: auto;" src="https://uwu.nya.pub/static/gh.png"></a><br>!-->
   <a href="../../search?l=c%23"><img src="https://img.shields.io/github/languages/top/dskprt/nylium?style=for-the-badge"></a>
   <a href="LICENSE"><img src="https://img.shields.io/github/license/dskprt/nylium?style=for-the-badge"></a>
   <a href="../../actions"><img src="https://img.shields.io/github/workflow/status/dskprt/nylium/.NET?style=for-the-badge"></a>
@@ -9,10 +11,10 @@
   <br><br>
 </p>
 
-# Goals/Features
+## Goals/Features
 - [x] Cross-platform
 - [x] Low memory usage
-- [ ] Relatively small size (<5 MB)
+- [x] Relatively small size (<10 MB)
 - [ ] Close-to-vanilla experience
 - [ ] Plugin API
 - [ ] High customizability

@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+    <StartupObject>Starfield.Launch.Program</StartupObject>
+    <AssemblyName>Starfield</AssemblyName>
+    <RuntimeIdentifiers>win-x64;osx-x64;linux-x64;linux-musl-x64;linux-arm;linux-arm64</RuntimeIdentifiers>
+    <LangVersion>9.0</LangVersion>
+    <ApplicationIcon>starfield.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Starfield.Core\Starfield.Core.csproj" />
+    <ProjectReference Include="..\Starfield.Generators\Starfield.Generators.csproj" />
+    <ProjectReference Include="..\Starfield.Nbt\Starfield.Nbt.csproj" />
+  </ItemGroup>
+
+</Project>

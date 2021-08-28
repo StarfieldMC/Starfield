@@ -1,0 +1,61 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30717.126
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Starfield.Extensions", "Starfield.Extensions\Starfield.Extensions.csproj", "{5E239C3F-AAA6-4C5E-B3E6-340CDAFB5D10}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Starfield.Launch", "Starfield.Launch\Starfield.Launch.csproj", "{7CAA85A0-BB13-4472-AFFB-F7F611C47172}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Starfield.Core", "Starfield.Core\Starfield.Core.csproj", "{4350D1A1-3FDC-44B7-BE6E-C279B646B4DA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Starfield.Utilities", "Starfield.Utilities\Starfield.Utilities.csproj", "{B03CF592-1227-43A8-BDE9-E8E79F08E44D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Starfield.Nbt", "Starfield.Nbt\Starfield.Nbt.csproj", "{FF10F8D3-BB80-4D7F-959B-C48CF24CACAD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Starfield.Generators", "Starfield.Generators\Starfield.Generators.csproj", "{72D329D9-5C56-4BEC-B373-2E8305004E97}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Starfield.Logging", "Starfield.Logging\Starfield.Logging.csproj", "{57463616-DC29-4C68-8AE7-82C744EB6789}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5E239C3F-AAA6-4C5E-B3E6-340CDAFB5D10}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E239C3F-AAA6-4C5E-B3E6-340CDAFB5D10}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E239C3F-AAA6-4C5E-B3E6-340CDAFB5D10}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E239C3F-AAA6-4C5E-B3E6-340CDAFB5D10}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7CAA85A0-BB13-4472-AFFB-F7F611C47172}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7CAA85A0-BB13-4472-AFFB-F7F611C47172}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7CAA85A0-BB13-4472-AFFB-F7F611C47172}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7CAA85A0-BB13-4472-AFFB-F7F611C47172}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4350D1A1-3FDC-44B7-BE6E-C279B646B4DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4350D1A1-3FDC-44B7-BE6E-C279B646B4DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4350D1A1-3FDC-44B7-BE6E-C279B646B4DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4350D1A1-3FDC-44B7-BE6E-C279B646B4DA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B03CF592-1227-43A8-BDE9-E8E79F08E44D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B03CF592-1227-43A8-BDE9-E8E79F08E44D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B03CF592-1227-43A8-BDE9-E8E79F08E44D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B03CF592-1227-43A8-BDE9-E8E79F08E44D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF10F8D3-BB80-4D7F-959B-C48CF24CACAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF10F8D3-BB80-4D7F-959B-C48CF24CACAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF10F8D3-BB80-4D7F-959B-C48CF24CACAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF10F8D3-BB80-4D7F-959B-C48CF24CACAD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72D329D9-5C56-4BEC-B373-2E8305004E97}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72D329D9-5C56-4BEC-B373-2E8305004E97}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72D329D9-5C56-4BEC-B373-2E8305004E97}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72D329D9-5C56-4BEC-B373-2E8305004E97}.Release|Any CPU.Build.0 = Release|Any CPU
+		{57463616-DC29-4C68-8AE7-82C744EB6789}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{57463616-DC29-4C68-8AE7-82C744EB6789}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{57463616-DC29-4C68-8AE7-82C744EB6789}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{57463616-DC29-4C68-8AE7-82C744EB6789}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6A6ED0E9-70B7-4D9D-972B-F0EE9EC793CB}
+	EndGlobalSection
+EndGlobal

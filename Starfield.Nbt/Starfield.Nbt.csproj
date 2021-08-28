@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Starfield.Extensions\Starfield.Extensions.csproj" />
+    <ProjectReference Include="..\Starfield.Utilities\Starfield.Utilities.csproj" />
+  </ItemGroup>
+
+</Project>
