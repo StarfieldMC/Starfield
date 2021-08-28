@@ -18,13 +18,13 @@ jobs:
       with:
         dotnet-version: 5.0.x
     - name: Clean
-      run: dotnet clean nylium.sln
+      run: dotnet clean Starfield.sln
     - name: Restore dependencies
       run: dotnet restore
     - name: Build for Windows x64
-      run: dotnet publish nylium.Launch -r win-x64 --self-contained false --no-restore
+      run: dotnet publish --no-restore Starfield.Launch -r win-x64 --self-contained false --no-restore
     - name: Upload Windows x64 build
       uses: actions/upload-artifact@v2.2.2
       with:
         name: win-x64
-        path: nylium.Launch/bin/Debug/net5.0/win-x64/publish/*
+        path: Starfield.Launch/bin/Debug/net5.0/win-x64/publish/*

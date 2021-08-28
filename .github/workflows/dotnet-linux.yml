@@ -18,27 +18,27 @@ jobs:
       with:
         dotnet-version: 5.0.x
     - name: Clean
-      run: dotnet clean nylium.sln
+      run: dotnet clean Starfield.sln
     - name: Restore dependencies
       run: dotnet restore
     - name: Build for Linux x64
-      run: dotnet publish nylium.Launch -r linux-x64 --self-contained false --no-restore
+      run: dotnet publish --no-restore Starfield.Launch -r linux-x64 --self-contained false --no-restore
     - name: Build for Linux ARM
-      run: dotnet publish nylium.Launch -r linux-arm --self-contained false --no-restore
+      run: dotnet publish --no-restore Starfield.Launch -r linux-arm --self-contained false --no-restore
     - name: Build for Linux ARM64
-      run: dotnet publish nylium.Launch -r linux-arm64 --self-contained false --no-restore
+      run: dotnet publish --no-restore Starfield.Launch -r linux-arm64 --self-contained false --no-restore
     - name: Upload Linux x64 build
       uses: actions/upload-artifact@v2.2.2
       with:
         name: linux-x64
-        path: nylium.Launch/bin/Debug/net5.0/linux-x64/publish/*
+        path: Starfield.Launch/bin/Debug/net5.0/linux-x64/publish/*
     - name: Upload Linux ARM build
       uses: actions/upload-artifact@v2.2.2
       with:
         name: linux-arm
-        path: nylium.Launch/bin/Debug/net5.0/linux-arm/publish/*
+        path: Starfield.Launch/bin/Debug/net5.0/linux-arm/publish/*
     - name: Upload Linux ARM64 build
       uses: actions/upload-artifact@v2.2.2
       with:
         name: linux-arm64
-        path: nylium.Launch/bin/Debug/net5.0/linux-arm64/publish/*
+        path: Starfield.Launch/bin/Debug/net5.0/linux-arm64/publish/*
