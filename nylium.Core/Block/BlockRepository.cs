@@ -4,8 +4,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using nylium.Utilities.Collections;
-using Serilog;
 using IntervalTree;
+using nylium.Logging;
 using nylium.Utilities;
 
 namespace nylium.Core.Block {
@@ -29,7 +29,7 @@ namespace nylium.Core.Block {
                     ConstructorInfo defaultConstructor = t.GetConstructor(Type.EmptyTypes);
                     
                     if(constructor == null || defaultConstructor == null) {
-                        Log.Debug($"Type [{t.FullName}] is probably not a block, ignoring");
+                        Logger.Debug($"Type [{t.FullName}] is probably not a block, ignoring");
                         return;
                     }
 
@@ -43,7 +43,7 @@ namespace nylium.Core.Block {
                     BlockAttribute attribute = t.GetCustomAttribute<BlockAttribute>(false);
 
                     if(attribute == null) {
-                        Log.Warning($"Type [{t.FullName}] has no BlockAttribute attribute.");
+                        Logger.Warning($"Type [{t.FullName}] has no BlockAttribute attribute.");
                         return;
                     }
                     
@@ -55,7 +55,7 @@ namespace nylium.Core.Block {
                 });
             
             stopwatch.Stop();
-            Log.Debug("Initialized block repository in " + Math.Round(stopwatch.Elapsed.TotalMilliseconds, 2) + "ms");
+            Logger.Debug("Initialized block repository in " + Math.Round(stopwatch.Elapsed.TotalMilliseconds, 2) + "ms");
         }
 
         public static BlockBase Create(ushort state) {

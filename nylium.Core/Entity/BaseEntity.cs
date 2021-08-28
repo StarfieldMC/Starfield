@@ -7,8 +7,8 @@ using System.Text;
 using Jil;
 using nylium.Core.Entity.Inventories;
 using nylium.Core.Level;
+using nylium.Logging;
 using nylium.Utilities;
-using Serilog;
 
 namespace nylium.Core.Entity {
 
@@ -84,7 +84,7 @@ namespace nylium.Core.Entity {
             }
 
             stopwatch.Stop();
-            Log.Debug("Initialized entities in " + Math.Round(stopwatch.Elapsed.TotalMilliseconds, 2) + "ms");
+            Logger.Debug("Initialized entities in " + Math.Round(stopwatch.Elapsed.TotalMilliseconds, 2) + "ms");
         }
     }
 }

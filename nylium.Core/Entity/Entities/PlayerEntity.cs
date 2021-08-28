@@ -11,8 +11,8 @@ using nylium.Core.Networking;
 using nylium.Core.Networking.Packet;
 using nylium.Core.Networking.Packet.Client.Play;
 using nylium.Core.Networking.Packet.Server.Play;
+using nylium.Logging;
 using nylium.Utilities;
-using Serilog;
 
 namespace nylium.Core.Entity.Entities {
 
@@ -108,7 +108,7 @@ namespace nylium.Core.Entity.Entities {
 
                 // TODO               300 if elytra
                 if(total - expected > 100) {
-                    Console.WriteLine($"Client with id [{Id}] moved too fast!");
+                    Logger.Info($"Player [{Username}] moved too fast!");
 
                     SP56EntityTeleport teleport = new(Client, EntityId, LastX, LastY, LastZ,
                         Yaw, Pitch, LastOnGround);

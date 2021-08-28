@@ -8,13 +8,13 @@ using nylium.Core.Configuration;
 using nylium.Core.Level;
 using nylium.Core.Level.Generation.Generators;
 using nylium.Core.Networking.Packet;
+using nylium.Logging;
 using nylium.Nbt;
 using nylium.Utilities;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Encodings;
 using Org.BouncyCastle.Crypto.Engines;
 using Org.BouncyCastle.Crypto.Generators;
-using Serilog;
 
 namespace nylium.Core.Networking {
 
@@ -105,7 +105,7 @@ namespace nylium.Core.Networking {
         }
 
         protected override void OnError(SocketError error) {
-            Log.Error($"Error in server occurred: {error}");
+            Logger.Error($"Error in server occurred: {error}");
         }
 
         public void Multicast(MinecraftPacket packet, TcpSession excludeSession = null) {

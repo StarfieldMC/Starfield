@@ -7,8 +7,8 @@ using System.Reflection;
 using Microsoft.IO;
 using nylium.Core.Networking.DataTypes;
 using nylium.Core.Networking.IO;
+using nylium.Logging;
 using nylium.Utilities;
-using Serilog;
 
 namespace nylium.Core.Networking.Packet {
 
@@ -46,7 +46,7 @@ namespace nylium.Core.Networking.Packet {
                 ConstructorInfo constructor = t.GetConstructor(ctorParams);
 
                 if(constructor == null) {
-                    Log.Debug(string.Format("Type [{0}] is probably not a packet, ignoring", t.FullName));
+                    Logger.Debug(string.Format("Type [{0}] is probably not a packet, ignoring", t.FullName));
                     continue;
                 }
 
@@ -73,7 +73,7 @@ namespace nylium.Core.Networking.Packet {
             }
 
             stopwatch.Stop();
-            Log.Debug("Initialized packets in " + Math.Round(stopwatch.Elapsed.TotalMilliseconds, 2) + "ms");
+            Logger.Debug("Initialized packets in " + Math.Round(stopwatch.Elapsed.TotalMilliseconds, 2) + "ms");
         }
 
         public MinecraftPacket(MinecraftClient client, MinecraftPacket packet) {

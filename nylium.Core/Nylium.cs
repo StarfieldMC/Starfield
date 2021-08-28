@@ -7,7 +7,7 @@ using nylium.Core.Item;
 using nylium.Core.Networking;
 using nylium.Core.Networking.Packet;
 using nylium.Core.Tags;
-using Serilog;
+using nylium.Logging;
 
 namespace nylium.Core {
 
@@ -20,14 +20,13 @@ namespace nylium.Core {
         public static void Run(string[] args) {
             Directory.CreateDirectory(WORLDS_DIRECTORY);
 
-            Log.Logger = new LoggerConfiguration()
-                .WriteTo.Console()
+            Logger.Out = Console.Out;
+            
 #if DEBUG
-                .MinimumLevel.Debug()
+            Logger.MinimumLevel = LogLevel.Debug;
 #else
-                .MinimumLevel.Information()
+            Logger.MinimumLevel = LogLevel.Info;
 #endif
-                .CreateLogger();
 
             AppDomain.CurrentDomain.UnhandledException += ShutdownHook;
             AppDomain.CurrentDomain.ProcessExit += ShutdownHook;
@@ -43,7 +42,6 @@ namespace nylium.Core {
         }
 
         private static void ShutdownHook(object s, EventArgs e) {
-            Log.CloseAndFlush();
             Server?.World?.Format?.Save();
         }
     }

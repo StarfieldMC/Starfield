@@ -12,9 +12,9 @@ using nylium.Core.Entity.Entities;
 using nylium.Core.Entity.Inventories;
 using nylium.Core.Networking.DataTypes;
 using nylium.Extensions;
+using nylium.Logging;
 using nylium.Nbt.Tags;
 using nylium.Utilities;
-using Serilog;
 
 namespace nylium.Core.Level.Storage.Formats {
 
@@ -71,7 +71,7 @@ namespace nylium.Core.Level.Storage.Formats {
             }
 
             sw.Stop();
-            Log.Information("Loaded world in " + Math.Round(sw.Elapsed.TotalMilliseconds, 2) + "ms");
+            Logger.Info("Loaded world in " + Math.Round(sw.Elapsed.TotalMilliseconds, 2) + "ms");
             return true;
         }
 
@@ -84,7 +84,7 @@ namespace nylium.Core.Level.Storage.Formats {
             LookupStream.Flush();
 
             sw.Stop();
-            Log.Information("Saved world in " + Math.Round(sw.Elapsed.TotalMilliseconds, 2) + "ms");
+            Logger.Info("Saved world in " + Math.Round(sw.Elapsed.TotalMilliseconds, 2) + "ms");
             return true;
         }
 
@@ -230,7 +230,7 @@ namespace nylium.Core.Level.Storage.Formats {
             }
 
             sw.Stop();
-            Log.Debug($"Loaded player with UUID {player.Uuid} in " + Math.Round(sw.Elapsed.TotalMilliseconds, 2) + "ms");
+            Logger.Debug($"Loaded player with UUID {player.Uuid} in " + Math.Round(sw.Elapsed.TotalMilliseconds, 2) + "ms");
             return true;
         }
 
@@ -280,7 +280,7 @@ namespace nylium.Core.Level.Storage.Formats {
             }
 
             sw.Stop();
-            Log.Debug($"Saved player with UUID {player.Uuid} in " + Math.Round(sw.Elapsed.TotalMilliseconds, 2) + "ms");
+            Logger.Debug($"Saved player with UUID {player.Uuid} in " + Math.Round(sw.Elapsed.TotalMilliseconds, 2) + "ms");
 
             inventory.Clear();
             return true;

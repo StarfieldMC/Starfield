@@ -7,8 +7,8 @@ using System.Text;
 using Jil;
 using nylium.Core.Block;
 using nylium.Core.Item;
+using nylium.Logging;
 using nylium.Utilities;
-using Serilog;
 
 namespace nylium.Core.Tags {
 
@@ -114,7 +114,7 @@ namespace nylium.Core.Tags {
             }
 
             stopwatch.Stop();
-            Log.Debug("Initialized tags in " + Math.Round(stopwatch.Elapsed.TotalMilliseconds, 2) + "ms");
+            Logger.Debug("Initialized tags in " + Math.Round(stopwatch.Elapsed.TotalMilliseconds, 2) + "ms");
         }
     }
 }

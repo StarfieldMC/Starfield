@@ -12,7 +12,6 @@ using Ionic.Zlib;
 using Jil;
 using nylium.Utilities;
 using nylium.Utilities.Collections;
-using Serilog;
 
 namespace nylium.Core.Block {
 

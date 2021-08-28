@@ -3,9 +3,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using nylium.Logging;
 using nylium.Utilities;
 using nylium.Utilities.Collections;
-using Serilog;
 
 namespace nylium.Core.Item {
     
@@ -29,7 +29,7 @@ namespace nylium.Core.Item {
                     ItemAttribute attribute = t.GetCustomAttribute<ItemAttribute>(false);
 
                     if(attribute == null) {
-                        Log.Warning($"Type [{t.FullName}] has no ItemAttribute attribute.");
+                        Logger.Warning($"Type [{t.FullName}] has no ItemAttribute attribute.");
                         return;
                     }
                     
@@ -39,7 +39,7 @@ namespace nylium.Core.Item {
                 });
             
             stopwatch.Stop();
-            Log.Debug("Initialized item repository in " + Math.Round(stopwatch.Elapsed.TotalMilliseconds, 2) + "ms");
+            Logger.Debug("Initialized item repository in " + Math.Round(stopwatch.Elapsed.TotalMilliseconds, 2) + "ms");
         }
 
         public static ItemBase Create(Identifier id) {
