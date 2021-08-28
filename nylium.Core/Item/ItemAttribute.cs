@@ -4,6 +4,7 @@ using nylium.Utilities;
 
 namespace nylium.Core.Item {
     
+    // TODO strippable and tillable were supposed to be dictionaries but you cannot have dictionaries in attributes
     public class ItemAttribute : Attribute {
         
         public Identifier Id { get; }
@@ -112,7 +113,7 @@ namespace nylium.Core.Item {
         /// </summary>
         public ItemAttribute(string id, int protocolId, byte maximumStackSize,
             int uses, float speed, float attackDamage, float attackDamageBonus,
-            int[] diggableBlocks, Dictionary<ushort, ushort> flattenableBlockStates, bool isHoe)
+            int[] diggableBlocks, bool isHoe)
             : this(id, protocolId, maximumStackSize, uses, speed, attackDamage, attackDamageBonus) {
 
             DiggableBlocks = diggableBlocks;
@@ -122,7 +123,7 @@ namespace nylium.Core.Item {
                 TillableBlockStates = TillableBlockStates;
             } else {
                 Type = ItemType.Shovel;
-                FlattenableBlockStates = flattenableBlockStates;
+                FlattenableBlockStates = null;
             }
         }
         
@@ -131,14 +132,14 @@ namespace nylium.Core.Item {
         /// </summary>
         public ItemAttribute(string id, int protocolId, byte maximumStackSize,
             int uses, float speed, float attackDamage, float attackDamageBonus,
-            int[] diggableBlocks, string[] effectiveMaterials, Dictionary<ushort, ushort> strippableBlocks)
+            int[] diggableBlocks, string[] effectiveMaterials)
             : this(id, protocolId, maximumStackSize, uses, speed, attackDamage, attackDamageBonus) {
 
             Type = ItemType.Axe;
             
             DiggableBlocks = diggableBlocks;
             EffectiveMaterials = effectiveMaterials;
-            StrippableBlocks = strippableBlocks;
+            StrippableBlocks = null;
         }
     }
 }
