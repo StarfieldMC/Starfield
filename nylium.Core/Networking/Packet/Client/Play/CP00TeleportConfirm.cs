@@ -7,8 +7,8 @@ namespace nylium.Core.Networking.Packet.Client.Play {
 
         public int TeleportId { get; }
 
-        public CP00TeleportConfirm(Stream stream) : base(stream) {
-            TeleportId = ReadVarInt();
+        public CP00TeleportConfirm(MinecraftClient client, Stream stream) : base(client, stream) {
+            TeleportId = Data.ReadVarInt();
         }
     }
 }

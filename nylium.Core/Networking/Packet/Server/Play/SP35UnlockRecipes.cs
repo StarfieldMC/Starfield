@@ -19,39 +19,29 @@ namespace nylium.Core.Networking.Packet.Server.Play {
         public Identifier[] RecipeIds { get; }
         public Identifier[] RecipeIdsInit { get; }
 
-        public SP35UnlockRecipes(RecipeAction action, bool craftingRecipeBookOpen, bool craftingRecipeBookFilterActive,
+        public SP35UnlockRecipes(MinecraftClient client, RecipeAction action,
+            bool craftingRecipeBookOpen, bool craftingRecipeBookFilterActive,
             bool smeltingRecipeBookOpen, bool smeltingRecipeBookFilterActive, bool blastFurnaceRecipeBookOpen,
             bool blastFurnaceRecipeBookFilterActive, bool smokerRecipeBookOpen, bool smokerRecipeBookFilterActive,
-            Identifier[] recipeIds, Identifier[] recipeIdsInit = null) {
+            Identifier[] recipeIds, Identifier[] recipeIdsInit = null) : base(client) {
 
-            Action = action;
-            CraftingRecipeBookOpen = craftingRecipeBookOpen;
-            CraftingRecipeBookFilterActive = craftingRecipeBookFilterActive;
-            SmeltingRecipeBookOpen = smeltingRecipeBookOpen;
-            SmeltingRecipeBookFilterActive = smeltingRecipeBookFilterActive;
-            BlastFurnaceRecipeBookOpen = blastFurnaceRecipeBookOpen;
-            BlastFurnaceRecipeBookFilterActive = blastFurnaceRecipeBookFilterActive;
-            SmokerRecipeBookOpen = smokerRecipeBookOpen;
-            SmokerRecipeBookFilterActive = smokerRecipeBookFilterActive;
+            Action = (RecipeAction) Data.WriteVarInt((int) action);
+            CraftingRecipeBookOpen = Data.WriteBoolean(craftingRecipeBookOpen);
+            CraftingRecipeBookFilterActive = Data.WriteBoolean(craftingRecipeBookFilterActive);
+            SmeltingRecipeBookOpen = Data.WriteBoolean(smeltingRecipeBookOpen);
+            SmeltingRecipeBookFilterActive = Data.WriteBoolean(smeltingRecipeBookFilterActive);
+            BlastFurnaceRecipeBookOpen = Data.WriteBoolean(blastFurnaceRecipeBookOpen);
+            BlastFurnaceRecipeBookFilterActive = Data.WriteBoolean(blastFurnaceRecipeBookFilterActive);
+            SmokerRecipeBookOpen = Data.WriteBoolean(smokerRecipeBookOpen);
+            SmokerRecipeBookFilterActive = Data.WriteBoolean(smokerRecipeBookFilterActive);
 
-            WriteVarInt((int) action);
-
-            WriteBoolean(craftingRecipeBookOpen);
-            WriteBoolean(craftingRecipeBookFilterActive);
-            WriteBoolean(smeltingRecipeBookOpen);
-            WriteBoolean(smeltingRecipeBookFilterActive);
-            WriteBoolean(blastFurnaceRecipeBookOpen);
-            WriteBoolean(blastFurnaceRecipeBookFilterActive);
-            WriteBoolean(smokerRecipeBookOpen);
-            WriteBoolean(smokerRecipeBookFilterActive);
-
-            WriteVarInt(recipeIds.Length);
-            WriteArray<Identifier, DataTypes.Identifier>(recipeIds);
+            Data.WriteVarInt(recipeIds.Length);
+            RecipeIds = Data.WriteArray<Identifier, DataTypes.Identifier>(recipeIds);
 
             if(action == RecipeAction.Init) {
                 if(recipeIdsInit != null) {
-                    WriteVarInt(recipeIdsInit.Length);
-                    WriteArray<Identifier, DataTypes.Identifier>(recipeIdsInit);
+                    Data.WriteVarInt(recipeIdsInit.Length);
+                    RecipeIdsInit = Data.WriteArray<Identifier, DataTypes.Identifier>(recipeIdsInit);
                 } else {
                     throw new System.ArgumentNullException(nameof(recipeIdsInit), "recipeIdsInit should be provided when action is init!");
                 }

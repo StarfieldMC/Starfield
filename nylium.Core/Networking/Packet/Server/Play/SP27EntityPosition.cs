@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace nylium.Core.Networking.Packet.Server.Play {
+﻿namespace nylium.Core.Networking.Packet.Server.Play {
 
     [Packet(0x27, ProtocolState.Play, PacketSide.Server)]
     public class SP27EntityPosition : MinecraftPacket {
@@ -11,18 +9,12 @@ namespace nylium.Core.Networking.Packet.Server.Play {
         public short DeltaZ { get; }
         public bool OnGround { get; }
 
-        public SP27EntityPosition(int entityId, short deltaX, short deltaY, short deltaZ, bool onGround) {
-            EntityId = entityId;
-            DeltaX = deltaX;
-            DeltaY = deltaY;
-            DeltaZ = deltaZ;
-            OnGround = onGround;
-
-            WriteVarInt(entityId);
-            WriteShort(deltaX);
-            WriteShort(deltaY);
-            WriteShort(deltaZ);
-            WriteBoolean(onGround);
+        public SP27EntityPosition(MinecraftClient client, int entityId, short deltaX, short deltaY, short deltaZ, bool onGround) : base(client) {
+            EntityId = Data.WriteVarInt(entityId);
+            DeltaX = Data.WriteShort(deltaX);
+            DeltaY = Data.WriteShort(deltaY);
+            DeltaZ = Data.WriteShort(deltaZ);
+            OnGround = Data.WriteBoolean(onGround);
         }
     }
 }

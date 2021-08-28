@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-using nylium.Extensions;
-using nylium.Utilities;
+﻿using nylium.Utilities;
 
 namespace nylium.Core.Networking.Packet.Server.Play {
 
@@ -11,12 +8,9 @@ namespace nylium.Core.Networking.Packet.Server.Play {
         public Position.Int Location { get; }
         public int BlockId { get; }
 
-        public SP0BBlockChange(Position.Int location, int blockId) {
-            Location = location;
-            BlockId = blockId;
-
-            WritePosition(location);
-            WriteVarInt(blockId);
+        public SP0BBlockChange(MinecraftClient client, Position.Int location, int blockId) : base(client) {
+            Location = Data.WritePosition(location);
+            BlockId = Data.WriteVarInt(blockId);
         }
     }
 }

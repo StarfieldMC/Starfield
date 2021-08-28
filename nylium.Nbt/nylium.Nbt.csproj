@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\nylium.Extensions\nylium.Extensions.csproj" />
+    <ProjectReference Include="..\nylium.Utilities\nylium.Utilities.csproj" />
+  </ItemGroup>
+
+</Project>

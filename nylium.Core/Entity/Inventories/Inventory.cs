@@ -1,5 +1,5 @@
-﻿using fNbt;
-using nylium.Core.Items;
+﻿using nylium.Core.Item;
+using nylium.Nbt.Tags;
 
 namespace nylium.Core.Entity.Inventories {
 
@@ -23,23 +23,23 @@ namespace nylium.Core.Entity.Inventories {
 
         public class Slot {
 
-            public static Slot Empty { get; } = new Slot(false, null, 0, null);
+            public static Slot Empty { get; } = new(false, null, 0, null);
 
             public bool Present { get; }
-            public Item Item { get; }
+            public ItemBase Item { get; }
             public sbyte Count { get; }
-            public NbtFile NBT { get; }
+            public TagCompound NBT { get; }
 
-            public Slot(bool present, Item item, sbyte count, NbtFile nbt) {
+            public Slot(bool present, ItemBase item, sbyte count, TagCompound nbt) {
                 Present = present;
                 Item = item;
                 Count = count;
                 NBT = nbt;
             }
 
-            public Slot(bool present, int itemId, sbyte count, NbtFile nbt) {
+            public Slot(bool present, int itemId, sbyte count, TagCompound nbt) {
                 Present = present;
-                Item = (itemId == 0 || itemId == -1) ? null : new(this, itemId);
+                Item = (itemId == 0 || itemId == -1) ? null : ItemRepository.Create(itemId);
                 Count = count;
                 NBT = nbt;
             }

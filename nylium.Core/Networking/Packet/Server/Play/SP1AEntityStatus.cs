@@ -6,11 +6,9 @@
         public int EntityId { get; }
         public EntityStatus Status { get; }
 
-        public SP1AEntityStatus(int entityId, EntityStatus status) {
-            EntityId = entityId;
-            Status = status;
-
-            WriteByte((sbyte) status);
+        public SP1AEntityStatus(MinecraftClient client, int entityId, EntityStatus status) : base(client) {
+            EntityId = Data.WriteInt(entityId);
+            Status = (EntityStatus) Data.WriteByte((sbyte) status);
         }
 
         // TODO there's so much more shit here

@@ -1,5 +1,4 @@
-﻿using System;
-using DaanV2.UUID;
+﻿using DaanV2.UUID;
 
 namespace nylium.Core.Networking.Packet.Server.Play {
 
@@ -14,22 +13,14 @@ namespace nylium.Core.Networking.Packet.Server.Play {
         public float Yaw { get; }
         public float Pitch { get; }
 
-        public SP04SpawnPlayer(int entityId, UUID playerUuid, double x, double y, double z, float yaw, float pitch) {
-            EntityId = entityId;
-            PlayerUuid = playerUuid;
-            X = x;
-            Y = y;
-            Z = z;
-            Yaw = yaw;
-            Pitch = pitch;
-
-            WriteVarInt(entityId);
-            WriteUuid(playerUuid);
-            WriteDouble(x);
-            WriteDouble(y);
-            WriteDouble(z);
-            WriteAngle(yaw);
-            WriteAngle(pitch);
+        public SP04SpawnPlayer(MinecraftClient client, int entityId, UUID playerUuid, double x, double y, double z, float yaw, float pitch) : base(client) {
+            EntityId = Data.WriteVarInt(entityId);
+            PlayerUuid = Data.WriteUuid(playerUuid);
+            X = Data.WriteDouble(x);
+            Y = Data.WriteDouble(y);
+            Z = Data.WriteDouble(z);
+            Yaw = Data.WriteAngle(yaw);
+            Pitch = Data.WriteAngle(pitch);
         }
     }
 }

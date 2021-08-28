@@ -1,5 +1,4 @@
-﻿using System;
-using nylium.Utilities;
+﻿using nylium.Utilities;
 
 namespace nylium.Core.Networking.Packet.Server.Play {
 
@@ -10,14 +9,10 @@ namespace nylium.Core.Networking.Packet.Server.Play {
         public Position.Int Location { get; }
         public sbyte DestroyStage { get; }
 
-        public SP07BlockBreakAnimation(int entityId, Position.Int location, sbyte destroyStage) {
-            EntityId = entityId;
-            Location = location;
-            DestroyStage = destroyStage;
-
-            WriteVarInt(entityId);
-            WritePosition(location);
-            WriteByte(destroyStage);
+        public SP07BlockBreakAnimation(MinecraftClient client, int entityId, Position.Int location, sbyte destroyStage) : base(client) {
+            EntityId = Data.WriteVarInt(entityId);
+            Location = Data.WritePosition(location);
+            DestroyStage = Data.WriteByte(destroyStage);
         }
     }
 }

@@ -29,74 +29,52 @@
         /// <summary>
         /// set size
         /// </summary>
-        public SP3DWorldBorder(double diameter) {
-            Action = 0;
-            Diameter = diameter;
-
-            WriteVarInt(Action);
-            WriteDouble(diameter);
+        public SP3DWorldBorder(MinecraftClient client, double diameter) : base(client) {
+            Action = Data.WriteVarInt(0);
+            Diameter = Data.WriteDouble(diameter);
         }
 
         /// <summary>
         /// lerp size
         /// </summary>
-        public SP3DWorldBorder(double oldDiameter, double newDiameter, long speed) {
-            Action = 1;
-            OldDiameter = oldDiameter;
-            NewDiameter = newDiameter;
-            Speed = speed;
-
-            WriteVarInt(Action);
-            WriteDouble(oldDiameter);
-            WriteDouble(newDiameter);
-            WriteVarLong(speed);
+        public SP3DWorldBorder(MinecraftClient client, double oldDiameter, double newDiameter, long speed) : base(client) {
+            Action = Data.WriteVarInt(1);
+            OldDiameter = Data.WriteDouble(oldDiameter);
+            NewDiameter = Data.WriteDouble(newDiameter);
+            Speed = Data.WriteVarLong(speed);
         }
 
         /// <summary>
         /// set center
         /// </summary>
-        public SP3DWorldBorder(double x, double z) {
-            Action = 2;
-            X = x;
-            Z = z;
-
-            WriteVarInt(Action);
-            WriteDouble(x);
-            WriteDouble(z);
+        public SP3DWorldBorder(MinecraftClient client, double x, double z) : base(client) {
+            Action = Data.WriteVarInt(2);
+            X = Data.WriteDouble(x);
+            Z = Data.WriteDouble(z);
         }
 
         /// <summary>
         /// initialize
         /// </summary>
-        public SP3DWorldBorder(double x, double z, double oldDiameter, double newDiameter,
-            long speed, int portalTeleportBoundary, int warningBlocks, int warningTime) {
+        public SP3DWorldBorder(MinecraftClient client, double x, double z, double oldDiameter, double newDiameter,
+            long speed, int portalTeleportBoundary, int warningBlocks, int warningTime) : base(client) {
 
-            Action = 3;
-            X = x;
-            Z = z;
-            OldDiameter = oldDiameter;
-            NewDiameter = newDiameter;
-            Speed = speed;
-            PortalTeleportBoundary = portalTeleportBoundary;
-            WarningBlocks = warningBlocks;
-            WarningTime = warningTime;
-
-            WriteVarInt(Action);
-            WriteDouble(x);
-            WriteDouble(z);
-            WriteDouble(oldDiameter);
-            WriteDouble(newDiameter);
-            WriteVarLong(speed);
-            WriteVarInt(portalTeleportBoundary);
-            WriteVarInt(warningBlocks);
-            WriteVarInt(warningTime);
+            Action = Data.WriteVarInt(3);
+            X = Data.WriteDouble(x);
+            Z = Data.WriteDouble(z);
+            OldDiameter = Data.WriteDouble(oldDiameter);
+            NewDiameter = Data.WriteDouble(newDiameter);
+            Speed = Data.WriteVarLong(speed);
+            PortalTeleportBoundary = Data.WriteVarInt(portalTeleportBoundary);
+            WarningBlocks = Data.WriteVarInt(warningBlocks);
+            WarningTime = Data.WriteVarInt(warningTime);
         }
 
         /// <summary>
         /// set warning time/blocks
         /// </summary>
         /// <param name="isWarningBlocks">if set to true, indicates that the warning value is warning blocks</param>
-        public SP3DWorldBorder(int warning, bool isWarningBlocks = false) {
+        public SP3DWorldBorder(MinecraftClient client, int warning, bool isWarningBlocks = false) : base(client) {
             if(isWarningBlocks) {
                 Action = 5;
                 WarningBlocks = warning;
@@ -105,8 +83,8 @@
                 WarningTime = warning;
             }
 
-            WriteVarInt(Action);
-            WriteVarInt(warning);
+            Data.WriteVarInt(Action);
+            Data.WriteVarInt(warning);
         }
     }
 }

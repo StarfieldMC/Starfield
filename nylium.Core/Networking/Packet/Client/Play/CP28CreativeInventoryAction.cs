@@ -9,9 +9,9 @@ namespace nylium.Core.Networking.Packet.Client.Play {
         public short Slot { get; }
         public Inventory.Slot ClickedItem { get; }
 
-        public CP28CreativeInventoryAction(Stream stream) : base(stream) {
-            Slot = ReadShort();
-            ClickedItem = ReadSlot();
+        public CP28CreativeInventoryAction(MinecraftClient client, Stream stream) : base(client, stream) {
+            Slot = Data.ReadShort();
+            ClickedItem = Data.ReadSlot();
         }
     }
 }

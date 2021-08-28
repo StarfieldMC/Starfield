@@ -3,11 +3,13 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <RuntimeIdentifiers>win-x64;osx-x64;linux-x64;linux-musl-x64;linux-arm;linux-arm64</RuntimeIdentifiers>
-    <LangVersion>9.0</LangVersion>
+    <LangVersion>preview</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\nylium.Extensions\nylium.Extensions.csproj" />
+    <ProjectReference Include="..\nylium.Logging\nylium.Logging.csproj" />
+    <ProjectReference Include="..\nylium.Nbt\nylium.Nbt.csproj" />
     <ProjectReference Include="..\nylium.Utilities\nylium.Utilities.csproj" />
   </ItemGroup>
 
@@ -27,18 +29,18 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Block\Blocks" />
+    <Folder Include="Item\Items" />
     <Folder Include="Networking\Packet\Server\Handshake\" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="BouncyCastle" Version="1.8.9" />
-    <PackageReference Include="CoreFNBT" Version="1.0.9" />
     <PackageReference Include="DaanV2.UUID.Net" Version="1.1.0" />
     <PackageReference Include="DeepCloner" Version="0.10.2" />
     <PackageReference Include="Jil" Version="3.0.0-alpha2" />
     <PackageReference Include="NetCoreServer" Version="5.0.15" />
-    <PackageReference Include="Serilog" Version="2.10.0" />
-    <PackageReference Include="Serilog.Sinks.Console" Version="4.0.0-dev-00831" />
+    <PackageReference Include="RangeTree" Version="3.0.1" />
     <PackageReference Include="Sigil" Version="5.0.0" />
   </ItemGroup>
 

@@ -7,11 +7,9 @@ namespace nylium.Core.Networking.Packet.Server.Play {
 
         public Recipe[] Recipes { get; }
 
-        public SP5ADeclareRecipes(Recipe[] recipes) {
-            Recipes = recipes;
-
-            WriteVarInt(recipes.Length);
-            WriteArray<Recipe, DataTypes.Recipe>(recipes);
+        public SP5ADeclareRecipes(MinecraftClient client, Recipe[] recipes) : base(client) {
+            Data.WriteVarInt(recipes.Length);
+            Recipes = Data.WriteArray<Recipe, DataTypes.Recipe>(recipes);
         }
     }
 }

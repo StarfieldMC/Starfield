@@ -1,8 +1,13 @@
 ﻿using System;
 using System.IO;
 using System.Net;
+using nylium.Core.Block;
+using nylium.Core.Entity;
+using nylium.Core.Item;
 using nylium.Core.Networking;
-using Serilog;
+using nylium.Core.Networking.Packet;
+using nylium.Core.Tags;
+using nylium.Logging;
 
 namespace nylium.Core {
 
@@ -15,32 +20,29 @@ namespace nylium.Core {
         public static void Run(string[] args) {
             Directory.CreateDirectory(WORLDS_DIRECTORY);
 
-            Log.Logger = new LoggerConfiguration()
-                .WriteTo.Console()
+            Logger.Out = Console.Out;
+            
 #if DEBUG
-                .MinimumLevel.Debug()
+            Logger.MinimumLevel = LogLevel.Debug;
 #else
-                .MinimumLevel.Information()
+            Logger.MinimumLevel = LogLevel.Info;
 #endif
-                .CreateLogger();
 
             AppDomain.CurrentDomain.UnhandledException += ShutdownHook;
             AppDomain.CurrentDomain.ProcessExit += ShutdownHook;
+            
+            MinecraftPacket.Initialize();
+            BaseEntity.Initialize();
+            BlockRepository.Initialize();
+            ItemRepository.Initialize();
+            Tag.Initialize();
 
-            Server = new(IPAddress.Any, args.Length > 0 ? int.Parse(args[0]) : 25565);
+            Server = new MinecraftServer(IPAddress.Any, args.Length > 0 ? int.Parse(args[0]) : 25565);
             Server.Start();
         }
 
         private static void ShutdownHook(object s, EventArgs e) {
-            Log.CloseAndFlush();
-
-            if(Server != null) {
-                if(Server.World != null) {
-                    if(Server.World.Format != null) {
-                        Server.World.Format.Save();
-                    }
-                }
-            }
+            Server?.World?.Format?.Save();
         }
     }
 }

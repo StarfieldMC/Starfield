@@ -5,9 +5,10 @@ using System.IO;
 using System.IO.Compression;
 using System.Text;
 using Jil;
-using nylium.Core.Items;
+using nylium.Core.Block;
+using nylium.Core.Item;
+using nylium.Logging;
 using nylium.Utilities;
-using Serilog;
 
 namespace nylium.Core.Tags {
 
@@ -46,7 +47,8 @@ namespace nylium.Core.Tags {
                                     int[] ids = new int[tag.Value.values.Length];
 
                                     for(int i = 0; i < tag.Value.values.Length; i++) {
-                                        int id = Blocks.Block.GetBlockProtocolId((string) tag.Value.values[i]);
+                                        int id = BlockRepository.Create(new Identifier((string) tag.Value.values[i]))
+                                            .ProtocolId;
 
                                         if(id != -1) {
                                             ids[i] = id;
@@ -59,7 +61,8 @@ namespace nylium.Core.Tags {
                                     ids = new int[tag.Value.values.Length];
 
                                     for(int i = 0; i < tag.Value.values.Length; i++) {
-                                        int id = Item.GetItemProtocolId((string) tag.Value.values[i]);
+                                        int id = ItemRepository.Create(new Identifier((string) tag.Value.values[i]))
+                                            .ProtocolId;
 
                                         if(id != -1) {
                                             ids[i] = id;
@@ -111,7 +114,7 @@ namespace nylium.Core.Tags {
             }
 
             stopwatch.Stop();
-            Log.Debug("Initialized tags in " + Math.Round(stopwatch.Elapsed.TotalMilliseconds, 2) + "ms");
+            Logger.Debug("Initialized tags in " + Math.Round(stopwatch.Elapsed.TotalMilliseconds, 2) + "ms");
         }
     }
 }

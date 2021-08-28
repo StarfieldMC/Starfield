@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using nylium.Core.Entity.Inventories;
+using nylium.Nbt;
 using nylium.Utilities;
 
 namespace nylium.Core.Networking.DataTypes {
@@ -23,7 +24,7 @@ namespace nylium.Core.Networking.DataTypes {
                     nbt = new NBT(stream);
                 }
 
-                Value = new Inventory.Slot(boolean.Value, itemId.Value, @byte.Value, nbt?.Value);
+                Value = new Inventory.Slot(boolean.Value, itemId.Value, @byte.Value, nbt?.Value.Root);
             } else {
                 Value = Inventory.Slot.Empty;
             }
@@ -33,13 +34,13 @@ namespace nylium.Core.Networking.DataTypes {
             new Boolean(Value.Present).Write(stream);
             
             if(Value.Present) {
-                new VarInt(Value.Item.Id).Write(stream);
+                new VarInt(Value.Item.ProtocolId).Write(stream);
                 new Byte(Value.Count).Write(stream);
                 
                 if(Value.NBT == null) {
                     stream.WriteByte(0x00); // TAG_END
                 } else {
-                    new NBT(Value.NBT).Write(stream);
+                    new NBT(new NBTFile(Value.NBT)).Write(stream);
                 }
             }
         }

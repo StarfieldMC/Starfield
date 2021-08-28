@@ -6,14 +6,15 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
-using fNbt;
 using Jil;
+using nylium.Core.Block;
 using nylium.Core.Entity.Entities;
 using nylium.Core.Entity.Inventories;
 using nylium.Core.Networking.DataTypes;
 using nylium.Extensions;
+using nylium.Logging;
+using nylium.Nbt.Tags;
 using nylium.Utilities;
-using Serilog;
 
 namespace nylium.Core.Level.Storage.Formats {
 
@@ -38,15 +39,15 @@ namespace nylium.Core.Level.Storage.Formats {
             Directory.CreateDirectory(chunksDir);
             Directory.CreateDirectory(playersDir);
 
-            LookupStream = new(Path.Combine(chunksDir, "lookup.bin"),
+            LookupStream = new FileStream(Path.Combine(chunksDir, "lookup.bin"),
                 FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
-            ChunkReader = new(new FileStream(Path.Combine(chunksDir, "chunks.bin"),
+            ChunkReader = new BinaryReader(new FileStream(Path.Combine(chunksDir, "chunks.bin"),
                 FileMode.OpenOrCreate, FileAccess.Read, FileShare.ReadWrite));
-            ChunkWriter = new(new FileStream(Path.Combine(chunksDir, "chunks.bin"),
+            ChunkWriter = new BinaryWriter(new FileStream(Path.Combine(chunksDir, "chunks.bin"),
                 FileMode.OpenOrCreate, FileAccess.Write, FileShare.ReadWrite));
 
-            ChunkLookup = new();
-            Formatter = new();
+            ChunkLookup = new Dictionary<(int, int, int), (long, long)>();
+            Formatter = new BinaryFormatter();
         }
 
         public override bool Load() {
@@ -70,7 +71,7 @@ namespace nylium.Core.Level.Storage.Formats {
             }
 
             sw.Stop();
-            Log.Information("Loaded world in " + Math.Round(sw.Elapsed.TotalMilliseconds, 2) + "ms");
+            Logger.Info("Loaded world in " + Math.Round(sw.Elapsed.TotalMilliseconds, 2) + "ms");
             return true;
         }
 
@@ -83,7 +84,7 @@ namespace nylium.Core.Level.Storage.Formats {
             LookupStream.Flush();
 
             sw.Stop();
-            Log.Information("Saved world in " + Math.Round(sw.Elapsed.TotalMilliseconds, 2) + "ms");
+            Logger.Info("Saved world in " + Math.Round(sw.Elapsed.TotalMilliseconds, 2) + "ms");
             return true;
         }
 
@@ -109,7 +110,8 @@ namespace nylium.Core.Level.Storage.Formats {
                                 ushort blockId = BitConverter.ToUInt16(data, i * sizeof(ushort));
 
                                 if(blockId != 0) {
-                                    section.SetBlock(Blocks.Block.Create(World, BitConverter.ToUInt16(data, i * sizeof(ushort))), x, y, z);
+                                    section.SetBlock(BlockRepository.Create(BitConverter.ToUInt16(data, i * sizeof(ushort))),
+                                        x, y, z);
                                 }
 
                                 i++;
@@ -141,7 +143,7 @@ namespace nylium.Core.Level.Storage.Formats {
 
                 section.Iterate(block => {
                     if(block != null) {
-                        byte[] b = block.StateId.WriteLittleEndian();
+                        byte[] b = block.State.WriteLittleEndian();
 
                         buffer[i] = b[0];
                         buffer[i + 1] = b[1];
@@ -153,7 +155,7 @@ namespace nylium.Core.Level.Storage.Formats {
                     i += sizeof(ushort);
                 });
 
-                if(!buffer.All(b => b == 0)) {
+                if(buffer.Any(b => b != 0)) {
                     if(ChunkLookup.ContainsKey((chunk.X, chunk.Z, id))) {
                         (long, long) info = ChunkLookup[(chunk.X, chunk.Z, id)];
 
@@ -207,16 +209,19 @@ namespace nylium.Core.Level.Storage.Formats {
                 if(present) {
                     int item = entry.Value.item;
                     sbyte count = entry.Value.count;
-                    NbtFile nbt = null;
+                    TagCompound nbt = null;
 
                     if(entry.Value.ContainsKey("nbt")) {
                         byte[] buffer = Convert.FromBase64String(entry.Value.nbt);
 
-                        nbt = new NbtFile();
-                        nbt.LoadFromBuffer(buffer, 0, buffer.Length, NbtCompression.AutoDetect);
+                        nbt = new TagCompound();
+                        
+                        using(MemoryStream stream = RMSManager.Get().GetStream(buffer)) {
+                            nbt.Read(stream);
+                        }
                     }
 
-                    slot = new(present, item, count, nbt);
+                    slot = new Inventory.Slot(present, item, count, nbt);
                 } else {
                     slot = Inventory.Slot.Empty;
                 }
@@ -225,7 +230,7 @@ namespace nylium.Core.Level.Storage.Formats {
             }
 
             sw.Stop();
-            Log.Debug($"Loaded player with UUID {player.Uuid} in " + Math.Round(sw.Elapsed.TotalMilliseconds, 2) + "ms");
+            Logger.Debug($"Loaded player with UUID {player.Uuid} in " + Math.Round(sw.Elapsed.TotalMilliseconds, 2) + "ms");
             return true;
         }
 
@@ -252,11 +257,14 @@ namespace nylium.Core.Level.Storage.Formats {
                 slotJson.present = slot.Present;
 
                 if(slot.Present) {
-                    slotJson.item = slot.Item.Id;
+                    slotJson.item = slot.Item.ProtocolId;
                     slotJson.count = slot.Count;
 
                     if(slot.NBT != null) {
-                        slotJson.nbt = Convert.ToBase64String(slot.NBT.SaveToBuffer(NbtCompression.ZLib));
+                        using(MemoryStream stream = RMSManager.Get().GetStream()) {
+                            slot.NBT.Write(stream);
+                            slotJson.nbt = Convert.ToBase64String(stream.ToArray());
+                        }
                     }
                 }
 
@@ -272,7 +280,7 @@ namespace nylium.Core.Level.Storage.Formats {
             }
 
             sw.Stop();
-            Log.Debug($"Saved player with UUID {player.Uuid} in " + Math.Round(sw.Elapsed.TotalMilliseconds, 2) + "ms");
+            Logger.Debug($"Saved player with UUID {player.Uuid} in " + Math.Round(sw.Elapsed.TotalMilliseconds, 2) + "ms");
 
             inventory.Clear();
             return true;

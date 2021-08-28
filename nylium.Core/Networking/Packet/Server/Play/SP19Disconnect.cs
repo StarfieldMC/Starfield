@@ -5,10 +5,8 @@
 
         public dynamic Reason { get; }
 
-        public SP19Disconnect(dynamic reason) {
-            Reason = reason;
-
-            WriteChat(reason);
+        public SP19Disconnect(MinecraftClient client, dynamic reason) : base(client) {
+            Reason = Data.WriteChat(reason);
         }
     }
 }

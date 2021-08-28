@@ -7,8 +7,8 @@ namespace nylium.Core.Networking.Packet.Client.Play {
 
         public short Slot { get; }
 
-        public CP25HeldItemChange(Stream stream) : base(stream) {
-            Slot = ReadShort();
+        public CP25HeldItemChange(MinecraftClient client, Stream stream) : base(client, stream) {
+            Slot = Data.ReadShort();
         }
     }
 }

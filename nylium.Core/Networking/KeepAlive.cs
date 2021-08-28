@@ -10,7 +10,8 @@ namespace nylium.Core.Networking {
 
         private readonly Random random = new();
 
-        private Action<MinecraftPacket, bool> Send { get; }
+        private MinecraftClient Client { get; }
+
         private Action TimeoutAction { get; }
 
         private Timer KeepAliveTimer { get; }
@@ -18,8 +19,9 @@ namespace nylium.Core.Networking {
 
         public bool HasResponded;
 
-        public KeepAlive(Action<MinecraftPacket, bool> send, Action timeoutAction, double delayInMilliseconds) {
-            Send = send;
+        public KeepAlive(MinecraftClient client, Action timeoutAction, double delayInMilliseconds) {
+            Client = client;
+
             TimeoutAction = timeoutAction;
 
             KeepAliveTimer = new Timer(delayInMilliseconds);
@@ -44,8 +46,8 @@ namespace nylium.Core.Networking {
         private void KeepAliveTimer_Elapsed(object sender, ElapsedEventArgs e) {
             TimeoutTimer.Stop();
 
-            SP1FKeepAlive keepAlive = new(LongRandom(random));
-            Send(keepAlive, true);
+            SP1FKeepAlive keepAlive = new(Client, LongRandom(random));
+            Client.Send(keepAlive);
 
             HasResponded = false;
             TimeoutTimer.Start();

@@ -12,13 +12,13 @@ namespace nylium.Core.Networking.Packet.Client.Play {
         public float Pitch { get; }
         public bool OnGround { get; }
 
-        public CP13PlayerPositionAndRotation(Stream stream) : base(stream) {
-            X = ReadDouble();
-            FeetY = ReadDouble();
-            Z = ReadDouble();
-            Yaw = ReadFloat();
-            Pitch = ReadFloat();
-            OnGround = ReadBoolean();
+        public CP13PlayerPositionAndRotation(MinecraftClient client, Stream stream) : base(client, stream) {
+            X = Data.ReadDouble();
+            FeetY = Data.ReadDouble();
+            Z = Data.ReadDouble();
+            Yaw = Data.ReadFloat();
+            Pitch = Data.ReadFloat();
+            OnGround = Data.ReadBoolean();
         }
     }
 }

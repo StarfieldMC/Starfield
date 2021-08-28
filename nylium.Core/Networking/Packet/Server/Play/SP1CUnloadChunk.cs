@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace nylium.Core.Networking.Packet.Server.Play {
+﻿namespace nylium.Core.Networking.Packet.Server.Play {
 
     [Packet(0x1C, ProtocolState.Play, PacketSide.Server)]
     public class SP1CUnloadChunk : MinecraftPacket {
@@ -8,12 +6,9 @@ namespace nylium.Core.Networking.Packet.Server.Play {
         public int ChunkX { get; }
         public int ChunkZ { get; }
 
-        public SP1CUnloadChunk(int chunkX, int chunkZ) {
-            ChunkX = chunkX;
-            ChunkZ = chunkZ;
-
-            WriteInt(ChunkX);
-            WriteInt(ChunkZ);
+        public SP1CUnloadChunk(MinecraftClient client, int chunkX, int chunkZ) : base(client) {
+            ChunkX = Data.WriteInt(chunkX);
+            ChunkZ = Data.WriteInt(chunkZ);
         }
     }
 }

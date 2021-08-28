@@ -1,5 +1,4 @@
-﻿using System;
-using nylium.Core.Networking.DataTypes;
+﻿using nylium.Core.Networking.DataTypes;
 
 namespace nylium.Core.Networking.Packet.Server.Play {
 
@@ -8,11 +7,9 @@ namespace nylium.Core.Networking.Packet.Server.Play {
 
         public int[] EntityIds { get; }
 
-        public SP36DestroyEntities(int[] entityIds) {
-            EntityIds = entityIds;
-
-            WriteVarInt(entityIds.Length);
-            WriteArray<int, VarInt>(entityIds);
+        public SP36DestroyEntities(MinecraftClient client, int[] entityIds) : base(client) {
+            Data.WriteVarInt(entityIds.Length);
+            EntityIds = Data.WriteArray<int, VarInt>(entityIds);
         }
     }
 }

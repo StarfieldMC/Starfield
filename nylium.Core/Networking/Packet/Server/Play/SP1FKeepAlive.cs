@@ -5,10 +5,8 @@
 
         public long KeepAliveId { get; }
 
-        public SP1FKeepAlive(long keepAliveId) {
-            KeepAliveId = keepAliveId;
-
-            WriteLong(keepAliveId);
+        public SP1FKeepAlive(MinecraftClient client, long keepAliveId) : base(client) {
+            KeepAliveId = Data.WriteLong(keepAliveId);
         }
     }
 }

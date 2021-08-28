@@ -121,20 +121,11 @@
   <data name="biomes" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\biomes.gz;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="blocks" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\blocks.gz;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="blockstates" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\blockstates.gz;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
   <data name="dimension_codec" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\dimension_codec.nbt;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="entities" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\entities.gz;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="items" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\items.gz;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="nether" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\nether.nbt;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>

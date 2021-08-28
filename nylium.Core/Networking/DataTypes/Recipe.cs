@@ -20,7 +20,7 @@ namespace nylium.Core.Networking.DataTypes {
                     Array<Recipes.Recipe.Ingredient, Ingredient> ingredients = new(ingredientCount.Value, stream);
                     Slot result = new(stream);
 
-                    Value = new(type.Value, id.Value, new {
+                    Value = new Recipes.Recipe(type.Value, id.Value, new {
                         Group = group.Value,
                         Ingredients = ingredients.Value,
                         Result = result.Value
@@ -29,11 +29,11 @@ namespace nylium.Core.Networking.DataTypes {
                 case "crafting_shaped":
                     VarInt width = new(stream);
                     VarInt height = new(stream);
-                    group = new(stream);
-                    ingredients = new(width.Value * height.Value, stream);
-                    result = new(stream);
+                    group = new String(stream);
+                    ingredients = new Array<Recipes.Recipe.Ingredient, Ingredient>(width.Value * height.Value, stream);
+                    result = new Slot(stream);
 
-                    Value = new(type.Value, id.Value, new {
+                    Value = new Recipes.Recipe(type.Value, id.Value, new {
                         Width = width.Value,
                         Height = height.Value,
                         Group = group.Value,
@@ -45,13 +45,13 @@ namespace nylium.Core.Networking.DataTypes {
                 case "blasting":
                 case "smoking":
                 case "campfire_cooking":
-                    group = new(stream);
+                    group = new String(stream);
                     Ingredient ingredient = new(stream);
-                    result = new(stream);
+                    result = new Slot(stream);
                     Float experience = new(stream);
                     VarInt cookingTime = new(stream);
 
-                    Value = new(type.Value, id.Value, new {
+                    Value = new Recipes.Recipe(type.Value, id.Value, new {
                         Group = group.Value,
                         Ingredient = ingredient.Value,
                         Result = result.Value,
@@ -60,11 +60,11 @@ namespace nylium.Core.Networking.DataTypes {
                     });
                     break;
                 case "stonecutting":
-                    group = new(stream);
-                    ingredient = new(stream);
-                    result = new(stream);
+                    group = new String(stream);
+                    ingredient = new Ingredient(stream);
+                    result = new Slot(stream);
 
-                    Value = new(type.Value, id.Value, new {
+                    Value = new Recipes.Recipe(type.Value, id.Value, new {
                         Group = group.Value,
                         Ingredient = ingredient.Value,
                         Result = result.Value,
@@ -73,16 +73,16 @@ namespace nylium.Core.Networking.DataTypes {
                 case "smithing":
                     Ingredient @base = new(stream);
                     Ingredient addition = new(stream);
-                    result = new(stream);
+                    result = new Slot(stream);
 
-                    Value = new(type.Value, id.Value, new {
+                    Value = new Recipes.Recipe(type.Value, id.Value, new {
                         Base = @base.Value,
                         Addition = addition.Value,
                         Result = result.Value
                     });
                     break;
                 default:
-                    Value = new(type.Value, id.Value, new { });
+                    Value = new Recipes.Recipe(type.Value, id.Value, new { });
                     break;
             }
         }
@@ -138,7 +138,7 @@ namespace nylium.Core.Networking.DataTypes {
                 VarInt count = new(stream);
                 Array<Inventory.Slot, Slot> items = new(count.Value, stream);
 
-                Value = new(items.Value);
+                Value = new Recipes.Recipe.Ingredient(items.Value);
             }
 
             public override void Write(Stream stream) {

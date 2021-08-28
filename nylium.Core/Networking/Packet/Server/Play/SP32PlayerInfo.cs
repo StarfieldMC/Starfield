@@ -19,88 +19,66 @@ namespace nylium.Core.Networking.Packet.Server.Play {
         /// <summary>
         /// add player
         /// </summary>
-        public SP32PlayerInfo(UUID uuid, string name, Gamemode gamemode, int ping, dynamic displayName = null) {
-            Action = 0;
-            Uuid = uuid;
-            Name = name;
-            Gamemode = gamemode;
-            Ping = ping;
-            DisplayName = displayName;
-
-            WriteVarInt(Action);
-            WriteVarInt(1);
-            WriteUuid(uuid);
-            WriteString(name);
-            WriteVarInt(0);
-            WriteVarInt((int) gamemode);
-            WriteVarInt(ping);
+        public SP32PlayerInfo(MinecraftClient client, UUID uuid, string name, Gamemode gamemode, int ping, dynamic displayName = null) : base(client) {
+            Action = Data.WriteVarInt(0);
+            Data.WriteVarInt(1);
+            Uuid = Data.WriteUuid(uuid);
+            Name = Data.WriteString(name);
+            Data.WriteVarInt(0);
+            Gamemode = (Gamemode) Data.WriteVarInt((int) gamemode);
+            Ping = Data.WriteVarInt(ping);
 
             if(displayName != null) {
-                WriteBoolean(true);
-                WriteChat(displayName);
+                Data.WriteBoolean(true);
+                DisplayName = Data.WriteChat(displayName);
             } else {
-                WriteBoolean(false);
+                Data.WriteBoolean(false);
             }
         }
 
         /// <summary>
         /// update gamemode
         /// </summary>
-        public SP32PlayerInfo(UUID uuid, Gamemode gamemode) {
-            Action = 1;
-            Uuid = uuid;
-            Gamemode = gamemode;
-
-            WriteVarInt(Action);
-            WriteVarInt(1);
-            WriteUuid(uuid);
-            WriteVarInt((int) gamemode);
+        public SP32PlayerInfo(MinecraftClient client, UUID uuid, Gamemode gamemode) : base(client) {
+            Action = Data.WriteVarInt(1);
+            Data.WriteVarInt(1);
+            Uuid = Data.WriteUuid(uuid);
+            Gamemode = (Gamemode) Data.WriteVarInt((int) gamemode);
         }
 
         /// <summary>
         /// update ping
         /// </summary>
-        public SP32PlayerInfo(UUID uuid, int ping) {
-            Action = 2;
-            Uuid = uuid;
-            Ping = ping;
-
-            WriteVarInt(Action);
-            WriteVarInt(1);
-            WriteUuid(uuid);
-            WriteVarInt(ping);
+        public SP32PlayerInfo(MinecraftClient client, UUID uuid, int ping) : base(client) {
+            Action = Data.WriteVarInt(2);
+            Data.WriteVarInt(1);
+            Uuid = Data.WriteUuid(uuid);
+            Ping = Data.WriteVarInt(ping);
         }
 
         /// <summary>
         /// update display name
         /// </summary>
-        public SP32PlayerInfo(UUID uuid, dynamic displayName = null) {
-            Action = 3;
-            Uuid = uuid;
-            DisplayName = displayName;
-
-            WriteVarInt(Action);
-            WriteVarInt(1);
-            WriteUuid(uuid);
+        public SP32PlayerInfo(MinecraftClient client, UUID uuid, dynamic displayName = null) : base(client) {
+            Action = Data.WriteVarInt(3);
+            Data.WriteVarInt(1);
+            Uuid = Data.WriteUuid(uuid);
 
             if(displayName != null) {
-                WriteBoolean(true);
-                WriteChat(displayName);
+                Data.WriteBoolean(true);
+                DisplayName = Data.WriteChat(displayName);
             } else {
-                WriteBoolean(false);
+                Data.WriteBoolean(false);
             }
         }
 
         /// <summary>
         /// remove player
         /// </summary>
-        public SP32PlayerInfo(UUID uuid) {
-            Action = 4;
-            Uuid = uuid;
-
-            WriteVarInt(Action);
-            WriteVarInt(1);
-            WriteUuid(uuid);
+        public SP32PlayerInfo(MinecraftClient client, UUID uuid) : base(client) {
+            Action = Data.WriteVarInt(4);
+            Data.WriteVarInt(1);
+            Uuid = Data.WriteUuid(uuid);
         }
     }
 }

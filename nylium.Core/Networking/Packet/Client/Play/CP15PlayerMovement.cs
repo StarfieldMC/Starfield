@@ -7,8 +7,8 @@ namespace nylium.Core.Networking.Packet.Client.Play {
 
         public bool OnGround { get; }
 
-        public CP15PlayerMovement(Stream stream) : base(stream) {
-            OnGround = ReadBoolean();
+        public CP15PlayerMovement(MinecraftClient client, Stream stream) : base(client, stream) {
+            OnGround = Data.ReadBoolean();
         }
     }
 }

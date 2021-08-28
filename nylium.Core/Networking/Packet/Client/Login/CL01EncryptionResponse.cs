@@ -8,9 +8,9 @@ namespace nylium.Core.Networking.Packet.Client.Login {
         public sbyte[] SharedSecret { get; }
         public sbyte[] VerifyToken { get; }
 
-        public CL01EncryptionResponse(Stream stream) : base(stream) {
-            SharedSecret = ReadByteArray(ReadVarInt());
-            VerifyToken = ReadByteArray(ReadVarInt());
+        public CL01EncryptionResponse(MinecraftClient client, Stream stream) : base(client, stream) {
+            SharedSecret = Data.ReadByteArray(Data.ReadVarInt());
+            VerifyToken = Data.ReadByteArray(Data.ReadVarInt());
         }
     }
 }
